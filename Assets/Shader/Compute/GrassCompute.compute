@@ -1,0 +1,67 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel GrassGenerator
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+//RWTexture2D<float4> Result;
+RWStructuredBuffer<float3> _Positions;
+
+uint _Size;
+
+uint _Resolution;
+
+float _Step;
+
+float _OffsetXAmount;
+float _OffsetYAmount;
+
+// Height displacement stuff
+Texture2D<float4> _HeightMap;
+SamplerState sampler_HeightMap;
+
+float _HeightDisplacementStrenght;
+
+// Random generator
+float rand(float2 co) 
+{
+    return(frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453)) * 1;
+}
+
+void SetPosition (uint3 id) 
+{
+    if (id.x < _Resolution && id.y < _Resolution) 
+    {
+        float Xoffset = rand(id.xy) *_OffsetXAmount;
+        float Yoffset = rand(id.xy) *_OffsetYAmount;
+
+        float3 pos =  0.0f;
+        pos.x = id.x * _Step - _Size * 0.5 + Xoffset;
+        pos.z = id.y * _Step - _Size * 0.5 + Yoffset;
+        
+        float2 uv = pos.xz;
+        uv.xy -= _Size * 0.5;
+        uv.xy /= float(_Resolution) * _Step;
+        //uv.y = 1 - uv.y;
+        //uv.x = 1 - uv.x;
+
+        /*float2 uv = pos.xz;
+        uv = (id.xy) * _Step;
+        uv.xy /= float(_Resolution) * _Step;
+       // uv.y = 1 - uv.y;
+        //uv.x = 1 - uv.x;*/
+
+        float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0); 
+
+        pos.y = displacement.r * _HeightDisplacementStrenght + 0.2f;
+
+        _Positions[id.x + id.y * _Resolution] = pos;
+    }
+}
+
+[numthreads(8,8,1)]
+void GrassGenerator (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+
+    SetPosition(id);
+}
