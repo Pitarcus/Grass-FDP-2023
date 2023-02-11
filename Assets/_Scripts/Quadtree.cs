@@ -1,18 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class Quadtree : MonoBehaviour
+public class Point
 {
-    // Start is called before the first frame update
-    void Start()
+    public float x;
+    public float y;
+
+    public Point(float x, float y)
     {
-        
+        this.x = x;
+        this.y = y;
+    }
+}
+
+public class AABB {
+    
+    public Point p;
+
+    public float halfDimension;
+
+    public AABB(Point XY, float halfDimension)
+    {
+        this.p = XY;
+        this.halfDimension = halfDimension;
+    }
+}
+
+
+public class Quadtree
+{
+    public AABB rootAABB;
+
+    public Quadtree(AABB boundary)
+    {
+        rootAABB = boundary;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
 }
