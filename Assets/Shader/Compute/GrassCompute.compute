@@ -1,10 +1,27 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel GrassGenerator
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-//RWTexture2D<float4> Result;
-RWStructuredBuffer<float3> _Positions;
+
+// ----------------------------------
+
+
+// This describes a vertex on the source mesh
+struct SourceVertex
+{
+    float3 positionOS; // position in object space
+    float3 normalOS;
+    float2 uv;  // contains widthMultiplier, heightMultiplier
+    float3 color;
+};
+ 
+// Source buffers, arranged as a vertex buffer and index buffer
+StructuredBuffer<SourceVertex> _SourceVertices;
+
+
+AppendStructuredBuffer<float3> _Positions;
+
+// Local to world matrix
+float4x4 _LocalToWorld;
 
 uint _Size;
 
@@ -20,6 +37,10 @@ Texture2D<float4> _HeightMap;
 SamplerState sampler_HeightMap;
 
 float _HeightDisplacementStrenght;
+
+
+// ----------------------------
+
 
 // Random generator
 float rand(float2 co) 
@@ -54,7 +75,7 @@ void SetPosition (uint3 id)
 
         pos.y = displacement.r * _HeightDisplacementStrenght + 0.2f;
 
-        _Positions[id.x + id.y * _Resolution] = pos;
+        //_Positions[id.x + id.y * _Resolution] = pos;
     }
 }
 
@@ -63,5 +84,11 @@ void GrassGenerator (uint3 id : SV_DispatchThreadID)
 {
     // TODO: insert actual code here!
 
-    SetPosition(id);
+    //SetPosition(id);
+
+    SourceVertex sourceVertex = _SourceVertices[id.x + id.y];
+
+    float3 worldPos = mul(_LocalToWorld, float4(sourceVertex.positionOS, 1)).xyz;
+
+    _Positions.Append(worldPos);
 }
