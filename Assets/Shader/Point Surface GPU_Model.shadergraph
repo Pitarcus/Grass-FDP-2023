@@ -294,6 +294,9 @@
         },
         {
             "m_Id": "cb4e6d7d6ad141479de8dad44470bba9"
+        },
+        {
+            "m_Id": "75f4dd532a9f4957a7eb332665831735"
         }
     ],
     "m_Edges": [
@@ -1386,10 +1389,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -5027.2001953125,
-            "y": -1545.5999755859375,
+            "x": -4965.60009765625,
+            "y": -1585.60009765625,
             "width": 124.0,
-            "height": 172.7998046875
+            "height": 172.7999267578125
         }
     },
     "m_Slots": [
@@ -1716,8 +1719,8 @@
     "m_Theme": 0,
     "m_Position": {
         "serializedVersion": "2",
-        "x": -3734.39990234375,
-        "y": -204.0,
+        "x": -3762.39990234375,
+        "y": -218.39999389648438,
         "width": 200.0,
         "height": 160.0
     },
@@ -1921,9 +1924,9 @@
         "m_Expanded": false,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -2865.60009765625,
-            "y": -877.6000366210938,
-            "width": 119.2001953125,
+            "x": -2924.800048828125,
+            "y": -944.8001098632813,
+            "width": 119.199951171875,
             "height": 124.0
         }
     },
@@ -2201,10 +2204,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -5032.7998046875,
-            "y": -1355.199951171875,
+            "x": -4976.7998046875,
+            "y": -1394.400146484375,
             "width": 135.19970703125,
-            "height": 33.5999755859375
+            "height": 33.60009765625
         }
     },
     "m_Slots": [
@@ -2236,10 +2239,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -3459.199951171875,
-            "y": -339.2000427246094,
+            "x": -3487.199951171875,
+            "y": -353.60003662109377,
             "width": 208.0,
-            "height": 301.6000061035156
+            "height": 302.39996337890627
         }
     },
     "m_Slots": [
@@ -2860,10 +2863,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -3732.0,
-            "y": -283.2000427246094,
-            "width": 110.39990234375,
-            "height": 33.600006103515628
+            "x": -3760.0,
+            "y": -297.5999755859375,
+            "width": 111.199951171875,
+            "height": 33.599945068359378
         }
     },
     "m_Slots": [
@@ -4891,6 +4894,26 @@
 
 {
     "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.StickyNoteData",
+    "m_ObjectId": "75f4dd532a9f4957a7eb332665831735",
+    "m_Title": "World UV Offset",
+    "m_Content": "We generate a world UV which is affected by the offset created by the wind speed",
+    "m_TextSize": 0,
+    "m_Theme": 0,
+    "m_Position": {
+        "serializedVersion": "2",
+        "x": -4071.199951171875,
+        "y": -1895.199951171875,
+        "width": 200.0,
+        "height": 160.0
+    },
+    "m_Group": {
+        "m_Id": "56d9faa113734477b794da1d49736ba0"
+    }
+}
+
+{
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
     "m_ObjectId": "772660d5cb694f81960a3820b68e0ad9",
     "m_Group": {
@@ -5925,8 +5948,8 @@
     "m_ObjectId": "a6b8b226ad864dfaa6be20086f491f94",
     "m_Title": "Scale Y from Grass",
     "m_Position": {
-        "x": -3760.0,
-        "y": -460.7999267578125
+        "x": -3788.0,
+        "y": -475.20001220703127
     }
 }
 
@@ -8365,10 +8388,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -3160.800048828125,
-            "y": -400.79998779296877,
-            "width": 125.60009765625,
-            "height": 117.59994506835938
+            "x": -3188.800048828125,
+            "y": -415.2000427246094,
+            "width": 125.599853515625,
+            "height": 118.40005493164063
         }
     },
     "m_Slots": [

@@ -8,9 +8,9 @@ RWStructuredBuffer<float3> _Positions;
 
 uint _Size;
 
-uint _Resolution;
+uint _Resolution;   // Amount of blades in each axis
 
-float _Step;
+float _Step;    // Distance between each blade
 
 float _OffsetXAmount;
 float _OffsetYAmount;
@@ -40,7 +40,7 @@ void SetPosition (uint3 id)
         
         float2 uv = pos.xz;
         uv.xy -= _Size * 0.5;
-        uv.xy /= float(_Resolution) * _Step;
+        uv.xy /= _Size;
         //uv.y = 1 - uv.y;
         //uv.x = 1 - uv.x;
 
