@@ -32,8 +32,7 @@ Material:
   m_CustomRenderQueue: 2001
   stringTagMap:
     RenderType: Opaque
-  disabledShaderPasses:
-  - SHADOWCASTER
+  disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -104,10 +103,10 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
-    - _Ambient_Occlusion: 0.2
+    - _Ambient_Occlusion: 0.26
     - _Blend: 0
     - _BumpScale: 1
-    - _CastShadows: 0
+    - _CastShadows: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 0
@@ -132,15 +131,15 @@ Material:
     - _RandomYRotationNoiseScale: 15.18
     - _ReceiveShadows: 1
     - _Scale: 1.06
-    - _ScaleY: 0.88
-    - _Smoothness: 0
+    - _ScaleY: 0.96
+    - _Smoothness: 0.18
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
     - _WindRotation: 0
-    - _WindSpeed: 3.66
-    - _WindStrenght: 0.14
+    - _WindSpeed: 0.73
+    - _WindStrenght: 0.06
     - _WorkflowMode: 0
     - _WorldUV_Tiling: 0.64
     - _ZTest: 4

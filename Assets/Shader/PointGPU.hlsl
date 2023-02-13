@@ -2,8 +2,6 @@
 	StructuredBuffer<float3> _Positions;
 #endif
 
-//float _Step;
-
 void ConfigureProcedural () {
 	#if defined(UNITY_PROCEDURAL_INSTANCING_ENABLED)
 		float3 position = _Positions[unity_InstanceID];

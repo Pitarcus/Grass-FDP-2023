@@ -79,16 +79,16 @@ void SetPosition (uint3 id)
     }
 }
 
-[numthreads(8,8,1)]
+[numthreads(8,1,1)]
 void GrassGenerator (uint3 id : SV_DispatchThreadID)
 {
     // TODO: insert actual code here!
 
     //SetPosition(id);
 
-    SourceVertex sourceVertex = _SourceVertices[id.x + id.y];
+    SourceVertex sourceVertex = _SourceVertices[id.x];
 
-    float3 worldPos = mul(_LocalToWorld, float4(sourceVertex.positionOS, 1)).xyz;
+    float3 positionWS = mul(_LocalToWorld, float4(sourceVertex.positionOS, 1)).xyz;
 
-    _Positions.Append(worldPos);
+    _Positions.Append(positionWS);
 }

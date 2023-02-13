@@ -11,7 +11,7 @@ using UnityEditor;
 public class GrassPainter : MonoBehaviour
 {
 
-    public Mesh mesh;
+    public Mesh positionsMesh;
     MeshFilter filter;
     public int grassLimit = 50000;
 
@@ -80,20 +80,20 @@ public class GrassPainter : MonoBehaviour
 
     public void HandleUndo()
     {
-        if (mesh)
+        if (positionsMesh)
         {
-            mesh.GetVertices(positions);
+            positionsMesh.GetVertices(positions);
             if (positions.Count == 0)
             {
                 ClearMesh();
                 return;
             }
             i = positions.Count;
-            mesh.GetIndices(indicies, 0);
+            positionsMesh.GetIndices(indicies, 0);
             indi = indicies.ToArray();
-            mesh.GetUVs(0, length);
-            mesh.GetColors(colors);
-            mesh.GetNormals(normals);
+            positionsMesh.GetUVs(0, length);
+            positionsMesh.GetColors(colors);
+            positionsMesh.GetNormals(normals);
             RebuildMesh();
         }
         SceneView.RepaintAll();
@@ -121,18 +121,18 @@ public class GrassPainter : MonoBehaviour
 
     void SetupMesh()
     {
-        mesh.GetVertices(positions);
+        positionsMesh.GetVertices(positions);
         i = positions.Count;
-        mesh.GetIndices(indicies, 0);
+        positionsMesh.GetIndices(indicies, 0);
         indi = indicies.ToArray();
-        mesh.GetUVs(0, length);
-        mesh.GetColors(colors);
-        mesh.GetNormals(normals);
+        positionsMesh.GetUVs(0, length);
+        positionsMesh.GetColors(colors);
+        positionsMesh.GetNormals(normals);
     }
 
     public void ClearMesh()
     {
-        Undo.RegisterCompleteObjectUndo(mesh, "Cleared Grass");
+        Undo.RegisterCompleteObjectUndo(positionsMesh, "Cleared Grass");
         i = 0;
         positions = new List<Vector3>();
         indicies = new List<int>();
@@ -144,7 +144,7 @@ public class GrassPainter : MonoBehaviour
 
     public void FloodColor()
     {
-        Undo.RegisterCompleteObjectUndo(mesh, "Flooded Color");
+        Undo.RegisterCompleteObjectUndo(positionsMesh, "Flooded Color");
         for (int i = 0; i < colors.Count; i++)
         {
             colors[i] = AdjustedColor;
@@ -154,7 +154,7 @@ public class GrassPainter : MonoBehaviour
 
     public void FloodLengthAndWidth()
     {
-        Undo.RegisterCompleteObjectUndo(mesh, "Flooded Length/Width");
+        Undo.RegisterCompleteObjectUndo(positionsMesh, "Flooded Length/Width");
         for (int i = 0; i < length.Count; i++)
         {
             length[i] = new Vector2(sizeWidth, sizeLength);
@@ -190,19 +190,19 @@ public class GrassPainter : MonoBehaviour
                 {
                     if (toolbarInt == 0)
                     {
-                        Undo.RegisterCompleteObjectUndo(mesh, "Added Grass");
+                        Undo.RegisterCompleteObjectUndo(positionsMesh, "Added Grass");
                     }
                     else if (toolbarInt == 1)
                     {
-                        Undo.RegisterCompleteObjectUndo(mesh, "Removed Grass");
+                        Undo.RegisterCompleteObjectUndo(positionsMesh, "Removed Grass");
                     }
                     else if (toolbarInt == 2)
                     {
-                        Undo.RegisterCompleteObjectUndo(mesh, "Edited Grass");
+                        Undo.RegisterCompleteObjectUndo(positionsMesh, "Edited Grass");
                     }
                     else if (toolbarInt == 3)
                     {
-                        Undo.RegisterCompleteObjectUndo(mesh, "Reprojected Grass");
+                        Undo.RegisterCompleteObjectUndo(positionsMesh, "Reprojected Grass");
                     }
                 }
                 if (e.type == EventType.MouseDrag && e.button == 1)
@@ -407,19 +407,27 @@ public class GrassPainter : MonoBehaviour
 
     void RebuildMesh()
     {
-        if (mesh == null)
+        if (positionsMesh == null)
         {
-            mesh = new Mesh();
+            positionsMesh = new Mesh();
         }
-        mesh.Clear();
-        mesh.SetVertices(positions);
+        positionsMesh.Clear();
+        positionsMesh.SetVertices(positions);
         indi = indicies.ToArray();
-        mesh.SetIndices(indi, MeshTopology.Points, 0);
-        mesh.SetUVs(0, length);
-        mesh.SetColors(colors);
-        mesh.SetNormals(normals);
-        mesh.RecalculateBounds();
-        filter.sharedMesh = mesh;
+        positionsMesh.SetIndices(indi, MeshTopology.Points, 0);
+        positionsMesh.SetUVs(0, length);
+        positionsMesh.SetColors(colors);
+        positionsMesh.SetNormals(normals);
+        positionsMesh.RecalculateBounds();
+        filter.sharedMesh = positionsMesh;
+       
     }
 #endif
+    private void OnDrawGizmosSelected()
+    {
+        foreach (Vector3 position in positions)
+        {
+            Gizmos.DrawSphere(position, 0.2f);
+        }
+    }
 }

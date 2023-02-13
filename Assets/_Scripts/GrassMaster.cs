@@ -36,6 +36,8 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] GrassPainter grassPainter;
     private Mesh grassPositionsMesh;
 
+    private int numberOfSourceVertices;
+
     // The structure to send to the compute shader
     // This layout kind assures that the data is laid out sequentially
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind
@@ -47,6 +49,8 @@ public class GrassMaster : MonoBehaviour
         public Vector2 uv;
         public Vector3 color;
     }
+
+    SourceVertex[] vertices;
 
 
     // Compute Buffer, to store the positions inside the GPU
@@ -73,6 +77,9 @@ public class GrassMaster : MonoBehaviour
 
     // CONST
     private const int SOURCE_VERT_STRIDE = sizeof(float) * (3 + 3 + 2 + 3);
+    private int positionsBufferSize = 3 * 4; // 3 floats per position * 4 bytes per float
+
+
 
     // ----- FUNCTIONS ------
 
@@ -95,19 +102,23 @@ public class GrassMaster : MonoBehaviour
     // Stuff for creating the buffer
     void OnEnable()
     {
-        int positionsBufferSize = 3 * 4; // 3 floats per position * 4 bytes per float
-        //positionsBuffer = new ComputeBuffer(grassResolution * grassResolution, positionsBufferSize);
-        
 
-        grassPositionsMesh = grassPainter.mesh;
+        //positionsBuffer = new ComputeBuffer(grassResolution * grassResolution, positionsBufferSize);
+
+
+
+
         // Grab data from the source mesh
+
+        grassPositionsMesh = grassPainter.positionsMesh;
+
         Vector3[] positions = grassPositionsMesh.vertices;
         Vector3[] normals = grassPositionsMesh.normals;
         Vector2[] uvs = grassPositionsMesh.uv;
         Color[] colors = grassPositionsMesh.colors;
 
         // Create the data to upload to the source vert buffer
-        SourceVertex[] vertices = new SourceVertex[positions.Length];
+        vertices = new SourceVertex[positions.Length];
         for (int i = 0; i < vertices.Length; i++)
         {
             Color color = colors[i];
@@ -120,8 +131,15 @@ public class GrassMaster : MonoBehaviour
             };
         }
 
-        positionsBuffer = new ComputeBuffer(grassPositionsMesh.vertexCount, positionsBufferSize, ComputeBufferType.Append);
-        m_SourceVertBuffer = new ComputeBuffer(vertices.Length, SOURCE_VERT_STRIDE,
+        numberOfSourceVertices = vertices.Length;
+
+
+
+        // Create the compute buffers
+        positionsBuffer = new ComputeBuffer(numberOfSourceVertices, positionsBufferSize, ComputeBufferType.Append);
+        positionsBuffer.SetCounterValue(0);
+
+        m_SourceVertBuffer = new ComputeBuffer(numberOfSourceVertices, SOURCE_VERT_STRIDE,
            ComputeBufferType.Structured, ComputeBufferMode.Immutable);
 
         m_SourceVertBuffer.SetData(vertices);
@@ -157,19 +175,33 @@ public class GrassMaster : MonoBehaviour
 
 
         // Dispatching the actual shader
-        int threadGroupsX = Mathf.CeilToInt(grassResolution / 8.0f);
-        int threadGroupsY = Mathf.CeilToInt(grassResolution / 8.0f);
-        grassCompute.Dispatch(0, threadGroupsX, threadGroupsY, 1);
+        //uint threadGroupsX = Mathf.CeilToInt(grassResolution / 8.0f);
+        //uint threadGroupsY = Mathf.CeilToInt(grassResolution / 8.0f);
+        uint threadGroupsX;
+        uint threadGroupsY;
+        grassCompute.GetKernelThreadGroupSizes(0, out threadGroupsX, out threadGroupsY, out _);
+
+        int dispatchSizeX = Mathf.CeilToInt((float)numberOfSourceVertices / threadGroupsX);
+        //int dispatchSizeY = Mathf.CeilToInt((float)numberOfSourceVertices / threadGroupsY);
+
+        grassCompute.Dispatch(0, dispatchSizeX, 1, 1);
 
         // Set Material attributes
         grassMaterial.SetBuffer(positionsId, positionsBuffer);
         //grassMaterial.SetBuffer("_BottomColor", );
+
+
 
         // Getting info of the gras positions ¿...?
         Vector3[] grassPositions = new Vector3[grassPositionsMesh.vertexCount];
 
         positionsBuffer.GetData(grassPositions);
 
+        for (int i = 0; i < numberOfSourceVertices; i++)
+        {
+            Debug.Log("LocalPosition: " + vertices[i].position);
+            Debug.Log(grassPositions[i]); // The position that is outputted after the compute, the actual position of the blades.
+        }
     }
 
     void LateUpdate()
