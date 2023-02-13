@@ -131,15 +131,15 @@ Material:
     - _RandomYRotationNoiseScale: 15.18
     - _ReceiveShadows: 1
     - _Scale: 1.06
-    - _ScaleY: 0.96
+    - _ScaleY: 1.47
     - _Smoothness: 0.18
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
     - _WindRotation: 0
-    - _WindSpeed: 0.73
-    - _WindStrenght: 0.06
+    - _WindSpeed: 0.91
+    - _WindStrenght: 0.09
     - _WorkflowMode: 0
     - _WorldUV_Tiling: 0.64
     - _ZTest: 4
