@@ -425,6 +425,7 @@ public class GrassPainter : MonoBehaviour
 #endif
     private void OnDrawGizmosSelected()
     {
+        Gizmos.color = Color.blue;
         foreach (Vector3 position in positions)
         {
             Gizmos.DrawSphere(position, 0.2f);

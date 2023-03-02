@@ -196,12 +196,6 @@ public class GrassMaster : MonoBehaviour
         Vector3[] grassPositions = new Vector3[grassPositionsMesh.vertexCount];
 
         positionsBuffer.GetData(grassPositions);
-
-        for (int i = 0; i < numberOfSourceVertices; i++)
-        {
-            Debug.Log("LocalPosition: " + vertices[i].position);
-            Debug.Log(grassPositions[i]); // The position that is outputted after the compute, the actual position of the blades.
-        }
     }
 
     void LateUpdate()

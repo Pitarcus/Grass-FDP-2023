@@ -1,0 +1,82 @@
+using UnityEngine;
+using UnityEditor;
+using UnityEditorInternal;
+
+[CustomEditor(typeof(TerrainPainterComponent))]
+public class TerrainPainterEditor : Editor
+{
+    private Texture2D brushPreviewTexture;
+    private void OnEnable()
+    {
+        TerrainPainterComponent terrainPainter = (TerrainPainterComponent)target;
+        brushPreviewTexture = new Texture2D(256, 256);
+        brushPreviewTexture.filterMode = FilterMode.Bilinear;
+        brushPreviewTexture.wrapMode = TextureWrapMode.Clamp;
+        //brushPreviewTexture.SetPixels(terrainPainter.brushTexture.GetPixels());
+        brushPreviewTexture.Apply();
+    }
+
+    private void OnDisable()
+    {
+        DestroyImmediate(brushPreviewTexture);
+    }
+
+    public override void OnInspectorGUI()
+    {
+        TerrainPainterComponent terrainPainter = (TerrainPainterComponent)target;
+
+        LayerMask tempMask = EditorGUILayout.MaskField("Hit Mask", InternalEditorUtility.LayerMaskToConcatenatedLayersMask(terrainPainter.hitMask), InternalEditorUtility.layers);
+        terrainPainter.hitMask = InternalEditorUtility.ConcatenatedLayersMaskToLayerMask(tempMask);
+
+        EditorGUI.BeginChangeCheck();
+        terrainPainter.brushTexture = (Texture2D)EditorGUILayout.ObjectField("Brush Texture", terrainPainter.brushTexture, typeof(Texture2D), false);
+        if (EditorGUI.EndChangeCheck())
+        {
+            brushPreviewTexture.SetPixels(terrainPainter.brushTexture.GetPixels());
+            brushPreviewTexture.Apply();
+        }
+        terrainPainter.brushSize = EditorGUILayout.Vector2IntField("Brush Size",(Vector2Int) terrainPainter.brushSize);
+        terrainPainter.brushStrength = EditorGUILayout.Slider("Brush Strength", terrainPainter.brushStrength, 0, 1);
+        EditorGUILayout.Space();
+        terrainPainter.minHeight = EditorGUILayout.FloatField("Min Height", terrainPainter.minHeight);
+        terrainPainter.maxHeight = EditorGUILayout.FloatField("Max Height", terrainPainter.maxHeight);
+        EditorGUILayout.Space();
+        terrainPainter.maskTexture = (Texture2D)EditorGUILayout.ObjectField("Mask Texture", terrainPainter.maskTexture, typeof(Texture2D), false);
+
+        EditorGUILayout.Space();
+        terrainPainter.terrain = (Terrain)EditorGUILayout.ObjectField("Mask Texture", terrainPainter.terrain, typeof(Terrain), true);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
+       // EditorGUI.DrawPreviewTexture(new Rect(10, 200, 256, 256), brushPreviewTexture);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
+        if (GUILayout.Button("Clear Mask"))
+        {
+            Undo.RecordObject(terrainPainter, "Clear Mask");
+            terrainPainter.ClearMask();
+        }
+    }
+
+    private void OnSceneGUI()
+    {
+        TerrainPainterComponent terrainPainter = (TerrainPainterComponent)target;
+
+        // Draw the brush in the Scene view
+
+        Color discColor = new Color(Color.green.r, Color.green.g, Color.green.b, 0.5f);
+        Handles.color = discColor;
+
+        Handles.DrawSolidDisc(terrainPainter.hitPosGizmo, terrainPainter.hitNormal, (float)terrainPainter.brushSize.x / (float)terrainPainter.terrainData.alphamapWidth * terrainPainter.terrainData.size.x);
+
+        //base
+        /*Handles.color = Color.green;
+        Handles.DrawWireDisc(grassPainter.hitPosGizmo, grassPainter.hitNormal, grassPainter.brushSize);
+        Handles.color = new Color(0, 0.5f, 0, 0.4f);
+        Handles.DrawSolidDisc(grassPainter.hitPosGizmo, grassPainter.hitNormal, grassPainter.brushSize);*/
+    }
+}
+
