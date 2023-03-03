@@ -10,7 +10,6 @@ public class QuadtreeDebug : MonoBehaviour
 
     public GrassPainter gp;
 
-
     private void Start()
     {
         quadTree = new Quadtree(new AABB(new Point(0, 0), 64), 10);

@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 [ExecuteInEditMode]
 public class TerrainPainterComponent : MonoBehaviour
@@ -13,7 +14,7 @@ public class TerrainPainterComponent : MonoBehaviour
     public float maxHeight = 1.0f;
     public Texture2D maskTexture;
 
-    public Terrain terrain;
+    public Terrain terrain; // The terrain is needed to set up the size of the texture correctly.
 
     [HideInInspector] public TerrainData terrainData;
     [HideInInspector] public bool isPainting = false;
@@ -26,6 +27,8 @@ public class TerrainPainterComponent : MonoBehaviour
     public Vector3 hitPoint;
     [HideInInspector]
     public Vector3 hitNormal;
+
+    public UnityEvent onPaintingMask;
 
     private void OnValidate()
     {
@@ -89,8 +92,8 @@ public class TerrainPainterComponent : MonoBehaviour
             }
             
             // Convert the position to the terrain's local coordinates
-            //Vector3 localPosition = transform.InverseTransformPoint(ray.origin + ray.direction * (height - ray.origin.y) / ray.direction.y);
-            Vector3 localPosition = transform.InverseTransformPoint(hit.point);
+            Vector3 localPosition = transform.InverseTransformPoint(ray.origin + ray.direction * (height - ray.origin.y) / ray.direction.y);
+            //Vector3 localPosition = transform.InverseTransformPoint(hit.point);
 
             // Convert the position to the alphamap coordinates
             Vector2 terrainPosition = new Vector2(localPosition.x / terrainData.size.x * terrainData.alphamapWidth, localPosition.z / terrainData.size.z * terrainData.alphamapHeight);
@@ -118,7 +121,7 @@ public class TerrainPainterComponent : MonoBehaviour
                             int u = x + terrainData.alphamapWidth / 2;
                             int v = y + terrainData.alphamapHeight / 2;
 
-                            float distance = Vector2.Distance(new Vector2(x, y), brushPosition);
+                            //float distance = Vector2.Distance(new Vector2(x, y), brushPosition);
                            
                             float maskValue = maskTexture.GetPixel(u, v).a;
                             float brushValue = brushTexture.GetPixelBilinear((x - startX) / (float)brushSizeX, (y - startY) / (float)brushSizeY).a;
@@ -151,8 +154,8 @@ public class TerrainPainterComponent : MonoBehaviour
         if (!(Selection.Contains(gameObject)))
         { return; }
 
-            // Handle mouse events
-            Event currentEvent = Event.current;
+        // Handle mouse events
+        Event currentEvent = Event.current;
         mousePos = currentEvent.mousePosition;
         float ppp = EditorGUIUtility.pixelsPerPoint;
         mousePos.y = scene.camera.pixelHeight - mousePos.y * ppp;
@@ -168,6 +171,7 @@ public class TerrainPainterComponent : MonoBehaviour
             hitPosGizmo = hitGizmo.point;
         }
 
+        // Evaluate mouse event
         switch (currentEvent.type)
         {
             case EventType.MouseDrag:
@@ -183,6 +187,7 @@ public class TerrainPainterComponent : MonoBehaviour
                 if (currentEvent.button == 1)
                 {
                     isPainting = false;
+                    onPaintingMask.Invoke();
                     currentEvent.Use();
                 }
                 break;
