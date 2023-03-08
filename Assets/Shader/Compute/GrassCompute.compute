@@ -2,7 +2,7 @@
 #pragma kernel GrassGenerator
 
 
-// ----------------------------------
+// --------------------------- PARAMETERS ----------------------
 
 
 // This describes a vertex on the source mesh
@@ -13,17 +13,21 @@ struct SourceVertex
     float2 uv;  // contains widthMultiplier, heightMultiplier
     float3 color;
 };
+
+// Texture with the positions of the grass
+Texture2D<float4> _PositionMap;
+SamplerState sampler_PositionMap;
+
  
 // Source buffers, arranged as a vertex buffer and index buffer
 StructuredBuffer<SourceVertex> _SourceVertices;
-
 
 AppendStructuredBuffer<float3> _Positions;
 
 // Local to world matrix
 float4x4 _LocalToWorld;
 
-uint _Size;
+uint _Size; // The size of the chunk of grass on the terrain / 2
 
 uint _Resolution;   // Amount of blades in each axis
 
@@ -39,7 +43,7 @@ SamplerState sampler_HeightMap;
 float _HeightDisplacementStrenght;
 
 
-// ----------------------------
+// ---------------------------- FUNCTIONS -------------------------
 
 
 // Random generator
@@ -79,16 +83,45 @@ void SetPosition (uint3 id)
     }
 }
 
-[numthreads(8,1,1)]
+
+void SetPositionsWithTexture(uint3 id) {
+
+    if (id.x < _Resolution && id.y < _Resolution) 
+    {
+        float2 uv = 0.0f;
+        uv.x = ((id.x * _Step) % _Size) / _Size;
+        uv.y = ((id.y * _Step) % _Size) / _Size;
+
+        if(_PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a >= 0.5f) {    // Only display grass where there is alpha map
+
+             // Calculate the actual world position
+            float Xoffset = rand(id.xy) *_OffsetXAmount;
+            float Yoffset = rand(id.xy) *_OffsetYAmount;
+           
+            float3 pos =  0.0f;
+            pos.x = id.x * _Step - _Size * 0.5f + Xoffset;
+            pos.z = id.y * _Step - _Size * 0.5f + Yoffset;
+
+            // Sample & set the height
+            float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0); 
+            pos.y = displacement.r * _HeightDisplacementStrenght + 0.2f;
+
+            _Positions.Append(pos);
+        }
+    }
+}
+    
+[numthreads(8,8,1)]
 void GrassGenerator (uint3 id : SV_DispatchThreadID)
 {
     // TODO: insert actual code here!
 
     //SetPosition(id);
 
-    SourceVertex sourceVertex = _SourceVertices[id.x];
+    //SourceVertex sourceVertex = _SourceVertices[id.x];
+    //float3 positionWS = mul(_LocalToWorld, float4(sourceVertex.positionOS, 1)).xyz;
+    //_Positions.Append(positionWS);
 
-    float3 positionWS = mul(_LocalToWorld, float4(sourceVertex.positionOS, 1)).xyz;
+    SetPositionsWithTexture(id);
 
-    _Positions.Append(positionWS);
 }

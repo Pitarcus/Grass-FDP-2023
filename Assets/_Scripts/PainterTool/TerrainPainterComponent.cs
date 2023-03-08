@@ -50,7 +50,7 @@ public class TerrainPainterComponent : MonoBehaviour
         {
             maskTexture = new Texture2D(alphamapWidth, alphamapHeight, TextureFormat.RGBA32, false);
             maskTexture.wrapMode = TextureWrapMode.Clamp;
-            maskTexture.filterMode = FilterMode.Point;
+            maskTexture.filterMode = FilterMode.Bilinear;
             ClearMask();
         }
 

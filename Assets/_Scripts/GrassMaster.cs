@@ -15,15 +15,14 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] float offsetYAmount = 0.5f;
 
     [SerializeField] Texture heightMap;
+    [SerializeField] Texture positionMap;   // Should be an array with all of the textures? maybe the quadtree stores it
     [SerializeField] float heightDisplacementStrenght = 600f;
 
     [Space]
      
 
-
     // The compute shader, assigned in editor
     [SerializeField] ComputeShader grassCompute;
-
 
 
     // Grass mesh and material
@@ -31,17 +30,15 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] Material grassMaterial;
 
 
-
     // Grass Positions
-    [SerializeField] GrassPainter grassPainter;
+    [SerializeField] GrassPainter vertexGrassPainter;
     private Mesh grassPositionsMesh;
 
     private int numberOfSourceVertices;
 
     // The structure to send to the compute shader
     // This layout kind assures that the data is laid out sequentially
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind
-        .Sequential)]
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
     private struct SourceVertex
     {
         public Vector3 position;
@@ -55,6 +52,7 @@ public class GrassMaster : MonoBehaviour
 
     // Compute Buffer, to store the positions inside the GPU
     ComputeBuffer positionsBuffer;
+    ComputeBuffer ArgumentComputeBuffer;
     // A compute buffer to hold vertex data of the source mesh
     private ComputeBuffer m_SourceVertBuffer;
 
@@ -72,7 +70,8 @@ public class GrassMaster : MonoBehaviour
         stepId = Shader.PropertyToID("_Step"),
         offsetXAmountId = Shader.PropertyToID("_OffsetXAmount"),
         offsetYAmountId = Shader.PropertyToID("_OffsetYAmount"),
-        heightDisplacementStrenghtId = Shader.PropertyToID("_HeightDisplacementStrenght");  // TODO: Probably will be discarded
+        heightDisplacementStrenghtId = Shader.PropertyToID("_HeightDisplacementStrenght"),
+        positionMapID = Shader.PropertyToID("_PositionMap");  // TODO: Probably will be discarded
 
 
     // CONST
@@ -81,13 +80,14 @@ public class GrassMaster : MonoBehaviour
 
 
 
-    // ----- FUNCTIONS ------
-
+    // ------------- FUNCTIONS --------------
 
     private void Awake()
     {
         grassResolution = grassSquareSize * grassDensity;
         grassStep = grassSquareSize / (float) grassResolution;
+
+        positionMap = GameObject.FindGameObjectWithTag("GrassPainter").GetComponent<TerrainPainterComponent>().maskTexture;
     }
 
 
@@ -104,13 +104,11 @@ public class GrassMaster : MonoBehaviour
     {
 
         //positionsBuffer = new ComputeBuffer(grassResolution * grassResolution, positionsBufferSize);
-
-
-
+        //positionsBuffer = new ComputeBuffer(grassResolution * grassResolution, positionsBufferSize, ComputeBufferType.Append); // Buffer for the shader using texture placement
 
         // Grab data from the source mesh
 
-        grassPositionsMesh = grassPainter.positionsMesh;
+        grassPositionsMesh = vertexGrassPainter.positionsMesh;
 
         Vector3[] positions = grassPositionsMesh.vertices;
         Vector3[] normals = grassPositionsMesh.normals;
@@ -136,13 +134,13 @@ public class GrassMaster : MonoBehaviour
 
 
         // Create the compute buffers
-        positionsBuffer = new ComputeBuffer(numberOfSourceVertices, positionsBufferSize, ComputeBufferType.Append);
+        positionsBuffer = new ComputeBuffer(grassResolution * grassResolution, positionsBufferSize, ComputeBufferType.Append);  // Maybe position
         positionsBuffer.SetCounterValue(0);
 
         m_SourceVertBuffer = new ComputeBuffer(numberOfSourceVertices, SOURCE_VERT_STRIDE,
            ComputeBufferType.Structured, ComputeBufferMode.Immutable);
 
-        m_SourceVertBuffer.SetData(vertices);
+        //m_SourceVertBuffer.SetData(vertices);
 
 
         SetShaderParameters();
@@ -153,6 +151,7 @@ public class GrassMaster : MonoBehaviour
     void OnDisable()
     {
         positionsBuffer.Release();
+        positionsBuffer.Dispose();
         m_SourceVertBuffer.Release();
         positionsBuffer = null;
     }
@@ -170,21 +169,26 @@ public class GrassMaster : MonoBehaviour
         grassCompute.SetMatrix("_LocalToWorld", transform.localToWorldMatrix);
 
         grassCompute.SetTexture(0, "_HeightMap", heightMap);
+        grassCompute.SetTexture(0, positionMapID, positionMap);
         grassCompute.SetBuffer(0, positionsId, positionsBuffer);
-        grassCompute.SetBuffer(0, "_SourceVertices", m_SourceVertBuffer);
+        //grassCompute.SetBuffer(0, "_SourceVertices", m_SourceVertBuffer);
 
 
         // Dispatching the actual shader
-        //uint threadGroupsX = Mathf.CeilToInt(grassResolution / 8.0f);
-        //uint threadGroupsY = Mathf.CeilToInt(grassResolution / 8.0f);
+        int threadGroupsX = Mathf.CeilToInt(grassResolution * grassResolution / 8.0f);
+        //int threadGroupsY = Mathf.CeilToInt(grassResolution / 8.0f);
+        /*
         uint threadGroupsX;
         uint threadGroupsY;
         grassCompute.GetKernelThreadGroupSizes(0, out threadGroupsX, out threadGroupsY, out _);
 
         int dispatchSizeX = Mathf.CeilToInt((float)numberOfSourceVertices / threadGroupsX);
-        //int dispatchSizeY = Mathf.CeilToInt((float)numberOfSourceVertices / threadGroupsY);
+        int dispatchSizeY = Mathf.CeilToInt((float)numberOfSourceVertices / threadGroupsY);
+        */
 
-        grassCompute.Dispatch(0, dispatchSizeX, 1, 1);
+        positionsBuffer.SetCounterValue(0);
+
+        grassCompute.Dispatch(0, threadGroupsX, 1, 1);
 
         // Set Material attributes
         grassMaterial.SetBuffer(positionsId, positionsBuffer);
@@ -192,10 +196,10 @@ public class GrassMaster : MonoBehaviour
 
 
 
-        // Getting info of the gras positions ¿...?
-        Vector3[] grassPositions = new Vector3[grassPositionsMesh.vertexCount];
+        // Getting info of the grass positions ¿...?
+        Vector3[] grassPositions = new Vector3[grassResolution * grassResolution];
 
-        positionsBuffer.GetData(grassPositions);
+        positionsBuffer.GetData(grassPositions);        
     }
 
     void LateUpdate()
@@ -205,6 +209,13 @@ public class GrassMaster : MonoBehaviour
 
         // Drawign the meshes
         var bounds = new Bounds(Vector3.zero, Vector3.one * grassSquareSize);
-        Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grassMaterial, bounds, positionsBuffer.count);
+
+        ArgumentComputeBuffer = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
+        var args = new int[] { 0, 1, 0, 0 };
+        ArgumentComputeBuffer.SetData(args);
+        ComputeBuffer.CopyCount(positionsBuffer, ArgumentComputeBuffer, 0);
+        ArgumentComputeBuffer.GetData(args);
+
+        Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grassMaterial, bounds, args[0]);
     }
 }
