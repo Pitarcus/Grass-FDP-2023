@@ -104,6 +104,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _Ambient_Occlusion: 1
+    - _BendRandomnessScale: 42.6
     - _Blend: 0
     - _BumpScale: 1
     - _CastShadows: 1
@@ -119,40 +120,45 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _MaxBend: 0
+    - _MaxRandomY: 1.56
     - _MaxRotation: 360
     - _MaxXRotation: 0
     - _MaxYRotation: 360
     - _Metallic: 0
+    - _MinRandomY: -0.01
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0
     - _QueueOffset: 1
     - _RandomRotationNoiseScale: 16
-    - _RandomYRotationNoiseScale: 15.18
+    - _RandomYNoiseScale: 0.78
+    - _RandomYRotationNoiseScale: 9.49
     - _ReceiveShadows: 1
     - _Scale: 1.06
-    - _ScaleY: 0.8
+    - _ScaleY: 1.35
     - _Smoothness: 0.18
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
-    - _WindRotation: 11
-    - _WindSpeed: 1.38
-    - _WindStrenght: 0.66
+    - _WindDistortion: 0.09
+    - _WindNoiseScale: 0.12
+    - _WindRotation: 0
+    - _WindSpeed: 0.94
+    - _WindStrenght: 0
     - _WorkflowMode: 0
-    - _WorldUV_Tiling: 0.64
+    - _WorldUV_Tiling: 1
     - _ZTest: 4
     - _ZWrite: 1
     - _ZWriteControl: 0
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Bend_Axis: {r: 0, g: 0, b: 0, a: 0}
-    - _BottomColor: {r: 0.40743768, g: 0.6603774, b: 0.2890708, a: 1}
+    - _BottomColor: {r: 0.047058802, g: 0.65882355, b: 0.04791702, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecularColor: {r: 0, g: 0, b: 0, a: 0}
-    - _TopColor: {r: 0.8356635, g: 1, b: 0.5226415, a: 1}
+    - _TopColor: {r: 0.6972324, g: 0.9254902, b: 0.49019608, a: 1}
     - _WindDirection: {r: 1.42, g: 5.33, b: 0, a: 0}
   m_BuildTextureStacks: []
