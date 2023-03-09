@@ -2779,9 +2779,9 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -4406.39990234375,
-            "y": -832.7999877929688,
-            "width": 236.7998046875,
+            "x": -4406.3994140625,
+            "y": -843.9999389648438,
+            "width": 236.80029296875,
             "height": 277.5999755859375
         }
     },
@@ -2806,7 +2806,7 @@
     "m_SourceType": 1,
     "m_FunctionName": "InjectPragmas",
     "m_FunctionSource": "",
-    "m_FunctionBody": "#pragma instancing_options assumeuniformscaling procedural:ConfigureProcedural\r\n#pragma editor_sync_compilation\r\n#pragma multi_compile_prepassfinal\r\n\r\nOut = In;"
+    "m_FunctionBody": "#pragma instancing_options assumeuniformscaling procedural:ConfigureProcedural\n#pragma editor_sync_compilation\r\n#pragma multi_compile_prepassfinal\r\n\r\nOut = In;"
 }
 
 {
