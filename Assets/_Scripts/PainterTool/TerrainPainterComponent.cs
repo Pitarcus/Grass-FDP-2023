@@ -2,12 +2,19 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
+public enum BrushMode
+{
+    Paint,
+    Erase
+}
+
 [ExecuteInEditMode]
 public class TerrainPainterComponent : MonoBehaviour
 {
     // brush settings
     public LayerMask hitMask = 1;
     public Texture2D brushTexture;
+    public BrushMode brushMode;
     public Vector2Int brushSize = new Vector2Int(50, 50);
     public float brushStrength = 1.0f;
     public float minHeight = 0.0f;
@@ -126,11 +133,20 @@ public class TerrainPainterComponent : MonoBehaviour
                             float maskValue = maskTexture.GetPixel(u, v).a;
                             float brushValue = brushTexture.GetPixelBilinear((x - startX) / (float)brushSizeX, (y - startY) / (float)brushSizeY).a;
 
-                            // Apply a smoothstep function to the distance to create a feathered edge
-                            //float falloff = Mathf.SmoothStep(0f, 1f, distance);
-                            //Debug.Log(falloff);
+                            /* Apply a smoothstep function to the distance to create a feathered edge
+                            float falloff = Mathf.SmoothStep(0f, 1f, distance);
+                            Debug.Log(falloff);*/
 
-                            maskValue = Mathf.Lerp(maskValue, Mathf.Max(brushValue, maskValue), brushStrength);
+                            // ---- ACTUAL PAINTING ------
+
+                            if (brushMode == BrushMode.Paint)
+                            {
+                                maskValue = Mathf.Lerp(maskValue, Mathf.Max(brushValue, maskValue), brushStrength);
+                            }
+                            else
+                            {
+                                maskValue = Mathf.Lerp(maskValue, maskValue - brushValue, brushStrength);
+                            }
 
                             maskTexture.SetPixel(u, v, new Color(0, 0, 0, maskValue));
                             

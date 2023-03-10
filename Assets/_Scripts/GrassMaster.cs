@@ -7,7 +7,7 @@ public class GrassMaster : MonoBehaviour
     // Parameters
     [Range(1, 1000)]
     [SerializeField] int grassSquareSize = 300;
-    [Range(1, 5)]
+    [Range(1, 6)]
     [SerializeField] int grassDensity = 1;
     [Range(0, 2)]
     [SerializeField] float offsetXAmount = 0.5f;

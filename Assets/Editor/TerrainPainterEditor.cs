@@ -5,7 +5,9 @@ using UnityEditorInternal;
 [CustomEditor(typeof(TerrainPainterComponent))]
 public class TerrainPainterEditor : Editor
 {
+    
     private Texture2D brushPreviewTexture;
+
     private void OnEnable()
     {
         TerrainPainterComponent terrainPainter = (TerrainPainterComponent)target;
@@ -37,6 +39,8 @@ public class TerrainPainterEditor : Editor
             brushPreviewTexture.SetPixels(terrainPainter.brushTexture.GetPixels());
             brushPreviewTexture.Apply();
         }
+
+        terrainPainter.brushMode = (BrushMode)EditorGUILayout.EnumPopup("Brush Mode", terrainPainter.brushMode);
 
         terrainPainter.brushSize = EditorGUILayout.Vector2IntField("Brush Size",(Vector2Int) terrainPainter.brushSize);
         terrainPainter.brushStrength = EditorGUILayout.Slider("Brush Strength", terrainPainter.brushStrength, 0, 1);

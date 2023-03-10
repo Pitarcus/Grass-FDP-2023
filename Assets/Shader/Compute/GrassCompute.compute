@@ -77,7 +77,7 @@ void SetPosition (uint3 id)
 
         float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0); 
 
-        pos.y = displacement.r * _HeightDisplacementStrenght + 0.2f;
+        pos.y = displacement.r * _HeightDisplacementStrenght ;
 
         //_Positions[id.x + id.y * _Resolution] = pos;
     }
