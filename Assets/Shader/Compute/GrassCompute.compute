@@ -4,25 +4,21 @@
 
 // --------------------------- PARAMETERS ----------------------
 
-
-// This describes a vertex on the source mesh
-struct SourceVertex
+struct GrassData
 {
-    float3 positionOS; // position in object space
-    float3 normalOS;
-    float2 uv;  // contains widthMultiplier, heightMultiplier
-    float3 color;
+    float3 position;
+    float3 scale;
 };
 
 // Texture with the positions of the grass
 Texture2D<float4> _PositionMap;
 SamplerState sampler_PositionMap;
 
- 
-// Source buffers, arranged as a vertex buffer and index buffer
-StructuredBuffer<SourceVertex> _SourceVertices;
 
 AppendStructuredBuffer<float3> _Positions;
+AppendStructuredBuffer<float> _YScales;
+
+AppendStructuredBuffer<GrassData> _GrassData;
 
 // Local to world matrix
 float4x4 _LocalToWorld;
@@ -66,6 +62,7 @@ void SetPosition (uint3 id)
         float2 uv = pos.xz;
         uv.xy -= _Size * 0.5;
         uv.xy /= _Size;
+
         //uv.y = 1 - uv.y;
         //uv.x = 1 - uv.x;
 
@@ -92,7 +89,7 @@ void SetPositionsWithTexture(uint3 id) {
         uv.x = ((id.x * _Step) % _Size) / _Size;
         uv.y = ((id.y * _Step) % _Size) / _Size;
 
-        if(_PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a >= 0.5f) {    // Only display grass where there is alpha map
+        if(_PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a > 0.1f) {    // Only display grass where there is alpha map
 
              // Calculate the actual world position
             float Xoffset = rand(id.xy) *_OffsetXAmount;
@@ -104,14 +101,20 @@ void SetPositionsWithTexture(uint3 id) {
 
             // Sample & set the height
             float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0); 
-            pos.y = displacement.r * _HeightDisplacementStrenght + 0.2f;
+            pos.y = displacement.r * _HeightDisplacementStrenght + 0.05f;
 
-            _Positions.Append(pos);
+            //_Positions.Append(pos);
+            //_YScales.Append(_PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a);
+            float3 scale = {1, _PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a, 1};
+
+            GrassData gd = {pos, scale};
+
+            _GrassData.Append(gd);
         }
     }
 }
     
-[numthreads(8,8,1)]
+[numthreads(64,1,1)]
 void GrassGenerator (uint3 id : SV_DispatchThreadID)
 {
     // TODO: insert actual code here!

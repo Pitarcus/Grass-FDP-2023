@@ -32,7 +32,8 @@ Material:
   m_CustomRenderQueue: 2001
   stringTagMap:
     RenderType: Opaque
-  disabledShaderPasses: []
+  disabledShaderPasses:
+  - SHADOWCASTER
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -104,10 +105,10 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _Ambient_Occlusion: 1
-    - _BendRandomnessScale: 13
+    - _BendRandomnessScale: 20
     - _Blend: 0
     - _BumpScale: 1
-    - _CastShadows: 1
+    - _CastShadows: 0
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 0
@@ -119,13 +120,13 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _MaxBend: 40
+    - _MaxBend: 30.6
     - _MaxRandomY: 1
     - _MaxRotation: 360
     - _MaxXRotation: 0
     - _MaxYRotation: 360
     - _Metallic: 0
-    - _MinRandomY: 1.2
+    - _MinRandomY: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0
@@ -135,7 +136,7 @@ Material:
     - _RandomYRotationNoiseScale: 10
     - _ReceiveShadows: 1
     - _Scale: 1.06
-    - _ScaleY: 1.39
+    - _ScaleY: 1.28
     - _Smoothness: 0.1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -143,9 +144,9 @@ Material:
     - _Surface: 0
     - _WindDistortion: 0.11
     - _WindNoiseScale: 0.1
-    - _WindRotation: 202
-    - _WindSpeed: 0.68
-    - _WindStrenght: 0.14
+    - _WindRotation: 93
+    - _WindSpeed: 0.7
+    - _WindStrenght: 0.27
     - _WorkflowMode: 0
     - _WorldUV_Tiling: 1
     - _ZTest: 4
@@ -154,11 +155,11 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Bend_Axis: {r: 0, g: 0, b: 0, a: 0}
-    - _BottomColor: {r: 0.023721078, g: 0.6320754, b: 0, a: 1}
+    - _BottomColor: {r: 0.31597418, g: 0.5660378, b: 0.24777499, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecularColor: {r: 0, g: 0, b: 0, a: 0}
-    - _TopColor: {r: 0.7107857, g: 0.8867924, b: 0.1622997, a: 1}
+    - _TopColor: {r: 0.83363414, g: 1, b: 0.3622641, a: 1}
     - _WindDirection: {r: 1.42, g: 5.33, b: 0, a: 0}
   m_BuildTextureStacks: []
