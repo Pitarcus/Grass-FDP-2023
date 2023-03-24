@@ -14,10 +14,6 @@ struct GrassData
 Texture2D<float4> _PositionMap;
 SamplerState sampler_PositionMap;
 
-
-AppendStructuredBuffer<float3> _Positions;
-AppendStructuredBuffer<float> _YScales;
-
 AppendStructuredBuffer<GrassData> _GrassData;
 
 // Local to world matrix
@@ -46,38 +42,6 @@ float _HeightDisplacementStrenght;
 float rand(float2 co) 
 {
     return(frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453)) * 1;
-}
-
-void SetPosition (uint3 id) 
-{
-    if (id.x < _Resolution && id.y < _Resolution) 
-    {
-        float Xoffset = rand(id.xy) *_OffsetXAmount;
-        float Yoffset = rand(id.xy) *_OffsetYAmount;
-
-        float3 pos =  0.0f;
-        pos.x = id.x * _Step - _Size * 0.5 + Xoffset;
-        pos.z = id.y * _Step - _Size * 0.5 + Yoffset;
-        
-        float2 uv = pos.xz;
-        uv.xy -= _Size * 0.5;
-        uv.xy /= _Size;
-
-        //uv.y = 1 - uv.y;
-        //uv.x = 1 - uv.x;
-
-        /*float2 uv = pos.xz;
-        uv = (id.xy) * _Step;
-        uv.xy /= float(_Resolution) * _Step;
-       // uv.y = 1 - uv.y;
-        //uv.x = 1 - uv.x;*/
-
-        float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0); 
-
-        pos.y = displacement.r * _HeightDisplacementStrenght ;
-
-        //_Positions[id.x + id.y * _Resolution] = pos;
-    }
 }
 
 
@@ -115,14 +79,5 @@ void SetPositionsWithTexture(uint3 id) {
 [numthreads(64,1,1)]
 void GrassGenerator (uint3 id : SV_DispatchThreadID)
 {
-    // TODO: insert actual code here!
-
-    //SetPosition(id);
-
-    //SourceVertex sourceVertex = _SourceVertices[id.x];
-    //float3 positionWS = mul(_LocalToWorld, float4(sourceVertex.positionOS, 1)).xyz;
-    //_Positions.Append(positionWS);
-
     SetPositionsWithTexture(id);
-
 }
