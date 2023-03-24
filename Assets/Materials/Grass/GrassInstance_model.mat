@@ -126,7 +126,7 @@ Material:
     - _MaxXRotation: 0
     - _MaxYRotation: 360
     - _Metallic: 0
-    - _MinRandomY: 1
+    - _MinRandomY: 0.2
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0

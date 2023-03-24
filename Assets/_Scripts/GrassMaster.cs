@@ -31,29 +31,6 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] Mesh grassMesh;
     [SerializeField] Material grassMaterial;
 
-    /*// Grass Positions
-   [SerializeField] GrassPainter vertexGrassPainter;
-   private Mesh grassPositionsMesh;
-
-   private int numberOfSourceVertices;
-
-  // The structure to send to the compute shader
-   // This layout kind assures that the data is laid out sequentially
-   [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-   private struct SourceVertex
-   {
-       public Vector3 position;
-       public Vector3 normal;
-       public Vector2 uv;
-       public Vector3 color;
-   }
-
-   SourceVertex[] vertices;
-
-   // A compute buffer to hold vertex data of the source mesh
-   private ComputeBuffer m_SourceVertBuffer;
-   */
-
     private struct GrassData
     {
         public Vector3 position;
@@ -119,36 +96,7 @@ public class GrassMaster : MonoBehaviour
     // Stuff for creating the buffer
     void OnEnable()
     {
-        //positionsBuffer = new ComputeBuffer(grassResolution * grassResolution, positionsBufferSize);
-        //positionsBuffer = new ComputeBuffer(grassResolution * grassResolution, positionsBufferSize, ComputeBufferType.Append); // Buffer for the shader using texture placement
-
-        // Grab data from the source mesh
-
-        grassPositionsMesh = vertexGrassPainter.positionsMesh;
-
-        Vector3[] positions = grassPositionsMesh.vertices;
-        Vector3[] normals = grassPositionsMesh.normals;
-        Vector2[] uvs = grassPositionsMesh.uv;
-        Color[] colors = grassPositionsMesh.colors;
-
-        /*// Create the data to upload to the source vert buffer
-        vertices = new SourceVertex[positions.Length];
-        for (int i = 0; i < vertices.Length; i++)
-        {
-            Color color = colors[i];
-            vertices[i] = new SourceVertex()
-            {
-                position = positions[i],
-                normal = normals[i],
-                uv = uvs[i],
-                color = new Vector3(color.r, color.g, color.b) // Color --> Vector3
-            };
-        }
-
-        numberOfSourceVertices = vertices.Length;
-        */
-
-
+        
         // Create the compute buffers
         positionsBuffer = new ComputeBuffer(grassResolution * grassResolution, positionsBufferSize, ComputeBufferType.Append);  
         positionsBuffer.SetCounterValue(0);
@@ -159,24 +107,7 @@ public class GrassMaster : MonoBehaviour
         grassDataBuffer = new ComputeBuffer(grassResolution * grassResolution, grassDataBufferSize, ComputeBufferType.Append);
         grassDataBuffer.SetCounterValue(0);
 
-        //m_SourceVertBuffer = new ComputeBuffer(numberOfSourceVertices, SOURCE_VERT_STRIDE,
-        // ComputeBufferType.Structured, ComputeBufferMode.Immutable);
-
-        //m_SourceVertBuffer.SetData(vertices);
-
         SetShaderParameters();
-
-        /*if (grassMesh.subMeshCount != null)
-        {
-            args[0] = (uint)(uint)grassMesh.GetIndexCount(grassMesh.subMeshCount);
-            args[1] = (uint)instanceCount;
-            args[2] = (uint)grassMesh.GetIndexStart(grassMesh.subMeshCount);
-            args[3] = (uint)grassMesh.GetBaseVertex(grassMesh.subMeshCount);
-        }
-        else
-        {
-            args[0] = args[1] = args[2] = args[3] = 0;
-        }*/
 
     }
 
@@ -193,8 +124,6 @@ public class GrassMaster : MonoBehaviour
         grassDataBuffer.Release();
         grassDataBuffer = null;
 
-        //m_SourceVertBuffer.Release();
-        //m_SourceVertBuffer = null;
 
         argumentBuffer.Release();
         argumentBuffer = null;
@@ -229,14 +158,6 @@ public class GrassMaster : MonoBehaviour
         int threadGroupsX = Mathf.CeilToInt(grassResolution / numThreadsX);
         int threadGroupsY = Mathf.CeilToInt(grassResolution / numThreadsY);
 
-        /*
-        uint threadGroupsX;
-        uint threadGroupsY;
-        grassCompute.GetKernelThreadGroupSizes(0, out threadGroupsX, out threadGroupsY, out _);
-
-        int dispatchSizeX = Mathf.CeilToInt((float)numberOfSourceVertices / threadGroupsX);
-        int dispatchSizeY = Mathf.CeilToInt((float)numberOfSourceVertices / threadGroupsY);
-        */
 
         positionsBuffer.SetCounterValue(0);
         scalesBuffer.SetCounterValue(0);
@@ -250,7 +171,7 @@ public class GrassMaster : MonoBehaviour
         args = new uint[5] { 0, 1, 0, 0, 0 };
         argumentBuffer.SetData(args);
         
-        ComputeBuffer.CopyCount(positionsBuffer, argumentBuffer, sizeof(uint));
+        ComputeBuffer.CopyCount(grassDataBuffer, argumentBuffer, sizeof(uint));
         argumentBuffer.GetData(args);
 
         Debug.Log(args[1]);
@@ -258,6 +179,7 @@ public class GrassMaster : MonoBehaviour
         // Set Material attributes
         grassMaterial.SetBuffer(positionsId, positionsBuffer);
         grassMaterial.SetBuffer(scalesId, scalesBuffer);
+        grassMaterial.SetBuffer("_GrassData", grassDataBuffer);
 
         //grassMaterial.SetBuffer("_BottomColor", );
 
