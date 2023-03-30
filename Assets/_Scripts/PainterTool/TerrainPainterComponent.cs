@@ -46,22 +46,25 @@ public class TerrainPainterComponent : MonoBehaviour
     }
 
     // Create the texture and get terrain data
-    private void Init()
+    public void Init()
     {
-        terrainData = terrain.terrainData;
-
-        int alphamapWidth = terrainData.alphamapWidth;
-        int alphamapHeight = terrainData.alphamapHeight;
-
-        if (maskTexture == null)
+        if (terrain != null)
         {
-            maskTexture = new Texture2D(alphamapWidth, alphamapHeight, TextureFormat.RGBA32, false);
-            maskTexture.wrapMode = TextureWrapMode.Clamp;
-            maskTexture.filterMode = FilterMode.Bilinear;
-            ClearMask();
-        }
+            terrainData = terrain.terrainData;
 
-        transform.localPosition = new Vector3(terrainData.size.x / 2, 0 , terrainData.size.z / 2);
+            int alphamapWidth = terrainData.alphamapWidth;
+            int alphamapHeight = terrainData.alphamapHeight;
+
+            if (maskTexture == null)
+            {
+                maskTexture = new Texture2D(alphamapWidth, alphamapHeight, TextureFormat.RGBA32, false);
+                maskTexture.wrapMode = TextureWrapMode.Clamp;
+                maskTexture.filterMode = FilterMode.Bilinear;
+                ClearMask();
+            }
+
+            transform.localPosition = new Vector3(terrainData.size.x / 2, 0, terrainData.size.z / 2);
+        }
     }
 
     void OnEnable()

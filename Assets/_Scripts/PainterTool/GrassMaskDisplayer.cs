@@ -21,7 +21,7 @@ public class GrassMaskDisplayer : MonoBehaviour
 
     private void OnValidate()
     {
-        if(terrain!= null && textureObject != null)
+        if(terrain!= null && textureObject.maskTexture != null)
         {
             texture = textureObject.maskTexture;
 

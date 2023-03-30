@@ -4,15 +4,12 @@
 
 // --------------------------- PARAMETERS ----------------------
 
+// Data structure for the outputbuffer
 struct GrassData
 {
     float3 position;
     float3 scale;
 };
-
-// Texture with the positions of the grass
-Texture2D<float4> _PositionMap;
-SamplerState sampler_PositionMap;
 
 AppendStructuredBuffer<GrassData> _GrassData;
 
@@ -27,6 +24,10 @@ float _Step;    // Distance between each blade
 
 float _OffsetXAmount;
 float _OffsetYAmount;
+
+// Texture with the positions of the grass
+Texture2D<float4> _PositionMap;
+SamplerState sampler_PositionMap;
 
 // Height displacement stuff
 Texture2D<float4> _HeightMap;
@@ -71,12 +72,13 @@ void SetPositionsWithTexture(uint3 id) {
 
             GrassData gd = {pos, scale};
 
+            // Add all information to the outputbuffer
             _GrassData.Append(gd);
         }
     }
 }
     
-[numthreads(64,1,1)]
+[numthreads(8,8,1)]
 void GrassGenerator (uint3 id : SV_DispatchThreadID)
 {
     SetPositionsWithTexture(id);

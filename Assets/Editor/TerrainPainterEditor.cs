@@ -73,6 +73,12 @@ public class TerrainPainterEditor : Editor
             Undo.RecordObject(terrainPainter, "Clear Mask");
             terrainPainter.ClearMask();
         }
+
+        if (GUILayout.Button("Create Texture"))
+        {
+            Undo.RecordObject(terrainPainter, "Create Texture");
+            terrainPainter.Init();
+        }
     }
 
     private void OnSceneGUI()
