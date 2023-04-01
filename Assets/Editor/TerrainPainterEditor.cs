@@ -46,16 +46,20 @@ public class TerrainPainterEditor : Editor
         terrainPainter.brushStrength = EditorGUILayout.Slider("Brush Strength", terrainPainter.brushStrength, 0, 1);
 
         EditorGUILayout.Space();
+
         terrainPainter.minHeight = EditorGUILayout.FloatField("Min Height", terrainPainter.minHeight);
         terrainPainter.maxHeight = EditorGUILayout.FloatField("Max Height", terrainPainter.maxHeight);
 
         EditorGUILayout.Space();
+
         terrainPainter.maskTexture = (Texture2D)EditorGUILayout.ObjectField("Mask Texture", terrainPainter.maskTexture, typeof(Texture2D), false);
 
         EditorGUILayout.Space();
+
         terrainPainter.terrain = (Terrain)EditorGUILayout.ObjectField("Terrain Object", terrainPainter.terrain, typeof(Terrain), true);
 
         EditorGUILayout.Space();
+
 
         this.serializedObject.Update();
         EditorGUILayout.PropertyField(this.serializedObject.FindProperty("onPaintingMask"), true);

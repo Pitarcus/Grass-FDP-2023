@@ -14,9 +14,8 @@ public class GrassMaster : MonoBehaviour
     [Range(0, 2)]
     [SerializeField] float offsetYAmount = 0.5f;
 
-    [SerializeField] Texture heightMap;
-    [SerializeField] Texture2D positionMap;   // Should be an array with all of the textures? maybe the quadtree stores it
     [SerializeField] Texture2D[] positionMaps;   // Should be an array with all of the textures? maybe the quadtree stores it
+    [SerializeField] Texture2D[] heightMaps;   // Should be an array with all of the textures? maybe the quadtree stores it
     [SerializeField] float heightDisplacementStrenght = 600f;
 
     [Space]
@@ -43,7 +42,7 @@ public class GrassMaster : MonoBehaviour
         public Vector3 scale;
     }
 
-    // Compute Buffer, to store the positions inside the GPU
+    // Compute Buffer, to store the grass data inside the GPU
     ComputeBuffer grassDataBuffer;
 
 
@@ -53,8 +52,8 @@ public class GrassMaster : MonoBehaviour
 
 
     // Internal values for grass positions
-    int grassResolution;
-    float grassStep;
+    private int grassResolution;
+    private float grassStep;
 
 
     // Grass material properties to id
@@ -71,7 +70,6 @@ public class GrassMaster : MonoBehaviour
 
 
     // CONST
-    private const int SOURCE_VERT_STRIDE = sizeof(float) * (3 + 3 + 2 + 3);
     private int positionsBufferSize = 3 * 4; // 3 floats per position * 4 bytes per float
     private int scalesBufferSize = 4;
     private int grassDataBufferSize = 3 * 4 + 3 * 4;
@@ -84,22 +82,22 @@ public class GrassMaster : MonoBehaviour
         grassResolution = grassSquareSize * grassDensity;
         grassStep = grassSquareSize / (float) grassResolution;
 
-        positionMap = GameObject.FindGameObjectWithTag("GrassPainter").GetComponent<TerrainPainterComponent>().maskTexture;
-        //grassQuadtree = new GrassQuadtree(new AABB(0, 0, 64), 0, 4, positionMap);
-
         // A quadtree for each "tile"
         GameObject[] grassPainters = GameObject.FindGameObjectsWithTag("GrassPainter");
         positionMaps = new Texture2D[grassPainters.Length];
+        heightMaps = new Texture2D[grassPainters.Length];
         grassQuadtrees = new GrassQuadtree[grassPainters.Length];
 
         for (int i = 0; i < grassPainters.Length; i++)
         {
             positionMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().maskTexture;
+            heightMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().heightMap;
 
-            grassQuadtrees[i] = new GrassQuadtree(new AABB(grassPainters[i].transform.position.x, grassPainters[i].transform.position.y, 64),
+            grassQuadtrees[i] = new GrassQuadtree(new AABB(grassPainters[i].transform.position.x, grassPainters[i].transform.position.z, 64),   // Half the size of the terrain
                 0,
                 4,
-                positionMap,
+                positionMaps[i],
+                heightMaps[i],
                 grassMaterial,
                 grassCompute);
 
@@ -139,11 +137,67 @@ public class GrassMaster : MonoBehaviour
         grassDataBuffer.Release();
         grassDataBuffer = null;
 
-
-        argumentBuffer.Release();
+        if (argumentBuffer != null)
+            argumentBuffer.Release();
         argumentBuffer = null;
     }
     #endregion
+
+    private void InitializeQuadtreeNodes()
+    {
+        if (grassQuadtrees != null)
+        {
+            for (int i = 0; i < grassQuadtrees.Length; i++)
+            {
+                GrassQuadtree quadTree = grassQuadtrees[i];
+                Queue<GrassQuadtree> queue = new Queue<GrassQuadtree>();
+
+                if (quadTree == null)
+                    return;
+
+                queue.Clear();
+                queue.Enqueue(quadTree);
+
+                while (queue.Count > 0)
+                {
+                    GrassQuadtree currentQT = queue.Dequeue();
+
+                    // Do stuff to node
+                    SetQuadtreeNode(currentQT);
+
+                    if (currentQT.subdivided)
+                    {
+                        queue.Enqueue(currentQT.northEast);
+                        queue.Enqueue(currentQT.northWest);
+                        queue.Enqueue(currentQT.southEast);
+                        queue.Enqueue(currentQT.southWest);
+                    }
+                }
+            }
+        }
+    }
+
+    private void SetQuadtreeNode(GrassQuadtree qt)
+    {
+        if (qt.northEast == null)   // Leaf node
+        {
+            qt.grassCompute = Resources.Load<ComputeShader>("GrassCompute.compute");
+
+            qt.grassDataBuffer = new ComputeBuffer( (int)qt.boundary.halfDimension * 2 * grassDensity, grassDataBufferSize, ComputeBufferType.Append);
+            qt.argsBuffer = new ComputeBuffer(5, sizeof(uint), ComputeBufferType.IndirectArguments);
+
+
+            qt.grassCompute.SetInt(sizeId, grassSquareSize);
+            qt.grassCompute.SetInt(resolutionId, grassResolution);
+            qt.grassCompute.SetFloat(stepId, grassStep);
+            qt.grassCompute.SetFloat(offsetXAmountId, offsetXAmount);
+            qt.grassCompute.SetFloat(offsetYAmountId, offsetYAmount);
+            qt.grassCompute.SetFloat(heightDisplacementStrenghtId, heightDisplacementStrenght);
+            qt.grassCompute.SetMatrix("_LocalToWorld", transform.localToWorldMatrix);
+            qt.grassCompute.SetBuffer(0, "_GrassData", grassDataBuffer);
+        }
+    }
+
 
     private void SetShaderParameters()
     {
@@ -156,8 +210,8 @@ public class GrassMaster : MonoBehaviour
         grassCompute.SetFloat(heightDisplacementStrenghtId, heightDisplacementStrenght);
         grassCompute.SetMatrix("_LocalToWorld", transform.localToWorldMatrix);
 
-        grassCompute.SetTexture(0, "_HeightMap", heightMap);
-        grassCompute.SetTexture(0, positionMapID, positionMap);
+        //grassCompute.SetTexture(0, "_HeightMap", heightMap);
+        //grassCompute.SetTexture(0, positionMapID, positionMap);
         grassCompute.SetBuffer(0, "_GrassData", grassDataBuffer);
         //grassCompute.SetBuffer(0, "_SourceVertices", m_SourceVertBuffer);
 
@@ -174,7 +228,7 @@ public class GrassMaster : MonoBehaviour
         grassDataBuffer.SetCounterValue(0);
 
         // DISPATCH COMPUTE SHADER !!!
-        grassCompute.Dispatch(0, threadGroupsX, threadGroupsY, 1);  
+        //grassCompute.Dispatch(0, threadGroupsX, threadGroupsY, 1);  
 
         // Get arguments buffer
         argumentBuffer = new ComputeBuffer(5, sizeof(uint), ComputeBufferType.IndirectArguments);
@@ -207,13 +261,12 @@ public class GrassMaster : MonoBehaviour
         Graphics.DrawMeshInstancedProcedural(grassMesh, 0, grassMaterial, bounds, (int)mainLODArgs[1]);*/
 
         visibleGrassQuadtrees.Clear();
-
         
         for (int i = 0; i < grassQuadtrees.Length; i++)
         {
-            grassQuadtrees[i].TestFrustum(GeometryUtility.CalculateFrustumPlanes(Camera.main), ref visibleGrassQuadtrees);
+            grassQuadtrees[i].TestFrustum(Camera.main.transform.position, GeometryUtility.CalculateFrustumPlanes(Camera.main), ref visibleGrassQuadtrees);
         }
-        Debug.Log(visibleGrassQuadtrees.Count);
+        
         for (int i = 0; i < visibleGrassQuadtrees.Count; i++)
         {
             /*GrassQuadtree currentQT = visibleGrassQuadtrees[i];
@@ -229,8 +282,25 @@ public class GrassMaster : MonoBehaviour
     {
         if (visibleGrassQuadtrees != null)
         {
+            
             for (int i = 0; i < visibleGrassQuadtrees.Count; i++)
             {
+                if(visibleGrassQuadtrees[i].currentDepth == 0)
+                {
+                    Gizmos.color = Color.red;
+                }
+                if (visibleGrassQuadtrees[i].currentDepth == 1)
+                {
+                    Gizmos.color = Color.red;
+                }
+                if (visibleGrassQuadtrees[i].currentDepth == 2)
+                {
+                    Gizmos.color = Color.red;
+                }
+                if (visibleGrassQuadtrees[i].currentDepth == 3)
+                {
+                    Gizmos.color = Color.blue;
+                }
                 Gizmos.DrawWireCube(new Vector3(visibleGrassQuadtrees[i].boundary.p.x, 0, visibleGrassQuadtrees[i].boundary.p.y),
                     new Vector3(visibleGrassQuadtrees[i].boundary.halfDimension * 2, 0, visibleGrassQuadtrees[i].boundary.halfDimension * 2));
             }

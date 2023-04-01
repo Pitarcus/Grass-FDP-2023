@@ -23,6 +23,8 @@ public class TerrainPainterComponent : MonoBehaviour
 
     public Terrain terrain; // The terrain is needed to set up the size of the texture correctly.
 
+    public Texture2D heightMap;
+
     [HideInInspector] public TerrainData terrainData;
     [HideInInspector] public bool isPainting = false;
     [HideInInspector] public Vector2 brushPosition;
@@ -39,6 +41,8 @@ public class TerrainPainterComponent : MonoBehaviour
 
     private void OnValidate()
     {
+        if(terrain == null)
+            terrain = (Terrain)transform.GetComponentInParent(typeof(Terrain));
         if(terrain != null)
         {
             Init();
@@ -51,6 +55,8 @@ public class TerrainPainterComponent : MonoBehaviour
         if (terrain != null)
         {
             terrainData = terrain.terrainData;
+
+            heightMap = transform.parent.GetComponent<HeightmapHolder>().heighMap;
 
             int alphamapWidth = terrainData.alphamapWidth;
             int alphamapHeight = terrainData.alphamapHeight;

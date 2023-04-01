@@ -1,0 +1,85 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel GrassGenerator
+
+
+// --------------------------- PARAMETERS ----------------------
+
+// Data structure for the outputbuffer
+struct GrassData
+{
+    float3 position;
+    float3 scale;
+};
+
+AppendStructuredBuffer<GrassData> _GrassData;
+
+// Local to world matrix
+float4x4 _LocalToWorld;
+
+uint _Size; // The size of the chunk of grass on the terrain / 2
+
+uint _Resolution;   // Amount of blades in each axis
+
+float _Step;    // Distance between each blade
+
+float _OffsetXAmount;
+float _OffsetYAmount;
+
+// Texture with the positions of the grass
+Texture2D<float4> _PositionMap;
+SamplerState sampler_PositionMap;
+
+// Height displacement stuff
+Texture2D<float4> _HeightMap;
+SamplerState sampler_HeightMap;
+
+float _HeightDisplacementStrenght;
+
+
+// ---------------------------- FUNCTIONS -------------------------
+
+
+// Random generator
+float rand(float2 co) 
+{
+    return(frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453)) * 1;
+}
+
+
+void SetPositionsWithTexture(uint3 id) {
+
+    if (id.x < _Resolution && id.y < _Resolution) 
+    {
+        float2 uv = 0.0f;
+        uv.x = ((id.x * _Step) % _Size) / _Size;
+        uv.y = ((id.y * _Step) % _Size) / _Size;
+
+        if(_PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a > 0.1f) {    // Only display grass where there is alpha map
+
+             // Calculate the actual world position
+            float Xoffset = rand(id.xy) *_OffsetXAmount;
+            float Yoffset = rand(id.xy) *_OffsetYAmount;
+           
+            float3 pos =  0.0f;
+            pos.x = id.x * _Step - _Size * 0.5f + Xoffset;
+            pos.z = id.y * _Step - _Size * 0.5f + Yoffset;
+
+            // Sample & set the height
+            float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0); 
+            pos.y = displacement.r * _HeightDisplacementStrenght + 0.05f;
+
+            float3 scale = {1, _PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a, 1};
+
+            GrassData gd = {pos, scale};
+
+            // Add all information to the outputbuffer
+            _GrassData.Append(gd);
+        }
+    }
+}
+    
+[numthreads(8,8,1)]
+void GrassGenerator (uint3 id : SV_DispatchThreadID)
+{
+    SetPositionsWithTexture(id);
+}
