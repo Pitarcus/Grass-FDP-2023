@@ -158,21 +158,23 @@ public class GrassQuadtree
     public bool containsGrass;
 
     public Texture2D grassMask;
-    public Texture2D heighMap;
+    public Texture2D heightMap;
     public Material material;
     public ComputeShader grassCompute;
+    public int numberOfInstances;
+
     public ComputeBuffer grassDataBuffer;
     public ComputeBuffer argsBuffer;
     public ComputeBuffer argsLODBuffer;
 
-    public GrassQuadtree northWest;
-    public GrassQuadtree northEast;
-    public GrassQuadtree southWest;
-    public GrassQuadtree southEast;
+    public GrassQuadtree northWest = null;
+    public GrassQuadtree northEast = null;
+    public GrassQuadtree southWest = null;
+    public GrassQuadtree southEast = null;
 
     public bool subdivided = false;
 
-    public GrassQuadtree(AABB boundary, int currentDepth, int maxDepth, Texture2D grassMask, Texture2D heighMap, Material material, ComputeShader grassCompute)
+    public GrassQuadtree(AABB boundary, int currentDepth, int maxDepth, Texture2D grassMask, Texture2D heighMap, Material material)
     {
         this.boundary = boundary;
 
@@ -184,9 +186,7 @@ public class GrassQuadtree
 
         this.material = new Material(material);
 
-        this.grassCompute =  grassCompute;
-
-        this.heighMap = heighMap;
+        this.heightMap = heighMap;
     }
 
     public void Subdivide()
@@ -197,16 +197,16 @@ public class GrassQuadtree
 
 
         AABB nw = new AABB(x - w, y + w, w);
-        northWest = new GrassQuadtree(nw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, true), SubdivideTexture(heighMap, false, true), material, grassCompute);
+        northWest = new GrassQuadtree(nw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, true), SubdivideTexture(heightMap, false, true), material);
 
         AABB ne = new AABB(x + w, y + w, w);
-        northEast = new GrassQuadtree(ne, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, true), SubdivideTexture(heighMap, false, true), material, grassCompute);
+        northEast = new GrassQuadtree(ne, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, true), SubdivideTexture(heightMap, false, true), material);
 
         AABB sw = new AABB(x - w, y - w, w);
-        southWest = new GrassQuadtree(sw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, false), SubdivideTexture(heighMap, false, true), material, grassCompute);
+        southWest = new GrassQuadtree(sw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, false), SubdivideTexture(heightMap, false, true), material);
 
         AABB se = new AABB(x + w, y - w, w);
-        southEast = new GrassQuadtree(se, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, false), SubdivideTexture(heighMap, false, true), material, grassCompute);
+        southEast = new GrassQuadtree(se, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, false), SubdivideTexture(heightMap, false, true), material);
 
         subdivided = true;
     }
@@ -229,17 +229,22 @@ public class GrassQuadtree
         else
             startY = 0;
 
-        Color[] pixels = texture.GetPixels(startX, startY, texture.width/2, texture.height/2);
+        for(int y = startY; y < startY + texture.height / 2; y++)
+        {
+            for(int x = startX; x < startX + texture.width / 2; x++)
+            {
+                resultTexture.SetPixel(x % (texture.width / 2), y % (texture.height / 2), texture.GetPixel(x, y));
+            }
+        }
 
-
-        resultTexture.SetPixels(pixels);
+        resultTexture.Apply();
 
         return resultTexture;
     }
 
     private bool GrassTextureContainsAlpha()
     {
-        for (int y = 0; y < grassMask.height; y++) // Loop through the size of the brush
+        for (int y = 0; y < grassMask.height; y++) // Loop through the size of the mask
         {
             for (int x = 0; x < grassMask.width; x++)
             {
@@ -258,14 +263,13 @@ public class GrassQuadtree
     // Subdivide the whole quadtree at the same time taking into account the max depth
     public void Build()
     {
-        if(currentDepth < maxDepth)
+        // Only keep subdividing if there is alpha (grass) in the texture - The last nodes should also test to get the correct bool OMFG!!!!!!!!!
+        if (!GrassTextureContainsAlpha())
         {
-            // Only keep subdividing if there is alpha (grass) in the texture
-            if (!GrassTextureContainsAlpha())
-            {
-                return;
-            }
-
+            return;
+        }
+        if (currentDepth < maxDepth - 1)
+        {
             this.Subdivide();
 
             northEast.Build();
@@ -275,7 +279,7 @@ public class GrassQuadtree
         }
     }
 
-    // Test the frustum against a quadtree
+    // Test the frustum against a quadtree, only visible quadtrees with grass will appear
     public bool TestFrustum(Vector3 cameraPosition, Plane[] frustum, ref List<GrassQuadtree> validQuadtrees)
     {
         if(!boundary.IsOnFrustum(frustum))

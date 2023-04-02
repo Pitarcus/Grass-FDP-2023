@@ -16,7 +16,7 @@ AppendStructuredBuffer<GrassData> _GrassData;
 // Local to world matrix
 float4x4 _LocalToWorld;
 
-uint _Size; // The size of the chunk of grass on the terrain / 2
+uint _Size; // The size of the chunk of grass on the terrain
 
 uint _Resolution;   // Amount of blades in each axis
 
