@@ -200,13 +200,13 @@ public class GrassQuadtree
         northWest = new GrassQuadtree(nw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, true), SubdivideTexture(heightMap, false, true), material);
 
         AABB ne = new AABB(x + w, y + w, w);
-        northEast = new GrassQuadtree(ne, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, true), SubdivideTexture(heightMap, false, true), material);
+        northEast = new GrassQuadtree(ne, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, true), SubdivideTexture(heightMap, true, true), material);
 
         AABB sw = new AABB(x - w, y - w, w);
-        southWest = new GrassQuadtree(sw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, false), SubdivideTexture(heightMap, false, true), material);
+        southWest = new GrassQuadtree(sw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, false), SubdivideTexture(heightMap, false, false), material);
 
         AABB se = new AABB(x + w, y - w, w);
-        southEast = new GrassQuadtree(se, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, false), SubdivideTexture(heightMap, false, true), material);
+        southEast = new GrassQuadtree(se, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, false), SubdivideTexture(heightMap, true, false), material);
 
         subdivided = true;
     }

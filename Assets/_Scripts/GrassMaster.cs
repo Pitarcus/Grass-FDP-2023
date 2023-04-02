@@ -136,7 +136,6 @@ public class GrassMaster : MonoBehaviour
 
         InitializeQuadtreeNodes();
 
-
         //SetShaderParameters();
 
     }
@@ -185,16 +184,20 @@ public class GrassMaster : MonoBehaviour
     {
         if (!qt.subdivided && qt.containsGrass)   // Leaf node with grass
         {
+            int nodeResolution = (int)(qt.boundary.halfDimension * 2 * grassDensity);
+
             qt.grassCompute = Resources.Load<ComputeShader>("GrassCompute");
 
-            qt.grassDataBuffer = new ComputeBuffer( (int) qt.boundary.halfDimension * 2 * grassDensity, grassDataBufferSize, ComputeBufferType.Append);
+            qt.grassDataBuffer = new ComputeBuffer(nodeResolution * nodeResolution, grassDataBufferSize, ComputeBufferType.Append);
             qt.grassDataBuffer.SetCounterValue(0);
 
             qt.argsBuffer = new ComputeBuffer(5, sizeof(uint), ComputeBufferType.IndirectArguments);
 
             qt.grassCompute.SetInt(sizeId, (int) qt.boundary.halfDimension * 2);
-            qt.grassCompute.SetInt(resolutionId, (int)qt.boundary.halfDimension * 2 * grassDensity);
+            qt.grassCompute.SetInt(resolutionId, nodeResolution);
             qt.grassCompute.SetFloat(stepId, grassStep);
+            qt.grassCompute.SetFloat("_NodePositionX", qt.boundary.p.x);
+            qt.grassCompute.SetFloat("_NodePositionY", qt.boundary.p.y);
             qt.grassCompute.SetFloat(offsetXAmountId, offsetXAmount);
             qt.grassCompute.SetFloat(offsetYAmountId, offsetYAmount);
             qt.grassCompute.SetFloat(heightDisplacementStrenghtId, heightDisplacementStrenght);
@@ -212,8 +215,7 @@ public class GrassMaster : MonoBehaviour
             // NOT IDEAL AS WE ARE STORING ALL THE POSITIONS BEFORE HAND... MAYBE IDK WE HAVE TO TRY IT
 
             Debug.Log("Current qt position x: " + qt.boundary.p.x + " y: " + qt.boundary.p.y);
-            Debug.Log("Current qt resolution: " + (int)qt.boundary.halfDimension * 2 * grassDensity);
-            //debugPlacementTexture = currentQT.grassMask;
+            Debug.Log("Current qt resolution: " + nodeResolution);
 
             qt.grassDataBuffer.SetCounterValue(0);
 
@@ -226,7 +228,7 @@ public class GrassMaster : MonoBehaviour
 
             qt.numberOfInstances = (int) mainLODArgs[1];
 
-            Debug.Log(mainLODArgs[1]);
+            Debug.Log("Number of instances in node: " + qt.numberOfInstances);
         }
     }
 

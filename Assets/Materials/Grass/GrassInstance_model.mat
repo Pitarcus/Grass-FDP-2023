@@ -142,11 +142,11 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
-    - _WindDistortion: 0.23
+    - _WindDistortion: 0.63
     - _WindNoiseScale: 0.08
     - _WindRotation: 0
-    - _WindSpeed: 0.96
-    - _WindStrenght: 0.25
+    - _WindSpeed: 0.45
+    - _WindStrenght: 0.4
     - _WorkflowMode: 0
     - _WorldUV_Tiling: 1
     - _ZTest: 4

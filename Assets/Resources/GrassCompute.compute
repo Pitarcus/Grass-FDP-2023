@@ -22,6 +22,9 @@ uint _Resolution;   // Amount of blades in each axis
 
 float _Step;    // Distance between each blade
 
+float _NodePositionX;
+float _NodePositionY;
+
 float _OffsetXAmount;
 float _OffsetYAmount;
 
@@ -51,8 +54,8 @@ void SetPositionsWithTexture(uint3 id) {
     if (id.x < _Resolution && id.y < _Resolution) 
     {
         float2 uv = 0.0f;
-        uv.x = ((id.x * _Step) % _Size) / _Size;
-        uv.y = ((id.y * _Step) % _Size) / _Size;
+        uv.x = id.x * _Step / _Size;
+        uv.y = id.y * _Step / _Size;
 
         if(_PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a > 0.1f) {    // Only display grass where there is alpha map
 
@@ -61,8 +64,8 @@ void SetPositionsWithTexture(uint3 id) {
             float Yoffset = rand(id.xy) *_OffsetYAmount;
            
             float3 pos =  0.0f;
-            pos.x = id.x * _Step - _Size * 0.5f + Xoffset;
-            pos.z = id.y * _Step - _Size * 0.5f + Yoffset;
+            pos.x = _NodePositionX + id.x * _Step - _Size * 0.5f + Xoffset;
+            pos.z = _NodePositionY + id.y * _Step - _Size * 0.5f + Yoffset;
 
             // Sample & set the height
             float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0); 
