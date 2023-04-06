@@ -161,9 +161,11 @@ public class GrassQuadtree
     public Texture2D heightMap;
     public Material material;
     public ComputeShader grassCompute;
-    public int numberOfInstances;
+    public int numberOfGrassBlades; // Max number of visible blades in the node
+    public uint numberOfInstances;  // Actual number of instances
 
     public ComputeBuffer grassDataBuffer;
+    public ComputeBuffer culledGrassDataBuffer;
     public ComputeBuffer argsBuffer;
     public ComputeBuffer argsLODBuffer;
 
@@ -197,25 +199,35 @@ public class GrassQuadtree
 
 
         AABB nw = new AABB(x - w, y + w, w);
-        northWest = new GrassQuadtree(nw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, true), SubdivideTexture(heightMap, false, true), material);
+        northWest = new GrassQuadtree(nw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, true, true), SubdivideTexture(heightMap, false, true, false), material);
 
         AABB ne = new AABB(x + w, y + w, w);
-        northEast = new GrassQuadtree(ne, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, true), SubdivideTexture(heightMap, true, true), material);
+        northEast = new GrassQuadtree(ne, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, true, true), SubdivideTexture(heightMap, true, true, false), material);
 
         AABB sw = new AABB(x - w, y - w, w);
-        southWest = new GrassQuadtree(sw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, false), SubdivideTexture(heightMap, false, false), material);
+        southWest = new GrassQuadtree(sw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, false, true), SubdivideTexture(heightMap, false, false, false), material);
 
         AABB se = new AABB(x + w, y - w, w);
-        southEast = new GrassQuadtree(se, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, false), SubdivideTexture(heightMap, true, false), material);
+        southEast = new GrassQuadtree(se, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, false, true), SubdivideTexture(heightMap, true, false, false), material);
 
         subdivided = true;
     }
 
-    private Texture2D SubdivideTexture(Texture2D texture, bool positiveX, bool positiveY)
+    private Texture2D SubdivideTexture(Texture2D texture, bool positiveX, bool positiveY, bool isPosition)
     {
-        Texture2D resultTexture = new Texture2D(texture.width/2,  texture.height/2, TextureFormat.RGBA32, false);
-        resultTexture.wrapMode = TextureWrapMode.Clamp;
-        resultTexture.filterMode = FilterMode.Bilinear;
+        Texture2D resultTexture;
+        if (isPosition)
+        {
+            resultTexture = new Texture2D(texture.width / 2, texture.height / 2, TextureFormat.RGBA32, false);
+            resultTexture.wrapMode = TextureWrapMode.Clamp;
+            resultTexture.filterMode = FilterMode.Bilinear;
+        }
+        else 
+        {
+            resultTexture = new Texture2D(texture.width / 2, texture.height / 2, TextureFormat.R16, false);
+            resultTexture.wrapMode = TextureWrapMode.Clamp;
+            resultTexture.filterMode = FilterMode.Bilinear;
+        }
 
         int startX, startY;
 

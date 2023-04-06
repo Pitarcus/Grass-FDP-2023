@@ -39,6 +39,9 @@ SamplerState sampler_HeightMap;
 float _HeightDisplacementStrenght;
 
 
+//RWStructuredBuffer<uint> _ArgsBuffer;
+
+
 // ---------------------------- FUNCTIONS -------------------------
 
 
@@ -76,12 +79,13 @@ void SetPositionsWithTexture(uint3 id) {
             GrassData gd = {pos, scale};
 
             // Add all information to the outputbuffer
+            //InterlockedAdd(_ArgsBuffer[1], 1);
             _GrassData.Append(gd);
         }
     }
 }
     
-[numthreads(8,8,1)]
+[numthreads(16,16,1)]
 void GrassGenerator (uint3 id : SV_DispatchThreadID)
 {
     SetPositionsWithTexture(id);
