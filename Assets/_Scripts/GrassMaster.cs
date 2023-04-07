@@ -43,6 +43,28 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] Mesh grassMesh;
     [SerializeField] Material grassMaterial;
 
+    // Grass Material parameters
+
+    [SerializeField] Color bottomColor;
+    [SerializeField] Color topColor;
+    [SerializeField] float worldUVTiling;
+    [Header("Scale")]
+    [SerializeField] float scaleY;
+    [SerializeField] float randomYScaleNoise;
+    [SerializeField] float minRandomY;
+    [SerializeField] float maxRandomY;
+    [Header("Rotation")]
+    [SerializeField][Range(0, 360)] float maxYRotation;
+    [SerializeField] float randomYRotationNoise;
+    [SerializeField][Range(0, 90)] float maxBend;
+    [SerializeField] float bendRandomnessScale;
+    [Header("Wind")]
+    [SerializeField] float windStrenght;
+    [SerializeField] float windSpeed;
+    [SerializeField][Range(0, 360)] float windRotation;
+    [SerializeField] float windScaleNoise;
+    [SerializeField] float windDistortion;
+
     // Data structure to communicate GPU and CPU
     private struct GrassData
     {
@@ -74,7 +96,25 @@ public class GrassMaster : MonoBehaviour
         offsetYAmountId = Shader.PropertyToID("_OffsetYAmount"),
         heightDisplacementStrenghtId = Shader.PropertyToID("_HeightDisplacementStrenght"),
         positionMapID = Shader.PropertyToID("_PositionMap"),
-        scalesId = Shader.PropertyToID("_YScales");
+        scalesId = Shader.PropertyToID("_YScales"),
+
+        bottomColorId = Shader.PropertyToID("_BottomColor"),
+        topColorId = Shader.PropertyToID("_TopColor"),
+        worldUVTilingId = Shader.PropertyToID("_WorldUV_Tiling"),
+        scaleYId = Shader.PropertyToID("_ScaleY"),
+        randomYScaleNoiseId = Shader.PropertyToID("_RandomYNoiseScale"),
+        minRandomYId = Shader.PropertyToID("_MinRandomY"),
+        maxRandomYId = Shader.PropertyToID("_MaxRandomY"),
+        maxYRotationId = Shader.PropertyToID("_MaxYRotation"),
+        randomYRotationNoiseId = Shader.PropertyToID("_RandomYRotationNoiseScale"),
+        maxBendId = Shader.PropertyToID("_MaxBend"),
+        bendRandomnessScaleId = Shader.PropertyToID("_BendRandomnessScale"),
+        windStrenghtId = Shader.PropertyToID("_WindStrenght"),
+        windSpeedId = Shader.PropertyToID("_WindSpeed"),
+        windRotationId = Shader.PropertyToID("_WindRotation"),
+        windScaleNoiseId = Shader.PropertyToID("_WindNoiseScale"),
+        windDistortionId = Shader.PropertyToID("_WindDistortion")
+        ;
 
 
     // CONST
@@ -85,8 +125,6 @@ public class GrassMaster : MonoBehaviour
 
 
     List<GrassQuadtree> debugList;
-
-    public Texture2D debugPlacementTexture;
 
     // ------------- FUNCTIONS --------------
 
@@ -102,6 +140,8 @@ public class GrassMaster : MonoBehaviour
         heightMaps = new Texture2D[grassPainters.Length];
         grassQuadtrees = new GrassQuadtree[grassPainters.Length];
 
+        
+
         // GENERATE QUADTREE
         for (int i = 0; i < grassPainters.Length; i++)
         {
@@ -112,8 +152,7 @@ public class GrassMaster : MonoBehaviour
                 0,
                 4,
                 positionMaps[i],
-                heightMaps[i],
-                grassMaterial);
+                heightMaps[i]);
 
             grassQuadtrees[i].Build();
         }
@@ -121,7 +160,6 @@ public class GrassMaster : MonoBehaviour
         visibleGrassQuadtrees = new List<GrassQuadtree>();
 
      
-
         mainLODArgs = new uint[5] { 0, 0, 0, 0, 0 };
         mainLODArgs[0] = (uint)grassMesh.GetIndexCount(0);
         mainLODArgs[1] = (uint)0;
@@ -143,7 +181,6 @@ public class GrassMaster : MonoBehaviour
         grassCompute.GetKernelThreadGroupSizes(0, out numThreadsX, out numThreadsY, out _);
 
         InitializeQuadtreeNodes();
-
     }
 
 
@@ -216,7 +253,12 @@ public class GrassMaster : MonoBehaviour
             qt.grassCompute.SetBuffer(0, "_GrassData", qt.grassDataBuffer);
             // qt.grassCompute.SetBuffer(0, "_ArgsBuffer", qt.argsBuffer);
 
+            // Material parameters
+            qt.material = new Material(grassMaterial);
             qt.material.SetBuffer("_GrassData", qt.grassDataBuffer);
+
+            SetMaterialProperties(ref qt.material);
+
 
             // THIS IS NOT IDEAL AS WE ARE STORING ALL THE POSITIONS BEFORE HAND... MAYBE IDK WE HAVE TO TRY IT
 
@@ -232,10 +274,31 @@ public class GrassMaster : MonoBehaviour
             ComputeBuffer.CopyCount(qt.grassDataBuffer, qt.argsBuffer, sizeof(uint));
             qt.argsBuffer.GetData(newArgs);
 
-            qt.numberOfGrassBlades = (int)newArgs[1];
+            qt.numberOfGrassBlades = newArgs[1];
 
-            //Debug.Log("Number of grass blades in node: " + qt.numberOfGrassBlades);
+            Debug.Log("Number of grass blades in node: " + qt.numberOfGrassBlades);
         }
+    }
+
+    private void SetMaterialProperties(ref Material grassMaterial)
+    {
+        grassMaterial.SetColor(topColorId, topColor);
+        grassMaterial.SetColor(bottomColorId, bottomColor);
+
+        grassMaterial.SetFloat(worldUVTilingId, worldUVTiling);
+        grassMaterial.SetFloat(scaleYId, scaleY);
+        grassMaterial.SetFloat(randomYScaleNoiseId, randomYScaleNoise);
+        grassMaterial.SetFloat(minRandomYId, minRandomY);
+        grassMaterial.SetFloat(maxRandomYId, maxRandomY);
+        grassMaterial.SetFloat(maxYRotationId, maxYRotation);
+        grassMaterial.SetFloat(randomYRotationNoiseId, randomYRotationNoise);
+        grassMaterial.SetFloat(maxBendId, maxBend);
+        grassMaterial.SetFloat(bendRandomnessScaleId, bendRandomnessScale);
+        grassMaterial.SetFloat(windStrenghtId, windStrenght);
+        grassMaterial.SetFloat(windSpeedId, windSpeed);
+        grassMaterial.SetFloat(windRotationId, windRotation);
+        grassMaterial.SetFloat(windScaleNoiseId, windScaleNoise);
+        grassMaterial.SetFloat(windDistortionId, windDistortion);
     }
 
     private void FreeQuadtreeNodes()
@@ -300,16 +363,16 @@ public class GrassMaster : MonoBehaviour
 
         cullGrassCompute.Dispatch(0, Mathf.CeilToInt(nodeResolution * nodeResolution / culledNumThreadsX), 1, 1);
 
-        /*uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
+        //uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
        // qt.argsBuffer.GetData(newArgs);
 
-        qt.argsLODBuffer.SetData(newArgs);
-        ComputeBuffer.CopyCount(qt.culledGrassDataBuffer, qt.argsBuffer, sizeof(uint));
-        qt.argsLODBuffer.GetData(newArgs);
+        /*qt.argsLODBuffer.SetData(newArgs);
+        ComputeBuffer.CopyCount(qt.culledGrassDataBuffer, qt.argsBuffer, sizeof(uint));*/
+        //qt.argsBuffer.GetData(newArgs);
 
-        qt.numberOfInstances = newArgs[1];
+       //qt.numberOfInstances = newArgs[1];
 
-        Debug.Log(qt.numberOfInstances);*/
+        //Debug.Log(qt.numberOfInstances);
     }
 
     void LateUpdate()
@@ -336,6 +399,8 @@ public class GrassMaster : MonoBehaviour
             if (currentQT.grassCompute != null)
             {
                 CullGrass(ref currentQT, VP, true);
+
+                SetMaterialProperties(ref currentQT.material);
 
                 var bounds = new Bounds(new Vector3(currentQT.boundary.p.x, 0, currentQT.boundary.p.y), new Vector3(currentQT.boundary.halfDimension * 2, 600, currentQT.boundary.halfDimension * 2));
 
