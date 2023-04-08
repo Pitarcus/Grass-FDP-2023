@@ -150,7 +150,7 @@ public class Quadtree
 }
 
 // ----------- GRASS QUADTREE ----------------
-public class GrassQuadtree
+public class GrassQuadtree : IEquatable<GrassQuadtree>
 {
     public AABB boundary;
     public int maxDepth;
@@ -323,5 +323,10 @@ public class GrassQuadtree
             validQuadtrees.Add(this);
             return true;
         }
+    }
+
+    public bool Equals(GrassQuadtree other)
+    {
+        return this.boundary.p.x == other.boundary.p.x && this.boundary.p.y == other.boundary.p.y;
     }
 }
