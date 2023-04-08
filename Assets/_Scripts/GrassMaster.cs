@@ -238,7 +238,7 @@ public class GrassMaster : MonoBehaviour
 
             qt.argsBuffer = new ComputeBuffer(5, sizeof(uint), ComputeBufferType.IndirectArguments);
             //qt.argsLODBuffer= new ComputeBuffer(5, sizeof(uint), ComputeBufferType.IndirectArguments);
-            qt.culledGrassDataBuffer = new ComputeBuffer(nodeResolution * nodeResolution, grassDataBufferSize, ComputeBufferType.Append);
+            //qt.culledGrassDataBuffer = new ComputeBuffer(nodeResolution * nodeResolution, grassDataBufferSize, ComputeBufferType.Append);
 
             qt.grassCompute.SetInt(sizeId, (int) qt.boundary.halfDimension * 2);
             qt.grassCompute.SetInt(resolutionId, nodeResolution);
@@ -254,12 +254,6 @@ public class GrassMaster : MonoBehaviour
             qt.grassCompute.SetTexture(0, positionMapID, qt.grassMask);
             qt.grassCompute.SetBuffer(0, "_GrassData", qt.grassDataBuffer);
             // qt.grassCompute.SetBuffer(0, "_ArgsBuffer", qt.argsBuffer);
-
-            // Material parameters
-            qt.material = new Material(grassMaterial);
-            qt.material.SetBuffer("_GrassData", qt.grassDataBuffer);
-
-            SetMaterialProperties(ref qt.material);
 
 
             // THIS IS NOT IDEAL AS WE ARE STORING ALL THE POSITIONS BEFORE HAND... MAYBE IDK WE HAVE TO TRY IT
@@ -279,6 +273,14 @@ public class GrassMaster : MonoBehaviour
             qt.numberOfGrassBlades = newArgs[1];
 
             //Debug.Log("Number of grass blades in node: " + qt.numberOfGrassBlades);
+
+            qt.culledGrassDataBuffer = new ComputeBuffer((int)qt.numberOfGrassBlades, grassDataBufferSize, ComputeBufferType.Append);
+
+            // Material parameters
+            qt.material = new Material(grassMaterial);
+            qt.material.SetBuffer("_GrassData", qt.culledGrassDataBuffer);
+
+            SetMaterialProperties(ref qt.material);
         }
     }
 
@@ -346,11 +348,11 @@ public class GrassMaster : MonoBehaviour
         qt.culledGrassDataBuffer = null;
     }
 
-    void CullGrass(ref GrassQuadtree qt, Matrix4x4 VP, bool noLOD)
+    void CullGrass(GrassQuadtree qt, Matrix4x4 VP, bool noLOD)
     {
         // Reset Args Buffer by setting default (mainLODArgs[1] =0)
         qt.argsBuffer.SetData(mainLODArgs);
-
+        
         cullGrassCompute.SetMatrix("MATRIX_VP", VP);
         cullGrassCompute.SetFloat("_CullDistance", cutoffDistance);
         cullGrassCompute.SetVector("_CameraPosition", Camera.main.transform.position);
@@ -363,6 +365,7 @@ public class GrassMaster : MonoBehaviour
         uint culledNumThreadsX;
         cullGrassCompute.GetKernelThreadGroupSizes(0, out culledNumThreadsX, out _, out _);
 
+        qt.culledGrassDataBuffer.SetCounterValue(0);    // THIS IS SUPER FUCKING IMPORTANT
         cullGrassCompute.Dispatch(0, Mathf.CeilToInt(nodeResolution * nodeResolution / culledNumThreadsX), 1, 1);
 
         //uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
@@ -402,7 +405,6 @@ public class GrassMaster : MonoBehaviour
 
                 if (currentQT.grassCompute != null)
                 {
-                    Debug.Log("Freeing a quadtree");
                     FreeQuadtreeNode(ref currentQT);
                 }
             }
@@ -416,15 +418,14 @@ public class GrassMaster : MonoBehaviour
         {
             GrassQuadtree currentQT = visibleGrassQuadtrees[i];
 
-            if (currentQT.currentDepth == currentQT.maxDepth - 1)
+            if (!currentQT.subdivided)
             {
                 if (currentQT.grassDataBuffer == null)
                 {
-                    Debug.Log("Setting up quadtree");
                     SetQuadtreeNode(ref currentQT);
-                }
+                } 
 
-                CullGrass(ref currentQT, VP, true);
+                CullGrass(currentQT, VP, true);
 
                 SetMaterialProperties(ref currentQT.material);
 
