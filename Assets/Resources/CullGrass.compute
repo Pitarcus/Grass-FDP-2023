@@ -23,11 +23,11 @@ uint _GrassDataNumberofElements;
 [numthreads(128,1,1)]
 void CullGrass (uint3 id : SV_DispatchThreadID)
 {
-    if(id.x < _GrassDataNumberofElements) 
-    {
+    //if(id.x < _GrassDataNumberofElements) 
+   //{
         float4 position = float4(_GrassDataBuffer[id.x].position.xyz, 1.0f);
     
-        /*float4 viewspace = mul(MATRIX_VP, position);
+        float4 viewspace = mul(MATRIX_VP, position);
 
         float3 clipspace = viewspace.xyz;
         clipspace /= -viewspace.w;  // true clip space aka NDC(normalized device coordinates)
@@ -37,13 +37,13 @@ void CullGrass (uint3 id : SV_DispatchThreadID)
         clipspace.y = clipspace.y / 2.0f + 0.5f; 
         clipspace.z = -viewspace.w;
 
-        //bool inView = clipspace.x < -0.2f || clipspace.x > 1.2f || clipspace.z <= -0.1f ? 0 : 1;*/
+        bool inView = clipspace.x < -0.2f || clipspace.x > 1.2f || clipspace.z <= -0.1f ? 0 : 1;
         bool withinDistance = distance(_CameraPosition, position.xyz) < _CullDistance;
 
-        if(withinDistance)
+        if(withinDistance && inView)
         {
             InterlockedAdd(_ArgsBuffer[1], 1);
             _CulledGrassOutputBuffer.Append(_GrassDataBuffer[id.x]);
         }
-    }
+    //}
 }

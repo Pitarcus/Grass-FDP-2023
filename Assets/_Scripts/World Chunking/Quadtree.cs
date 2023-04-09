@@ -156,6 +156,7 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
     public int maxDepth;
     public int currentDepth;
     public bool containsGrass;
+    public bool hasBeenSet;
 
     public Texture2D grassMask;
     public Texture2D heightMap;
@@ -290,7 +291,7 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
     }
 
     // Test the frustum against a quadtree, only visible quadtrees with grass will appear
-    public bool TestFrustum(Vector3 cameraPosition, Plane[] frustum, ref List<GrassQuadtree> validQuadtrees)
+    public bool TestFrustum(Vector3 cameraPosition, float quadtreeCutoffDistance, Plane[] frustum, ref List<GrassQuadtree> validQuadtrees)
     {
         if(!boundary.IsOnFrustum(frustum))
         {
@@ -301,14 +302,18 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
         {
             return false;
         }
+        if(Vector3.Distance(cameraPosition, new Vector3(boundary.p.x, 10, boundary.p.y)) > quadtreeCutoffDistance)
+        {
+            return false;
+        }
 
-        // Quadtree is in frustum && contains grass
+        // Quadtree is in frustum, in distance && contains grass
         if (subdivided)
         {
-            if (northWest.TestFrustum(cameraPosition, frustum, ref validQuadtrees) |
-                northEast.TestFrustum(cameraPosition, frustum, ref validQuadtrees) |
-                southEast.TestFrustum(cameraPosition, frustum, ref validQuadtrees) |
-                southWest.TestFrustum(cameraPosition, frustum, ref validQuadtrees))
+            if (northWest.TestFrustum(cameraPosition, quadtreeCutoffDistance, frustum, ref validQuadtrees) |
+                northEast.TestFrustum(cameraPosition, quadtreeCutoffDistance, frustum, ref validQuadtrees) |
+                southEast.TestFrustum(cameraPosition, quadtreeCutoffDistance, frustum, ref validQuadtrees) |
+                southWest.TestFrustum(cameraPosition, quadtreeCutoffDistance, frustum, ref validQuadtrees))
             {
                 return false;
             }

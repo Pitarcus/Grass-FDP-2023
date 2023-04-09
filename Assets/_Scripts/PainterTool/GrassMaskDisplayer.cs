@@ -37,7 +37,7 @@ public class GrassMaskDisplayer : MonoBehaviour
             decalMaterial.SetTexture("Base_Map", texture);
         }
     }
-
+#if UNITY_EDITOR
     private void OnEnable()
     {
         Selection.selectionChanged += ToggleDecal;
@@ -47,7 +47,7 @@ public class GrassMaskDisplayer : MonoBehaviour
     {
         Selection.selectionChanged -= ToggleDecal;
     }
-   
+  
     void ToggleDecal()
     {
         if (Selection.activeGameObject != this.gameObject)
@@ -59,5 +59,5 @@ public class GrassMaskDisplayer : MonoBehaviour
             decalProjector.enabled = true;
         }
     }
-
+#endif
 }

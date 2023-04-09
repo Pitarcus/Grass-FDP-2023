@@ -1,4 +1,6 @@
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -72,7 +74,7 @@ public class TerrainPainterComponent : MonoBehaviour
             transform.localPosition = new Vector3(terrainData.size.x / 2, 0, terrainData.size.z / 2);
         }
     }
-
+#if UNITY_EDITOR
     void OnEnable()
     {
         // Remove delegate listener if it has previously
@@ -81,9 +83,10 @@ public class TerrainPainterComponent : MonoBehaviour
         {
             return;
         }
-       
+
         // Add (or re-add) the delegate.
         SceneView.duringSceneGui += this.OnScene;
+
     }
 
     private void OnDestroy()
@@ -171,7 +174,9 @@ public class TerrainPainterComponent : MonoBehaviour
     private void OnDisable()
     {
         isPainting = false;
+
         SceneView.duringSceneGui -= this.OnScene;
+
     }
 
     private void OnScene(SceneView scene)
@@ -218,7 +223,7 @@ public class TerrainPainterComponent : MonoBehaviour
                 break;
         }
     }
-
+#endif
 
     public void ClearMask()
     {
@@ -231,4 +236,5 @@ public class TerrainPainterComponent : MonoBehaviour
         }
         maskTexture.Apply();
     }
+
 }

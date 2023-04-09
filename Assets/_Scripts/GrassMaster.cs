@@ -16,6 +16,8 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] float offsetYAmount = 0.5f;
     [Range(0, 3000)]
     [SerializeField] float cutoffDistance = 1000f;
+    [Range(0, 3000)]
+    [SerializeField] float quadtreeCutoffDistance = 120f;
 
     Texture2D[] positionMaps;   // Should be an array with all of the textures? maybe the quadtree stores it
     Texture2D[] heightMaps;   // Should be an array with all of the textures? maybe the quadtree stores it
@@ -122,7 +124,7 @@ public class GrassMaster : MonoBehaviour
     private int positionsBufferSize = 3 * 4; // 3 floats per position * 4 bytes per float
     private int scalesBufferSize = 4;
     private int grassDataBufferSize = 3 * 4 + 3 * 4;
-    private int nodeResolution;
+    private int nodeResolution = 0;
 
 
     List<GrassQuadtree> debugList;
@@ -229,6 +231,7 @@ public class GrassMaster : MonoBehaviour
     {
         if (!qt.subdivided && qt.containsGrass)   // Leaf node with grass
         {
+            
             nodeResolution = (int)(qt.boundary.halfDimension * 2 * grassDensity);
 
             qt.grassCompute = Resources.Load<ComputeShader>("GrassCompute");
@@ -240,7 +243,7 @@ public class GrassMaster : MonoBehaviour
             //qt.argsLODBuffer= new ComputeBuffer(5, sizeof(uint), ComputeBufferType.IndirectArguments);
             //qt.culledGrassDataBuffer = new ComputeBuffer(nodeResolution * nodeResolution, grassDataBufferSize, ComputeBufferType.Append);
 
-            qt.grassCompute.SetInt(sizeId, (int) qt.boundary.halfDimension * 2);
+            qt.grassCompute.SetInt(sizeId, (int)qt.boundary.halfDimension * 2);
             qt.grassCompute.SetInt(resolutionId, nodeResolution);
             qt.grassCompute.SetFloat(stepId, grassStep);
             qt.grassCompute.SetFloat("_NodePositionX", qt.boundary.p.x);
@@ -253,16 +256,8 @@ public class GrassMaster : MonoBehaviour
             qt.grassCompute.SetTexture(0, "_HeightMap", qt.heightMap);
             qt.grassCompute.SetTexture(0, positionMapID, qt.grassMask);
             qt.grassCompute.SetBuffer(0, "_GrassData", qt.grassDataBuffer);
-            // qt.grassCompute.SetBuffer(0, "_ArgsBuffer", qt.argsBuffer);
-
-
-            // THIS IS NOT IDEAL AS WE ARE STORING ALL THE POSITIONS BEFORE HAND... MAYBE IDK WE HAVE TO TRY IT
-
-            //Debug.Log("Current qt position x: " + qt.boundary.p.x + " y: " + qt.boundary.p.y);
-            //Debug.Log("Current qt resolution: " + nodeResolution);
 
             qt.grassDataBuffer.SetCounterValue(0);
-
             qt.grassCompute.Dispatch(0, (int)(qt.boundary.halfDimension * 2 * grassDensity / numThreadsX), (int)(qt.boundary.halfDimension * 2 * grassDensity / numThreadsY), 1);
 
             uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
@@ -272,17 +267,19 @@ public class GrassMaster : MonoBehaviour
 
             qt.numberOfGrassBlades = newArgs[1];
 
-            //Debug.Log("Number of grass blades in node: " + qt.numberOfGrassBlades);
-
             qt.culledGrassDataBuffer = new ComputeBuffer((int)qt.numberOfGrassBlades, grassDataBufferSize, ComputeBufferType.Append);
-
+         
             // Material parameters
             qt.material = new Material(grassMaterial);
             qt.material.SetBuffer("_GrassData", qt.culledGrassDataBuffer);
 
             SetMaterialProperties(ref qt.material);
+
+
+            qt.hasBeenSet = true;
         }
     }
+
 
     private void SetMaterialProperties(ref Material grassMaterial)
     {
@@ -393,15 +390,16 @@ public class GrassMaster : MonoBehaviour
         // Get visible nodes
         for (int i = 0; i < grassQuadtrees.Length; i++)
         {
-            grassQuadtrees[i].TestFrustum(Camera.main.transform.position, GeometryUtility.CalculateFrustumPlanes(Camera.main), ref visibleGrassQuadtrees);  // Hay error aquí, coge de los que no debería
+            grassQuadtrees[i].TestFrustum(Camera.main.transform.position, quadtreeCutoffDistance, GeometryUtility.CalculateFrustumPlanes(Camera.main), ref visibleGrassQuadtrees);  // Hay error aquí, coge de los que no debería
         }
 
+        // Free up the memory of non visible nodes
         if (pastVisibleGrassQuadtrees.Count > 0)
         {
             List<GrassQuadtree> removedElements = pastVisibleGrassQuadtrees.Except(visibleGrassQuadtrees).ToList();
             for (int i = 1; i < removedElements.Count; i++)
             {
-                GrassQuadtree currentQT = visibleGrassQuadtrees[i];
+                GrassQuadtree currentQT = removedElements[i];
 
                 if (currentQT.grassCompute != null)
                 {
@@ -412,7 +410,6 @@ public class GrassMaster : MonoBehaviour
 
         pastVisibleGrassQuadtrees = new List<GrassQuadtree>(visibleGrassQuadtrees);
         
-
         // RENDER GRASS IN NODES
         for (int i = 1; i < visibleGrassQuadtrees.Count; i++)
         {
@@ -443,44 +440,6 @@ public class GrassMaster : MonoBehaviour
             Gizmos.color = Color.red;
             DrawQuadtreesWithColors();
         }
-
-            
-        /*if (grassQuadtrees != null)
-        {
-            for (int i = 0; i < grassQuadtrees.Length; i++)
-            {
-                if (i == 0)
-                    Gizmos.color = Color.blue;
-                else
-                    Gizmos.color = Color.magenta;
-
-                GrassQuadtree quadTree = grassQuadtrees[i];
-                Queue<GrassQuadtree> queue = new Queue<GrassQuadtree>();
-
-                if (quadTree == null)
-                    return;
-
-                queue.Clear();
-                queue.Enqueue(quadTree);
-
-                while (queue.Count > 0)
-                {
-                    GrassQuadtree currentQT = queue.Dequeue();
-
-                    Gizmos.DrawWireCube(new Vector3(currentQT.boundary.p.x, 0, currentQT.boundary.p.y),
-                        new Vector3(currentQT.boundary.halfDimension * 2, 0, currentQT.boundary.halfDimension * 2));
-
-                    if (currentQT.subdivided)
-                    {
-                        queue.Enqueue(currentQT.northEast);
-                        queue.Enqueue(currentQT.northWest);
-                        queue.Enqueue(currentQT.southEast);
-                        queue.Enqueue(currentQT.southWest);
-                    }
-                }
-            }
-        }
-        */
     }
 
     void DrawQuadtreesWithColors()
