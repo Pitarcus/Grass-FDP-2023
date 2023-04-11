@@ -161,12 +161,14 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
     public Texture2D grassMask;
     public Texture2D heightMap;
     public Material material;
+    public Material materialLOD;
     public ComputeShader grassCompute;
     public uint numberOfGrassBlades; // Max number of visible blades in the node
     public uint numberOfInstances;  // Actual number of instances
 
-    public ComputeBuffer grassDataBuffer;
+    public ComputeBuffer grassDataBuffer;   // Fist data buffer with all the positions
     public ComputeBuffer culledGrassDataBuffer;
+    public ComputeBuffer culledGrassDataBufferLOD;
     public ComputeBuffer argsBuffer;
     public ComputeBuffer argsLODBuffer;
 

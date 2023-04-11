@@ -14,7 +14,7 @@ struct GrassData
 AppendStructuredBuffer<GrassData> _GrassData;
 
 // Local to world matrix
-float4x4 _LocalToWorld;
+//float4x4 _LocalToWorld;
 
 uint _Size; // The size of the chunk of grass on the terrain
 
@@ -51,9 +51,9 @@ float rand(float2 co)
     return(frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453)) * 1;
 }
 
-
-void SetPositionsWithTexture(uint3 id) {
-
+[numthreads(16,16,1)]
+void GrassGenerator (uint3 id : SV_DispatchThreadID)
+{
     if (id.x < _Resolution && id.y < _Resolution) 
     {
         float2 uv = 0.0f;
@@ -72,21 +72,14 @@ void SetPositionsWithTexture(uint3 id) {
 
             // Sample & set the height
             float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0); 
-            pos.y = displacement.r * _HeightDisplacementStrenght + 0.05f;
+            pos.y = displacement.r * _HeightDisplacementStrenght + 0.01f;
 
             float3 scale = {1, _PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a, 1};
 
             GrassData gd = {pos, scale};
 
             // Add all information to the outputbuffer
-            //InterlockedAdd(_ArgsBuffer[1], 1);
             _GrassData.Append(gd);
         }
     }
-}
-    
-[numthreads(16,16,1)]
-void GrassGenerator (uint3 id : SV_DispatchThreadID)
-{
-    SetPositionsWithTexture(id);
 }
