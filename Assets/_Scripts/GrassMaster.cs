@@ -74,6 +74,7 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] float windDistortion;
     [SerializeField] Transform playerTransform;
     Vector3 playerPosition;
+    [SerializeField] float playerPositionStrength = 1f;
 
     // Data structure to communicate GPU and CPU
     private struct GrassData
@@ -119,7 +120,8 @@ public class GrassMaster : MonoBehaviour
         windRotationId = Shader.PropertyToID("_WindRotation"),
         windScaleNoiseId = Shader.PropertyToID("_WindNoiseScale"),
         windDistortionId = Shader.PropertyToID("_WindDistortion"),
-        playerPositionId = Shader.PropertyToID("_PlayerPosition")
+        playerPositionId = Shader.PropertyToID("_PlayerPosition"),
+        playerPositionStrengthId = Shader.PropertyToID("_PositionModifier")
         ;
 
 
@@ -303,6 +305,7 @@ public class GrassMaster : MonoBehaviour
         grassMaterial.SetFloat(windScaleNoiseId, windScaleNoise);
         grassMaterial.SetFloat(windDistortionId, windDistortion);
         grassMaterial.SetVector(playerPositionId, playerPosition);
+        grassMaterial.SetFloat(playerPositionStrengthId, playerPositionStrength);
     }
 
     private void FreeQuadtreeNodes()
@@ -395,7 +398,7 @@ public class GrassMaster : MonoBehaviour
         Matrix4x4 V = Camera.main.transform.worldToLocalMatrix;
         Matrix4x4 VP = P * V;
 
-        playerPosition = playerTransform.position;
+        //playerPosition = playerTransform.position;
 
         visibleGrassQuadtrees.Clear();
         
@@ -436,6 +439,7 @@ public class GrassMaster : MonoBehaviour
 
                 CullGrass(currentQT, VP, true);
 
+                
                 SetMaterialProperties(ref currentQT.material);
                 SetMaterialProperties(ref currentQT.materialLOD);
 
@@ -445,6 +449,12 @@ public class GrassMaster : MonoBehaviour
                 Graphics.DrawMeshInstancedIndirect(grassMeshLOD, 0, currentQT.materialLOD, bounds, currentQT.argsLODBuffer);
             }
         }
+        
+    }
+
+    private void FixedUpdate()
+    {
+        playerPosition = playerTransform.position;
     }
 
     private void OnDrawGizmos()
