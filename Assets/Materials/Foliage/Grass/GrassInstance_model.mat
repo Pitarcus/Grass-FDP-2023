@@ -82,7 +82,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _PositionRT:
-        m_Texture: {fileID: 8400000, guid: f235a8a0d5529c54691bbf33d7993a55, type: 2}
+        m_Texture: {fileID: 8600000, guid: 9ec995b3d178ce843b3ac70af6f4a661, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
