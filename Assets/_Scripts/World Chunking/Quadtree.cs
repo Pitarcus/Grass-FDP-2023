@@ -304,10 +304,7 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
         {
             return false;
         }
-        if(Vector3.Distance(cameraPosition, new Vector3(boundary.p.x, 10, boundary.p.y)) > quadtreeCutoffDistance)
-        {
-            return false;
-        }
+        
 
         // Quadtree is in frustum, in distance && contains grass
         if (subdivided)
@@ -321,12 +318,20 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
             }
             else
             {
+                if (Vector3.Distance(cameraPosition, new Vector3(boundary.p.x, 10, boundary.p.y)) > quadtreeCutoffDistance)
+                {
+                    return false;
+                }
                 validQuadtrees.Add(this);
                 return true;
             }
         }
         else
         {
+            if (Vector3.Distance(cameraPosition, new Vector3(boundary.p.x, 10, boundary.p.y)) > quadtreeCutoffDistance)
+            {
+                return false;
+            }
             validQuadtrees.Add(this);
             return true;
         }

@@ -76,6 +76,8 @@ public class GrassMaster : MonoBehaviour
     Vector3 playerPosition;
     [SerializeField] float playerPositionStrength = 1f;
 
+    private float cameraAngleToGround;
+
     // Data structure to communicate GPU and CPU
     private struct GrassData
     {
@@ -297,7 +299,7 @@ public class GrassMaster : MonoBehaviour
         grassMaterial.SetFloat(maxRandomYId, maxRandomY);
         grassMaterial.SetFloat(maxYRotationId, maxYRotation);
         grassMaterial.SetFloat(randomYRotationNoiseId, randomYRotationNoise);
-        grassMaterial.SetFloat(maxBendId, maxBend);
+        grassMaterial.SetFloat(maxBendId, maxBend + 20f * cameraAngleToGround);
         grassMaterial.SetFloat(bendRandomnessScaleId, bendRandomnessScale);
         grassMaterial.SetFloat(windStrenghtId, windStrenght);
         grassMaterial.SetFloat(windSpeedId, windSpeed);
@@ -398,7 +400,16 @@ public class GrassMaster : MonoBehaviour
         Matrix4x4 V = Camera.main.transform.worldToLocalMatrix;
         Matrix4x4 VP = P * V;
 
-        //playerPosition = playerTransform.position;
+        playerPosition = playerTransform.position;
+        cameraAngleToGround = Vector3.Angle(Camera.main.transform.forward, Vector3.up);
+        if(cameraAngleToGround > 100)
+        {
+            cameraAngleToGround = (cameraAngleToGround - 100) / (180 - 100);    // Remap value to [0, 1]
+        }
+        else
+        {
+            cameraAngleToGround = 0;
+        }
 
         visibleGrassQuadtrees.Clear();
         
@@ -452,10 +463,6 @@ public class GrassMaster : MonoBehaviour
         
     }
 
-    private void FixedUpdate()
-    {
-        playerPosition = playerTransform.position;
-    }
 
     private void OnDrawGizmos()
     {

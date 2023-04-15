@@ -137,6 +137,9 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _PositionModifier: 0.3
+    - _PositionModifierX: 0.55
+    - _PositionModifierY: 1
+    - _PositionModifierZ: 0.55
     - _QueueControl: 0
     - _QueueOffset: 1
     - _RandomRotationNoiseScale: 16
@@ -154,7 +157,7 @@ Material:
     - _WindNoiseScale: 0.08
     - _WindRotation: 0
     - _WindSpeed: 0.45
-    - _WindStrenght: 0.24
+    - _WindStrenght: 3.96
     - _WorkflowMode: 0
     - _WorldUV_Tiling: 1
     - _ZTest: 4
