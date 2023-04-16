@@ -39,7 +39,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8731211943143099570}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0777d029ed3dffa4692f417d4aba19ca, type: 3}
   m_Name: 
@@ -116,9 +116,24 @@ MonoBehaviour:
   terrainData: {fileID: 15600000, guid: 776925e720985d445941e1883d52a0c6, type: 2}
   isPainting: 0
   brushPosition: {x: -68.39778, y: -8.226181}
-  hitPosGizmo: {x: -17.294373, y: 0.0000019073486, z: -56.389767}
+  hitPosGizmo: {x: 63.910683, y: 0, z: 6.712944}
   hitPoint: {x: 0, y: 0, z: 0}
   hitNormal: {x: 0.09719977, y: 0.9952649, z: 0}
+  onInitFinished:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8731211943791936431}
+        m_TargetAssemblyTypeName: GrassMaskDisplayer, Assembly-CSharp
+        m_MethodName: InitDisplayer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   onPaintingMask:
     m_PersistentCalls:
       m_Calls: []
@@ -136,9 +151,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textureObject: {fileID: 8731211943791936416}
   texture: {fileID: 0}
-  terrain: {fileID: 0}
   newTex: {fileID: 0}
   decalProjector: {fileID: 8731211943143099568}
-  decalMaterial: {fileID: 0}
   decalShader: {fileID: -6465566751694194690, guid: 9b4e681081e2b4c469111bb649e2f7ee,
     type: 3}

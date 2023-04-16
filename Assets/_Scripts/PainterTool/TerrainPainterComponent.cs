@@ -39,16 +39,14 @@ public class TerrainPainterComponent : MonoBehaviour
     [HideInInspector]
     public Vector3 hitNormal;
 
+    public UnityEvent onInitFinished;
     public UnityEvent onPaintingMask;
 
     private void OnValidate()
     {
         if(terrain == null)
             terrain = (Terrain)transform.GetComponentInParent(typeof(Terrain));
-        if(terrain != null)
-        {
-            Init();
-        }
+        Init();
     }
 
     // Create the texture and get terrain data
@@ -72,6 +70,8 @@ public class TerrainPainterComponent : MonoBehaviour
             }
 
             transform.localPosition = new Vector3(terrainData.size.x / 2, 0, terrainData.size.z / 2);
+
+            onInitFinished.Invoke();
         }
     }
 #if UNITY_EDITOR

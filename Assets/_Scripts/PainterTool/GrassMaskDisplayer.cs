@@ -8,7 +8,7 @@ public class GrassMaskDisplayer : MonoBehaviour
     public TerrainPainterComponent textureObject;   // Object from which we will take the texture we want to display
     public Texture2D texture;   // this is public for debuggin purposes
 
-    public Terrain terrain;
+    Terrain terrain;
     private TerrainData terrainData;
 
     TerrainLayer terrainLayer;
@@ -16,12 +16,20 @@ public class GrassMaskDisplayer : MonoBehaviour
     public Texture2D newTex;
 
     public DecalProjector decalProjector;   // Decal object that should be updated
-    public Material decalMaterial;
+    Material decalMaterial;
     public Shader decalShader;
 
     private void OnValidate()
     {
-        if(terrain!= null && textureObject.maskTexture != null)
+        textureObject = GetComponent<TerrainPainterComponent>();
+    }
+
+    public void InitDisplayer()
+    {
+        Debug.Log("Displaying init...");
+        terrain = textureObject.terrain;
+
+        if (terrain != null && textureObject.maskTexture != null)
         {
             texture = textureObject.maskTexture;
 
@@ -34,6 +42,7 @@ public class GrassMaskDisplayer : MonoBehaviour
 
             decalMaterial = new Material(decalShader);
             decalProjector.material = decalMaterial;
+            decalProjector.size = new Vector3( terrain.terrainData.size.x, terrain.terrainData.size.z, 75);
             decalMaterial.SetTexture("Base_Map", texture);
         }
     }
@@ -41,11 +50,13 @@ public class GrassMaskDisplayer : MonoBehaviour
     private void OnEnable()
     {
         Selection.selectionChanged += ToggleDecal;
+        textureObject.onInitFinished.AddListener(InitDisplayer);
     }
 
     private void OnDisable()
     {
         Selection.selectionChanged -= ToggleDecal;
+        textureObject.onInitFinished.RemoveListener(InitDisplayer);
     }
   
     void ToggleDecal()

@@ -6,8 +6,8 @@ using UnityEngine;
 public class GrassMaster : MonoBehaviour
 {
     // Parameters
-    [Range(1, 1000)]
-    [SerializeField] int grassSquareSize = 300;
+    [Range(1, 2000)]
+    [SerializeField] int grassSquareSize = 128;
     [Range(1, 6)]
     [SerializeField] int grassDensity = 1;
     [Range(0, 2)]
@@ -15,11 +15,9 @@ public class GrassMaster : MonoBehaviour
     [Range(0, 2)]
     [SerializeField] float offsetYAmount = 0.5f;
     [Range(0, 1000)]
-    [SerializeField] float cutoffDistance = 1000f;
-    [Range(0, 1000)]
-    [SerializeField] float quadtreeCutoffDistance = 120f;
+    [SerializeField] float cutoffDistance = 65f;
     [Range(0, 500)]
-    [SerializeField] float LODDistance = 50f;
+    [SerializeField] float LODDistance = 25f;
 
     Texture2D[] positionMaps;   // Should be an array with all of the textures? maybe the quadtree stores it
     Texture2D[] heightMaps;   // Should be an array with all of the textures? maybe the quadtree stores it
@@ -28,10 +26,16 @@ public class GrassMaster : MonoBehaviour
     [Space]
 
     // QUADTREE STUFF
-    GrassQuadtree[] grassQuadtrees;
+    [SerializeField] int quadtreeMaxDepth = 4;
 
-    List<GrassQuadtree> visibleGrassQuadtrees;
-    List<GrassQuadtree> pastVisibleGrassQuadtrees;
+    [Range(0, 1000)]
+    [SerializeField] float quadtreeCutoffDistance = 200f;
+    [Range(0, 500)]
+    [SerializeField] float leafCutoffDistance = 120f;
+    GrassQuadtree[] _grassQuadtrees;
+
+    List<GrassQuadtree> _visibleGrassQuadtrees;
+    List<GrassQuadtree> _pastVisibleGrassQuadtrees;
 
     [Space]
 
@@ -39,8 +43,8 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] ComputeShader grassCompute;
     [SerializeField] ComputeShader cullGrassCompute;
 
-    uint numThreadsX;
-    uint numThreadsY;
+    uint _numThreadsX;
+    uint _numThreadsY;
 
     [Space]
 
@@ -55,28 +59,32 @@ public class GrassMaster : MonoBehaviour
     [Header("Grass Material parameters")]
     [SerializeField] Color bottomColor;
     [SerializeField] Color topColor;
-    [SerializeField] float worldUVTiling;
+    [SerializeField] float worldUVTiling = 1;
     [Header("Scale")]
-    [SerializeField] float scaleY;
-    [SerializeField] float randomYScaleNoise;
-    [SerializeField] float minRandomY;
-    [SerializeField] float maxRandomY;
+    [SerializeField] float scaleY = 1;
+    [SerializeField] float randomYScaleNoise = 1;
+    [SerializeField] float minRandomY = 0;
+    [SerializeField] float maxRandomY = 1;
     [Header("Rotation")]
-    [SerializeField][Range(0, 360)] float maxYRotation;
-    [SerializeField] float randomYRotationNoise;
-    [SerializeField][Range(0, 90)] float maxBend;
-    [SerializeField] float bendRandomnessScale;
+    [SerializeField][Range(0, 360)] float maxYRotation = 0;
+    [SerializeField] float randomYRotationNoise = 1;
+    [SerializeField][Range(0, 90)] float maxBend = 20;
+    [SerializeField][Range(0, 90)] float maxAdditionalBend = 20;
+    [SerializeField] float bendRandomnessScale = 1;
     [Header("Wind")]
-    [SerializeField] float windStrenght;
-    [SerializeField] float windSpeed;
-    [SerializeField][Range(0, 360)] float windRotation;
-    [SerializeField] float windScaleNoise;
-    [SerializeField] float windDistortion;
+    [SerializeField] float windStrenght = 0.1f;
+    [SerializeField] float windSpeed = 0.3f;
+    [SerializeField][Range(0, 360)] float windRotation = 0;
+    [SerializeField] float windScaleNoise = 0.1f;
+    [SerializeField] float windDistortion = 0.7f;
     [SerializeField] Transform playerTransform;
-    Vector3 playerPosition;
-    [SerializeField] float playerPositionStrength = 1f;
+    Vector3 _playerPosition;
+    [SerializeField] float playerPositionModifierX = 1f;
+    [SerializeField] float playerPositionModifierY = 1f;
+    [SerializeField] float playerPositionModifierZ = 1f;
 
-    private float cameraAngleToGround;
+
+    private float _cameraAngleToGroundNormalized;
 
     // Data structure to communicate GPU and CPU
     private struct GrassData
@@ -85,13 +93,13 @@ public class GrassMaster : MonoBehaviour
         public Vector3 scale;
     }
 
-    private uint[] mainLODArgs;
-    private uint[] lowerLODArgs;
+    private uint[] _mainLODArgs;
+    private uint[] _lowerLODArgs;
 
 
     // Internal values for grass positions
-    private int grassResolution;
-    private float grassStep;
+    private int _grassResolution;
+    private float _grassStep;
 
 
     // Grass material properties to id
@@ -123,15 +131,17 @@ public class GrassMaster : MonoBehaviour
         windScaleNoiseId = Shader.PropertyToID("_WindNoiseScale"),
         windDistortionId = Shader.PropertyToID("_WindDistortion"),
         playerPositionId = Shader.PropertyToID("_PlayerPosition"),
-        playerPositionStrengthId = Shader.PropertyToID("_PositionModifier")
+        playerPositionModifierXId = Shader.PropertyToID("_PositionModifierX"),
+        playerPositionModifierYId = Shader.PropertyToID("_PositionModifierY"),
+        playerPositionModifierZId = Shader.PropertyToID("_PositionModifierZ")
         ;
 
 
     // CONST
-    private int positionsBufferSize = 3 * 4; // 3 floats per position * 4 bytes per float
-    private int scalesBufferSize = 4;
-    private int grassDataBufferSize = 3 * 4 + 3 * 4;
-    private int nodeResolution = 0;
+    private int _positionsBufferSize = 3 * sizeof(float); // 3 floats per position * 4 bytes per float
+    private int _scalesBufferSize = 4;
+    private int _grassDataBufferSize = 3 * sizeof(float) + 3 * sizeof(float);
+    private int _nodeResolution = 0;
 
 
     List<GrassQuadtree> debugList;
@@ -140,15 +150,14 @@ public class GrassMaster : MonoBehaviour
 
     private void Awake()
     {
-        grassResolution = grassSquareSize * grassDensity;
-        grassStep = grassSquareSize / (float) grassResolution;
+        _grassResolution = grassSquareSize * grassDensity;
+        _grassStep = grassSquareSize / (float) _grassResolution;
 
         // A quadtree for each "tile"
         GameObject[] grassPainters = GameObject.FindGameObjectsWithTag("GrassPainter");
-
         positionMaps = new Texture2D[grassPainters.Length];
         heightMaps = new Texture2D[grassPainters.Length];
-        grassQuadtrees = new GrassQuadtree[grassPainters.Length];
+        _grassQuadtrees = new GrassQuadtree[grassPainters.Length];
 
         // GENERATE QUADTREE
         for (int i = 0; i < grassPainters.Length; i++)
@@ -156,35 +165,35 @@ public class GrassMaster : MonoBehaviour
             positionMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().maskTexture;
             heightMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().heightMap;
 
-            grassQuadtrees[i] = new GrassQuadtree(new AABB(grassPainters[i].transform.position.x, grassPainters[i].transform.position.z, 64),   // last number is half the size of the terrain
+            _grassQuadtrees[i] = new GrassQuadtree(new AABB(grassPainters[i].transform.position.x, grassPainters[i].transform.position.z, grassSquareSize/2),   // last number is half the size of the terrain
                 0,
-                4,
+                quadtreeMaxDepth,
                 positionMaps[i],
                 heightMaps[i]);
 
-            grassQuadtrees[i].Build();
+            _grassQuadtrees[i].Build();
         }
 
-        visibleGrassQuadtrees = new List<GrassQuadtree>();
-        pastVisibleGrassQuadtrees = new List<GrassQuadtree>();
+        _visibleGrassQuadtrees = new List<GrassQuadtree>();
+        _pastVisibleGrassQuadtrees = new List<GrassQuadtree>();
 
-        mainLODArgs = new uint[5] { 0, 0, 0, 0, 0 };
-        mainLODArgs[0] = (uint)grassMesh.GetIndexCount(0);
-        mainLODArgs[1] = (uint)0;
-        mainLODArgs[2] = (uint)grassMesh.GetIndexStart(0);
-        mainLODArgs[3] = (uint)grassMesh.GetBaseVertex(0);
+        _mainLODArgs = new uint[5] { 0, 0, 0, 0, 0 };
+        _mainLODArgs[0] = (uint)grassMesh.GetIndexCount(0);
+        _mainLODArgs[1] = (uint)0;
+        _mainLODArgs[2] = (uint)grassMesh.GetIndexStart(0);
+        _mainLODArgs[3] = (uint)grassMesh.GetBaseVertex(0);
 
-        lowerLODArgs = new uint[5] { 0, 0, 0, 0, 0 };
-        lowerLODArgs[0] = (uint)grassMeshLOD.GetIndexCount(0);
-        lowerLODArgs[1] = (uint)0;
-        lowerLODArgs[2] = (uint)grassMeshLOD.GetIndexStart(0);
-        lowerLODArgs[3] = (uint)grassMeshLOD.GetBaseVertex(0);
+        _lowerLODArgs = new uint[5] { 0, 0, 0, 0, 0 };
+        _lowerLODArgs[0] = (uint)grassMeshLOD.GetIndexCount(0);
+        _lowerLODArgs[1] = (uint)0;
+        _lowerLODArgs[2] = (uint)grassMeshLOD.GetIndexStart(0);
+        _lowerLODArgs[3] = (uint)grassMeshLOD.GetBaseVertex(0);
     }
 
     void UpdateGrassAttributes()
     {
-        grassResolution = grassSquareSize * grassDensity;
-        grassStep = grassSquareSize / (float)grassResolution;
+        _grassResolution = grassSquareSize * grassDensity;
+        _grassStep = grassSquareSize / (float)_grassResolution;
     }
 
 
@@ -192,7 +201,7 @@ public class GrassMaster : MonoBehaviour
     // Stuff for creating the buffer
     void OnEnable()
     {
-        grassCompute.GetKernelThreadGroupSizes(0, out numThreadsX, out numThreadsY, out _);
+        grassCompute.GetKernelThreadGroupSizes(0, out _numThreadsX, out _numThreadsY, out _);
 
         //InitializeQuadtreeNodes();
     }
@@ -207,11 +216,11 @@ public class GrassMaster : MonoBehaviour
 
     private void InitializeQuadtreeNodes()
     {
-        if (grassQuadtrees != null)
+        if (_grassQuadtrees != null)
         {
-            for (int i = 0; i < grassQuadtrees.Length; i++)
+            for (int i = 0; i < _grassQuadtrees.Length; i++)
             {
-                SetAllChildren(ref grassQuadtrees[i]);
+                SetAllChildren(ref _grassQuadtrees[i]);
             }
         }
     }
@@ -234,43 +243,42 @@ public class GrassMaster : MonoBehaviour
         if (!qt.subdivided && qt.containsGrass)   // Leaf node with grass
         {
             if(!qt.hasBeenSet)
-                nodeResolution = (int)(qt.boundary.halfDimension * 2 * grassDensity);
+                _nodeResolution = (int)(qt.boundary.halfDimension * 2 * grassDensity);
 
             if(!qt.hasBeenSet)
                 qt.grassCompute = Resources.Load<ComputeShader>("GrassCompute");
 
-            qt.grassDataBuffer = new ComputeBuffer(nodeResolution * nodeResolution, grassDataBufferSize, ComputeBufferType.Append);
+            qt.grassDataBuffer = new ComputeBuffer(_nodeResolution * _nodeResolution, _grassDataBufferSize, ComputeBufferType.Append);
             qt.grassDataBuffer.SetCounterValue(0);
 
             qt.argsBuffer = new ComputeBuffer(5, sizeof(uint), ComputeBufferType.IndirectArguments);
             qt.argsLODBuffer= new ComputeBuffer(5, sizeof(uint), ComputeBufferType.IndirectArguments);
 
             qt.grassCompute.SetInt(sizeId, (int)qt.boundary.halfDimension * 2);
-            qt.grassCompute.SetInt(resolutionId, nodeResolution);
-            qt.grassCompute.SetFloat(stepId, grassStep);
+            qt.grassCompute.SetInt(resolutionId, _nodeResolution);
+            qt.grassCompute.SetFloat(stepId, _grassStep);
             qt.grassCompute.SetFloat("_NodePositionX", qt.boundary.p.x);
             qt.grassCompute.SetFloat("_NodePositionY", qt.boundary.p.y);
             qt.grassCompute.SetFloat(offsetXAmountId, offsetXAmount);
             qt.grassCompute.SetFloat(offsetYAmountId, offsetYAmount);
             qt.grassCompute.SetFloat(heightDisplacementStrenghtId, heightDisplacementStrenght);
-            //qt.grassCompute.SetMatrix("_LocalToWorld", transform.localToWorldMatrix);
 
             qt.grassCompute.SetTexture(0, "_HeightMap", qt.heightMap);
             qt.grassCompute.SetTexture(0, positionMapID, qt.grassMask);
             qt.grassCompute.SetBuffer(0, "_GrassData", qt.grassDataBuffer);
 
             qt.grassDataBuffer.SetCounterValue(0);
-            qt.grassCompute.Dispatch(0, (int)(qt.boundary.halfDimension * 2 * grassDensity / numThreadsX), (int)(qt.boundary.halfDimension * 2 * grassDensity / numThreadsY), 1);
+            qt.grassCompute.Dispatch(0, (int)(qt.boundary.halfDimension * 2 * grassDensity / _numThreadsX), (int)(qt.boundary.halfDimension * 2 * grassDensity / _numThreadsY), 1);
 
             uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
-            qt.argsLODBuffer.SetData(lowerLODArgs);
+            qt.argsLODBuffer.SetData(_lowerLODArgs);
             ComputeBuffer.CopyCount(qt.grassDataBuffer, qt.argsLODBuffer, sizeof(uint));
             qt.argsLODBuffer.GetData(newArgs);
 
             qt.numberOfGrassBlades = newArgs[1];
 
-            qt.culledGrassDataBuffer = new ComputeBuffer((int)qt.numberOfGrassBlades, grassDataBufferSize, ComputeBufferType.Append);
-            qt.culledGrassDataBufferLOD = new ComputeBuffer((int)qt.numberOfGrassBlades, grassDataBufferSize, ComputeBufferType.Append);
+            qt.culledGrassDataBuffer = new ComputeBuffer((int)qt.numberOfGrassBlades, _grassDataBufferSize, ComputeBufferType.Append);
+            qt.culledGrassDataBufferLOD = new ComputeBuffer((int)qt.numberOfGrassBlades, _grassDataBufferSize, ComputeBufferType.Append);
 
            
             // Material parameters
@@ -299,24 +307,26 @@ public class GrassMaster : MonoBehaviour
         grassMaterial.SetFloat(maxRandomYId, maxRandomY);
         grassMaterial.SetFloat(maxYRotationId, maxYRotation);
         grassMaterial.SetFloat(randomYRotationNoiseId, randomYRotationNoise);
-        grassMaterial.SetFloat(maxBendId, maxBend + 20f * cameraAngleToGround);
+        grassMaterial.SetFloat(maxBendId, maxBend + maxAdditionalBend * _cameraAngleToGroundNormalized);
         grassMaterial.SetFloat(bendRandomnessScaleId, bendRandomnessScale);
         grassMaterial.SetFloat(windStrenghtId, windStrenght);
         grassMaterial.SetFloat(windSpeedId, windSpeed);
         grassMaterial.SetFloat(windRotationId, windRotation);
         grassMaterial.SetFloat(windScaleNoiseId, windScaleNoise);
         grassMaterial.SetFloat(windDistortionId, windDistortion);
-        grassMaterial.SetVector(playerPositionId, playerPosition);
-        grassMaterial.SetFloat(playerPositionStrengthId, playerPositionStrength);
+        grassMaterial.SetVector(playerPositionId, _playerPosition);
+        grassMaterial.SetFloat(playerPositionModifierXId, playerPositionModifierX);
+        grassMaterial.SetFloat(playerPositionModifierYId, playerPositionModifierY);
+        grassMaterial.SetFloat(playerPositionModifierZId, playerPositionModifierZ);
     }
 
     private void FreeQuadtreeNodes()
     {
-        if (grassQuadtrees != null)
+        if (_grassQuadtrees != null)
         {
-            for (int i = 0; i < grassQuadtrees.Length; i++)
+            for (int i = 0; i < _grassQuadtrees.Length; i++)
             {
-                FreeAllChildren(ref grassQuadtrees[i]);
+                FreeAllChildren(ref _grassQuadtrees[i]);
             }
         }
     }
@@ -360,8 +370,8 @@ public class GrassMaster : MonoBehaviour
     void CullGrass(GrassQuadtree qt, Matrix4x4 VP, bool noLOD)
     {
         // Reset Args Buffer by setting default arrays
-        qt.argsBuffer.SetData(mainLODArgs);
-        qt.argsLODBuffer.SetData(lowerLODArgs);
+        qt.argsBuffer.SetData(_mainLODArgs);
+        qt.argsLODBuffer.SetData(_lowerLODArgs);
 
         cullGrassCompute.SetMatrix("MATRIX_VP", VP);
         cullGrassCompute.SetFloat("_CullDistance", cutoffDistance);
@@ -380,7 +390,7 @@ public class GrassMaster : MonoBehaviour
 
         qt.culledGrassDataBuffer.SetCounterValue(0);    // THIS IS SUPER FUCKING IMPORTANT
         qt.culledGrassDataBufferLOD.SetCounterValue(0);
-        cullGrassCompute.Dispatch(0, Mathf.CeilToInt(nodeResolution * nodeResolution / culledNumThreadsX), 1, 1);
+        cullGrassCompute.Dispatch(0, Mathf.CeilToInt(_nodeResolution * _nodeResolution / culledNumThreadsX), 1, 1);
 
         /*uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
 
@@ -400,29 +410,30 @@ public class GrassMaster : MonoBehaviour
         Matrix4x4 V = Camera.main.transform.worldToLocalMatrix;
         Matrix4x4 VP = P * V;
 
-        playerPosition = playerTransform.position;
-        cameraAngleToGround = Vector3.Angle(Camera.main.transform.forward, Vector3.up);
-        if(cameraAngleToGround > 100)
+        // Update material parameters
+        _playerPosition = playerTransform.position;
+        _cameraAngleToGroundNormalized = Vector3.Angle(Camera.main.transform.forward, Vector3.up);
+        if(_cameraAngleToGroundNormalized > 100)
         {
-            cameraAngleToGround = (cameraAngleToGround - 100) / (180 - 100);    // Remap value to [0, 1]
+            _cameraAngleToGroundNormalized = (_cameraAngleToGroundNormalized - 100) / (180 - 100);    // Remap value to [0, 1]
         }
         else
         {
-            cameraAngleToGround = 0;
+            _cameraAngleToGroundNormalized = 0;
         }
 
-        visibleGrassQuadtrees.Clear();
+        _visibleGrassQuadtrees.Clear();
         
         // Get visible nodes
-        for (int i = 0; i < grassQuadtrees.Length; i++)
+        for (int i = 0; i < _grassQuadtrees.Length; i++)
         {
-            grassQuadtrees[i].TestFrustum(Camera.main.transform.position, quadtreeCutoffDistance, GeometryUtility.CalculateFrustumPlanes(Camera.main), ref visibleGrassQuadtrees);  // Hay error aquí, coge de los que no debería
+            _grassQuadtrees[i].TestFrustum(Camera.main.transform.position, leafCutoffDistance, quadtreeCutoffDistance, GeometryUtility.CalculateFrustumPlanes(Camera.main), ref _visibleGrassQuadtrees);  // Hay error aquí, coge de los que no debería
         }
 
-        // Free up the memory of non visible nodes
-        if (pastVisibleGrassQuadtrees.Count > 0)
+        // Free up the memory of non-visible nodes
+        if (_pastVisibleGrassQuadtrees.Count > 0)
         {
-            List<GrassQuadtree> removedElements = pastVisibleGrassQuadtrees.Except(visibleGrassQuadtrees).ToList();
+            List<GrassQuadtree> removedElements = _pastVisibleGrassQuadtrees.Except(_visibleGrassQuadtrees).ToList(); // Except is O(n + m)
             for (int i = 1; i < removedElements.Count; i++)
             {
                 GrassQuadtree currentQT = removedElements[i];
@@ -434,12 +445,12 @@ public class GrassMaster : MonoBehaviour
             }
         }
 
-        pastVisibleGrassQuadtrees = new List<GrassQuadtree>(visibleGrassQuadtrees);
+        _pastVisibleGrassQuadtrees = new List<GrassQuadtree>(_visibleGrassQuadtrees);
         
         // RENDER GRASS IN NODES
-        for (int i = 1; i < visibleGrassQuadtrees.Count; i++)
+        for (int i = 1; i < _visibleGrassQuadtrees.Count; i++)
         {
-            GrassQuadtree currentQT = visibleGrassQuadtrees[i];
+            GrassQuadtree currentQT = _visibleGrassQuadtrees[i];
 
             if (!currentQT.subdivided)
             {
@@ -466,7 +477,7 @@ public class GrassMaster : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (visibleGrassQuadtrees != null)
+        if (_visibleGrassQuadtrees != null)
         {
             Gizmos.color = Color.red;
             DrawQuadtreesWithColors();
@@ -475,14 +486,14 @@ public class GrassMaster : MonoBehaviour
 
     void DrawQuadtreesWithColors()
     {
-        for (int i = 0; i < visibleGrassQuadtrees.Count; i++)
+        for (int i = 0; i < _visibleGrassQuadtrees.Count; i++)
         {
-            if (!visibleGrassQuadtrees[i].subdivided)
+            if (!_visibleGrassQuadtrees[i].subdivided)
             {
                 Gizmos.color = Color.blue;
             }
-            Gizmos.DrawWireCube(new Vector3(visibleGrassQuadtrees[i].boundary.p.x, 0, visibleGrassQuadtrees[i].boundary.p.y),
-               new Vector3(visibleGrassQuadtrees[i].boundary.halfDimension * 2, 0, visibleGrassQuadtrees[i].boundary.halfDimension * 2));
+            Gizmos.DrawWireCube(new Vector3(_visibleGrassQuadtrees[i].boundary.p.x, 0, _visibleGrassQuadtrees[i].boundary.p.y),
+               new Vector3(_visibleGrassQuadtrees[i].boundary.halfDimension * 2, 0, _visibleGrassQuadtrees[i].boundary.halfDimension * 2));
         }
     }
 }

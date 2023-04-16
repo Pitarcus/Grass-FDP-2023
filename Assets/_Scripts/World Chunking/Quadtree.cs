@@ -293,7 +293,7 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
     }
 
     // Test the frustum against a quadtree, only visible quadtrees with grass will appear
-    public bool TestFrustum(Vector3 cameraPosition, float quadtreeCutoffDistance, Plane[] frustum, ref List<GrassQuadtree> validQuadtrees)
+    public bool TestFrustum(Vector3 cameraPosition, float leafCutoffDistance, float quadtreeCutoffDistance, Plane[] frustum, ref List<GrassQuadtree> validQuadtrees)
     {
         if(!boundary.IsOnFrustum(frustum))
         {
@@ -304,21 +304,25 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
         {
             return false;
         }
-        
+        if (Vector3.Distance(cameraPosition, new Vector3(boundary.p.x, 10, boundary.p.y)) > quadtreeCutoffDistance)
+        {
+            return false;
+        }
+
 
         // Quadtree is in frustum, in distance && contains grass
         if (subdivided)
         {
-            if (northWest.TestFrustum(cameraPosition, quadtreeCutoffDistance, frustum, ref validQuadtrees) |
-                northEast.TestFrustum(cameraPosition, quadtreeCutoffDistance, frustum, ref validQuadtrees) |
-                southEast.TestFrustum(cameraPosition, quadtreeCutoffDistance, frustum, ref validQuadtrees) |
-                southWest.TestFrustum(cameraPosition, quadtreeCutoffDistance, frustum, ref validQuadtrees))
+            if (northWest.TestFrustum(cameraPosition, leafCutoffDistance, quadtreeCutoffDistance, frustum, ref validQuadtrees) |
+                northEast.TestFrustum(cameraPosition, leafCutoffDistance, quadtreeCutoffDistance, frustum, ref validQuadtrees) |
+                southEast.TestFrustum(cameraPosition, leafCutoffDistance, quadtreeCutoffDistance, frustum, ref validQuadtrees) |
+                southWest.TestFrustum(cameraPosition, leafCutoffDistance, quadtreeCutoffDistance, frustum, ref validQuadtrees))
             {
                 return false;
             }
             else
             {
-                if (Vector3.Distance(cameraPosition, new Vector3(boundary.p.x, 10, boundary.p.y)) > quadtreeCutoffDistance)
+                if (Vector3.Distance(cameraPosition, new Vector3(boundary.p.x, 10, boundary.p.y)) > leafCutoffDistance)
                 {
                     return false;
                 }
@@ -328,7 +332,7 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
         }
         else
         {
-            if (Vector3.Distance(cameraPosition, new Vector3(boundary.p.x, 10, boundary.p.y)) > quadtreeCutoffDistance)
+            if (Vector3.Distance(cameraPosition, new Vector3(boundary.p.x, 10, boundary.p.y)) > leafCutoffDistance)
             {
                 return false;
             }

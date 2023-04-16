@@ -67,9 +67,8 @@ public class TerrainPainterEditor : Editor
 
         EditorGUILayout.Space();
 
-       // EditorGUI.DrawPreviewTexture(new Rect(10, 200, 256, 256), brushPreviewTexture);
 
-        EditorGUILayout.Space();
+
         EditorGUILayout.Space();
 
         if (GUILayout.Button("Clear Mask"))

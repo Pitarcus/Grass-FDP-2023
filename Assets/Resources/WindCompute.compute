@@ -1,0 +1,176 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+#pragma kernel ForceGPUFluidSim3D
+#pragma kernel AdvectionGPUFluidSim3D
+#pragma kernel PoissonSolver3D
+#pragma kernel Divergence3D
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+
+
+// Force
+RWStructuredBuffer<float3> velocityBuffer;
+StructuredBuffer<float3> prevVelocityBuffer;
+StructuredBuffer<float3>  velocitySourcesBuffer;
+
+
+// AdvectionGPUFluidSim3D
+RWStructuredBuffer<float3> velocityField;
+RWStructuredBuffer<float3> newQuantity;
+StructuredBuffer<float3> prevQuantity;
+
+float _viscosity;
+float _alpha;    // size of the grid cell squared / viscosity * deltaTime 
+float _beta;     // beta number of neighbour values (6) +  alpha
+
+
+// PoissonSolver3D
+RWStructuredBuffer<float3>  poissonVelocityBuffer;  // b aka the copy of the prevVelocityBuffer
+StructuredBuffer<float3>  prevPoissonVelocityBuffer; // changes each iteration of the poisson solver
+RWStructuredBuffer<float3>  jacobiResult;
+
+
+//Divergence3D
+StructuredBuffer<float3> field; // prevVelocityBuffer
+RWStructuredBuffer<float3> divergenceField; // velocityBuffer
+float _gridCellSize;
+
+// General
+uint _numberOfVoxels;
+uint _sizeX;    // It is really, the size - 2 (last voxel not in the boundary)
+uint _sizeY;
+uint _sizeZ;
+
+float deltaTime;
+
+
+
+int IndexFrom3DCoord(int x, int y, int z) 
+{
+    return x + y * _numberOfVoxels + z * _numberOfVoxels * _numberOfVoxels;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+
+    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+}
+
+
+[numthreads(8,8,1)]
+void ForceGPUFluidSim3D(uint3 id : SV_DispatchThreadID) 
+{
+    int voxelIndex = IndexFrom3DCoord(id.x, id.y, id.z);
+    float3 sourceForce = velocitySourcesBuffer[voxelIndex];
+    if (sourceForce.x != 0 && sourceForce.y != 0 && sourceForce.z != 0) 
+    {
+        velocityBuffer [ voxelIndex ] = prevVelocityBuffer[voxelIndex] + sourceForce; //+ gravityForce;
+    }
+    else
+    velocityBuffer[voxelIndex] = prevVelocityBuffer[voxelIndex]; //+ gravityForce
+    
+    
+    //Swap of buffers?
+}
+
+[numthreads(8,8,1)]
+void AdvectionGPUFluidSim3D(uint3 id : SV_DispatchThreadID) 
+{
+    int currIndex = IndexFrom3DCoord(id.x, id.y, id.z);
+    float3 prevPos = id - velocityField[currIndex] * deltaTime;
+
+    // Making sure the position is inside of the grid
+    if (prevPos.x < 0.5f)
+        prevPos.x = 0.5f;
+    if (prevPos.x > _sizeX + 0.5f)
+        prevPos.x = _sizeX + 0.5f;
+
+    if (prevPos.y < 0.5f)
+        prevPos.y = 0.5f;
+    if (prevPos.y > _sizeY + 0.5f)
+        prevPos.y = _sizeY + 0.5f;
+
+    if (prevPos.z < 0.5f)
+        prevPos.z = 0.5f;
+    if (prevPos.z > _sizeZ + 0.5f)
+        prevPos.z = _sizeZ + 0.5f;
+
+
+    // Trilinear interpolation of the quantity in the previous position
+    float3 p1 = floor(prevPos);
+    float3 p2 = p1 + 1;
+
+    // Left Bottom Front voxel
+    float3 Q1 = prevQuantity [ IndexFrom3DCoord (p1.x, p1.y, p1.z) ];
+    // Left Top Front voxel
+    float3 Q2 = prevQuantity [ IndexFrom3DCoord (p1.x, p2.y, p1.z) ];
+    // Left Bottom Back voxel
+    float3 Q3 = prevQuantity [ IndexFrom3DCoord (p1.x, p1.y, p2.z) ];
+    // Left Top Back voxel
+    float3 Q4 = prevQuantity [ IndexFrom3DCoord (p1.x, p2.y, p2.z) ];
+    // Right Bottom Front voxel
+    float3 Q5 = prevQuantity [ IndexFrom3DCoord (p2.x, p1.y, p1.z) ];
+    // Right Top Front voxel
+    float3 Q6 = prevQuantity [ IndexFrom3DCoord (p2.x, p2.y, p1.z) ];
+    // Right Bottom Back voxel
+    float3 Q7 = prevQuantity [ IndexFrom3DCoord (p2.x, p1.y, p2.z) ];
+    // Right Top Back voxel
+    float3 Q8 = prevQuantity [ IndexFrom3DCoord (p2.x, p2.y, p2.z) ];
+
+    // ratio ... how much take from a quantity
+    float3 t = prevPos - p1;
+
+    // Interpolation in Y direction
+    float3 QY1 = (1 - t.y) * Q1 + Q2 * t.y;
+    float3 QY2 = (1 - t.y) * Q3 + Q4 * t.y;
+    float3 QY3 = (1 - t.y) * Q5 + Q6 * t.y;
+    float3 QY4 = (1 - t.y) * Q7 + Q8 * t.y;
+    // Interpolation in Z direction
+    float3 QZ1 = (1 - t.z) * ( QY1 ) + (QY2) * t.z;
+    float3 QZ2 = (1 - t.z) * ( QY3 ) + (QY4) * t.z;
+    // Interpolation in X direction
+    float3 finalQuantity = (1 - t.x) * ( QZ1 ) + ( QZ2 ) * t.x;
+
+    newQuantity[currIndex] = finalQuantity;
+}
+
+[numthreads(8,8,1)]
+void PoissonSolver3D(uint3 id : SV_DispatchThreadID) 
+{
+    int currIndex = IndexFrom3DCoord (id.x, id.y, id.z);
+    int leftIndex = IndexFrom3DCoord (id.x - 1 , id.y, id.z);
+    int rightIndex = IndexFrom3DCoord (id.x + 1 , id.y, id.z);
+    int topIndex = IndexFrom3DCoord (id.x, id.y + 1 , id.z);
+    int bottomIndex = IndexFrom3DCoord (id.x, id.y - 1 , id.z);
+    int frontIndex = IndexFrom3DCoord (id.x, id.y, id.z + 1);
+    int backIndex = IndexFrom3DCoord (id.x, id.y, id.z - 1);
+   
+
+    // Jacobi
+    jacobiResult[currIndex] = (prevPoissonVelocityBuffer[ leftIndex ] + prevPoissonVelocityBuffer[ rightIndex ] +
+    prevPoissonVelocityBuffer[ topIndex ] + prevPoissonVelocityBuffer[ bottomIndex ] + prevPoissonVelocityBuffer[ frontIndex ] +
+    prevPoissonVelocityBuffer[ backIndex ] + poissonVelocityBuffer[ currIndex ] * _alpha ) / _beta;   
+}
+
+ [numthreads(8,8,1)]
+ void Divergence3D(uint3 id : SV_DispatchThreadID) 
+{
+    int currIndex = IndexFrom3DCoord (id.x, id.y, id.z);
+    int leftIndex = IndexFrom3DCoord (id.x - 1 , id.y, id.z);
+    int rightIndex = IndexFrom3DCoord (id.x + 1 , id.y, id.z);
+    int topIndex = IndexFrom3DCoord (id.x, id.y + 1 , id.z);
+    int bottomIndex = IndexFrom3DCoord (id.x, id.y - 1 , id.z);
+    int frontIndex = IndexFrom3DCoord (id.x, id.y, id.z + 1);
+    int backIndex = IndexFrom3DCoord (id.x, id.y, id.z - 1);
+
+    float u = ( field [ rightIndex ].x - field [ leftIndex ].x);
+    float v = ( field [ topIndex ].y - field [ bottomIndex ].y);
+    float w = ( field [ frontIndex ].z - field [ backIndex ].z);
+    float divergence = (u + v + w) / (2 * _gridCellSize );
+    divergenceField [ currIndex ] = float3( divergence , 0 , 0);    
+
+}
