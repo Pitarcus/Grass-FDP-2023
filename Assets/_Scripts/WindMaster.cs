@@ -39,9 +39,9 @@ public class WindMaster : MonoBehaviour
         numberOfVoxels = volumeSizeX * volumeSizeY * volumeSizeZ;
         Debug.Log("Number of voxels: " + numberOfVoxels);
         // Buffer allocation
-        velocityBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize);
-        prevVelocityBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize);
-        velocitySourcesBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize);
+        velocityBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default);
+        prevVelocityBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default);
+        velocitySourcesBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default);
 
         pressureBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
         prevPressureBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
@@ -76,10 +76,16 @@ public class WindMaster : MonoBehaviour
 
         for( int i = 0; i < numberOfVoxels; i++)
         {
-            sourceVelocities[i] = new Vector3(100, 100, 100);
+            if (i == 0)
+            {
+                sourceVelocities[i] = new Vector3(0.0f, 3, 3);
+            }
+            else
+                sourceVelocities[i] = new Vector3((float)i, 3, 3);
         }
         
         velocitySourcesBuffer.SetData(sourceVelocities);
+        
     }
 
     void AddForces()
@@ -90,19 +96,19 @@ public class WindMaster : MonoBehaviour
 
         windCompute.Dispatch(0, 1, 1, 1);
 
-        velocityBuffer.GetData(testvector);
-        for (int i = 0; i < numberOfVoxels; i++)
-        {
-            Debug.Log("Add foces before copy " + testvector[i] +  " / Index: " + i);
-        }
+        //velocityBuffer.GetData(testvector);
+        //for (int i = 0; i < numberOfVoxels; i++)
+        //{
+        //    Debug.Log("Add foces before copy " + testvector[i] +  " / Index: " + i);
+        //}
 
-        //SwapBuffers(ref prevVelocityBuffer, ref velocityBuffer);
+       SwapBuffers(ref prevVelocityBuffer, ref velocityBuffer);
 
-       /* prevVelocityBuffer.GetData(testvector);
-        for (int i = 0; i < numberOfVoxels; i++)
-        {
-            Debug.Log("Add foces 1: " + testvector[i]);
-        }*/
+       //prevVelocityBuffer.GetData(testvector);
+       // for (int i = 0; i < numberOfVoxels; i++)
+       // {
+       //     Debug.Log("Add foces after swap: " + testvector[i]);
+       // }
     }
 
     void Advection()
@@ -119,7 +125,7 @@ public class WindMaster : MonoBehaviour
         prevVelocityBuffer.GetData(testvector);
         for (int i = 0; i < numberOfVoxels; i++)
         {
-            Debug.Log("Advection : " + testvector[i]);
+            Debug.Log("Advection, after swapping : " + testvector[i]);
         }
     }
 
@@ -273,18 +279,18 @@ public class WindMaster : MonoBehaviour
             //}
 
             AddForces();
-            //Advection();
+            Advection();
             //Diffussion();
             //Project();
             //Boundary(); 
 
 
             first = true;
-            prevVelocityBuffer.GetData(testvector);
-            for (int i = 0; i < numberOfVoxels; i++)
-            {
-                Debug.Log("Second: " + testvector[i]);
-           }
+           // prevVelocityBuffer.GetData(testvector);
+           // for (int i = 0; i < numberOfVoxels; i++)
+           // {
+           //     Debug.Log("Second: " + testvector[i]);
+           //}
         }
 
     }

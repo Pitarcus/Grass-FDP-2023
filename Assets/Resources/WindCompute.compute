@@ -20,7 +20,7 @@ StructuredBuffer<float3>  velocitySourcesBuffer;
 
 
 // AdvectionGPUFluidSim3D
-RWStructuredBuffer<float3> velocityField;
+StructuredBuffer<float3> velocityField;
 RWStructuredBuffer<float3> newQuantity;
 StructuredBuffer<float3> prevQuantity;
 
@@ -60,7 +60,7 @@ StructuredBuffer<float3> prevBoundary;
 int boundaryCondition;
 
 // General
-int _numberOfVoxels;
+uint _numberOfVoxels;
 uint _sizeX;    // It is really, the size - 2 (last voxel not in the boundary)
 uint _sizeY;
 uint _sizeZ;
@@ -80,7 +80,7 @@ uint IndexFrom3DCoord(uint x, uint y, uint z)
 [numthreads(8,8,8)]
 void ForceGPUFluidSim3D(uint3 id : SV_DispatchThreadID) 
 {
-    int voxelIndex = IndexFrom3DCoord(id.x, id.y, id.z);
+    uint voxelIndex = IndexFrom3DCoord(id.x, id.y, id.z);
     if(voxelIndex < _numberOfVoxels) 
     {
         float3 sourceForce = velocitySourcesBuffer[voxelIndex];
