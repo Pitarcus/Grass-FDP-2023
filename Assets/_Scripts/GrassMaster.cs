@@ -382,8 +382,8 @@ public class GrassMaster : MonoBehaviour
         cullGrassCompute.SetBuffer(0, "_GrassDataBuffer", qt.grassDataBuffer);
         cullGrassCompute.SetBuffer(0, "_CulledGrassOutputBuffer", qt.culledGrassDataBuffer);
         cullGrassCompute.SetBuffer(0, "_CulledGrassOutputBufferLOD", qt.culledGrassDataBufferLOD);
-        cullGrassCompute.SetBuffer(0, "_ArgsBuffer", qt.argsBuffer);    // sent to count the number of instances
-        cullGrassCompute.SetBuffer(0, "_ArgsBufferLOD", qt.argsLODBuffer);
+        cullGrassCompute.SetBuffer(0, "_ArgsBuffer", qt.argsBuffer);        // sent to count the number of instances
+        cullGrassCompute.SetBuffer(0, "_ArgsBufferLOD", qt.argsLODBuffer);  // sent to count the number of instances
 
         uint culledNumThreadsX;
         cullGrassCompute.GetKernelThreadGroupSizes(0, out culledNumThreadsX, out _, out _);

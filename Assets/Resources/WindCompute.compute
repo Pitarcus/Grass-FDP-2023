@@ -1,9 +1,12 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
 #pragma kernel ForceGPUFluidSim3D
 #pragma kernel AdvectionGPUFluidSim3D
 #pragma kernel PoissonSolver3D
 #pragma kernel Divergence3D
+#pragma kernel Gradient3D
+#pragma kernel Subtract3D
+#pragma kernel BoundaryGPUFluidSim3D
+#pragma kernel Copy_StructuredBuffer
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -27,8 +30,8 @@ float _beta;     // beta number of neighbour values (6) +  alpha
 
 
 // PoissonSolver3D
-RWStructuredBuffer<float3>  poissonVelocityBuffer;  // b aka the copy of the prevVelocityBuffer
-StructuredBuffer<float3>  prevPoissonVelocityBuffer; // changes each iteration of the poisson solver
+StructuredBuffer<float3>  bPoisson;  // b aka the copy of the prevVelocityBuffer
+StructuredBuffer<float3>  x; // x (changes each iteration of the poisson solver)
 RWStructuredBuffer<float3>  jacobiResult;
 
 
@@ -37,8 +40,27 @@ StructuredBuffer<float3> field; // prevVelocityBuffer
 RWStructuredBuffer<float3> divergenceField; // velocityBuffer
 float _gridCellSize;
 
+// Gradient3D
+StructuredBuffer<float3> inputFieldGradient;
+RWStructuredBuffer<float3> gradientField;
+
+// Subtract3D
+StructuredBuffer<float3> a;
+StructuredBuffer<float3> b;
+RWStructuredBuffer<float3> subtractResult;
+
+// Copy_StructuredBuffer
+StructuredBuffer<float3>   _Copy_Source;
+RWStructuredBuffer<float3> _Copy_Target;
+
+// BoundaryGPUFluidSim3D
+RWStructuredBuffer<float3> newBoundary;
+StructuredBuffer<float3> prevBoundary;
+//float3 offset;
+int boundaryCondition;
+
 // General
-uint _numberOfVoxels;
+int _numberOfVoxels;
 uint _sizeX;    // It is really, the size - 2 (last voxel not in the boundary)
 uint _sizeY;
 uint _sizeZ;
@@ -47,37 +69,37 @@ float deltaTime;
 
 
 
-int IndexFrom3DCoord(int x, int y, int z) 
+
+//  ------- FUNCTIONS -------
+
+uint IndexFrom3DCoord(uint x, uint y, uint z) 
 {
-    return x + y * _numberOfVoxels + z * _numberOfVoxels * _numberOfVoxels;
+    return x + y * (_sizeX+2) + z * (_sizeX+2) * (_sizeY+2);
 }
 
-[numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
-{
-    // TODO: insert actual code here!
-
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
-}
-
-
-[numthreads(8,8,1)]
+[numthreads(8,8,8)]
 void ForceGPUFluidSim3D(uint3 id : SV_DispatchThreadID) 
 {
     int voxelIndex = IndexFrom3DCoord(id.x, id.y, id.z);
-    float3 sourceForce = velocitySourcesBuffer[voxelIndex];
-    if (sourceForce.x != 0 && sourceForce.y != 0 && sourceForce.z != 0) 
+    if(voxelIndex < _numberOfVoxels) 
     {
-        velocityBuffer [ voxelIndex ] = prevVelocityBuffer[voxelIndex] + sourceForce; //+ gravityForce;
+        float3 sourceForce = velocitySourcesBuffer[voxelIndex];
+        if (sourceForce.x != 0 && sourceForce.y != 0 && sourceForce.z != 0) 
+        {
+            velocityBuffer[voxelIndex] =  sourceForce;// prevVelocityBuffer[voxelIndex] + sourceForce; //+ gravityForce;
+        }
+        else if(prevVelocityBuffer[voxelIndex].x != 0 && prevVelocityBuffer[voxelIndex].y != 0 && prevVelocityBuffer[voxelIndex].z != 0)
+        {
+            velocityBuffer[voxelIndex] = prevVelocityBuffer[voxelIndex]; //+ gravityForce
+        }
+        else 
+        {
+            velocityBuffer[voxelIndex] = 0;
+        }
     }
-    else
-    velocityBuffer[voxelIndex] = prevVelocityBuffer[voxelIndex]; //+ gravityForce
-    
-    
-    //Swap of buffers?
 }
 
-[numthreads(8,8,1)]
+[numthreads(8,8,8)]
 void AdvectionGPUFluidSim3D(uint3 id : SV_DispatchThreadID) 
 {
     int currIndex = IndexFrom3DCoord(id.x, id.y, id.z);
@@ -138,7 +160,7 @@ void AdvectionGPUFluidSim3D(uint3 id : SV_DispatchThreadID)
     newQuantity[currIndex] = finalQuantity;
 }
 
-[numthreads(8,8,1)]
+[numthreads(8,8,8)]
 void PoissonSolver3D(uint3 id : SV_DispatchThreadID) 
 {
     int currIndex = IndexFrom3DCoord (id.x, id.y, id.z);
@@ -151,13 +173,13 @@ void PoissonSolver3D(uint3 id : SV_DispatchThreadID)
    
 
     // Jacobi
-    jacobiResult[currIndex] = (prevPoissonVelocityBuffer[ leftIndex ] + prevPoissonVelocityBuffer[ rightIndex ] +
-    prevPoissonVelocityBuffer[ topIndex ] + prevPoissonVelocityBuffer[ bottomIndex ] + prevPoissonVelocityBuffer[ frontIndex ] +
-    prevPoissonVelocityBuffer[ backIndex ] + poissonVelocityBuffer[ currIndex ] * _alpha ) / _beta;   
+    jacobiResult[currIndex] = (bPoisson[ leftIndex ] + bPoisson[ rightIndex ] +
+    bPoisson[ topIndex ] + bPoisson[ bottomIndex ] + bPoisson[ frontIndex ] +
+    bPoisson[ backIndex ] + x[ currIndex ] * _alpha ) / _beta;   
 }
 
- [numthreads(8,8,1)]
- void Divergence3D(uint3 id : SV_DispatchThreadID) 
+[numthreads(8,8,8)]
+void Divergence3D(uint3 id : SV_DispatchThreadID) 
 {
     int currIndex = IndexFrom3DCoord (id.x, id.y, id.z);
     int leftIndex = IndexFrom3DCoord (id.x - 1 , id.y, id.z);
@@ -172,5 +194,73 @@ void PoissonSolver3D(uint3 id : SV_DispatchThreadID)
     float w = ( field [ frontIndex ].z - field [ backIndex ].z);
     float divergence = (u + v + w) / (2 * _gridCellSize );
     divergenceField [ currIndex ] = float3( divergence , 0 , 0);    
+}
+
+[numthreads(8,8,8)]
+void Gradient3D(uint3 id : SV_DispatchThreadID) 
+{
+     int currIndex = IndexFrom3DCoord (id.x, id.y, id.z);
+    int leftIndex = IndexFrom3DCoord (id.x - 1 , id.y, id.z);
+    int rightIndex = IndexFrom3DCoord (id.x + 1 , id.y, id.z);
+    int topIndex = IndexFrom3DCoord (id.x, id.y + 1 , id.z);
+    int bottomIndex = IndexFrom3DCoord (id.x, id.y - 1 , id.z);
+    int frontIndex = IndexFrom3DCoord (id.x, id.y, id.z + 1);
+    int backIndex = IndexFrom3DCoord (id.x, id.y, id.z - 1);
+
+    // x is the first component of field that contains divergence value
+    float L = inputFieldGradient [ leftIndex ].x;
+    float R = inputFieldGradient [ rightIndex ].x;
+    float T = inputFieldGradient [ topIndex ].x;
+    float B = inputFieldGradient [ bottomIndex ].x;
+    float F = inputFieldGradient [ frontIndex ].x;
+    float BACK = inputFieldGradient [ backIndex ].x;
+    gradientField [ currIndex ] = float3(R-L, T-B, F- BACK ) / (2 * _gridCellSize );
+}
+
+[numthreads(8,8,8)]
+void Subtract3D(uint3 id : SV_DispatchThreadID) 
+{
+    int index = IndexFrom3DCoord (id.x, id.y, id.z);
+    subtractResult [ index ] = a[ index ] - b[ index ];
+
+    //if(id.z == 0) {
+        Result[id.xy] = float4( a[ index ] - b[ index ], 1);
+    //}
+}
+
+[numthreads(8,8,8)]
+void  BoundaryGPUFluidSim3D (uint3 id : SV_DispatchThreadID)  
+{
+    if(id.x == 0 || id.x == _sizeX + 1 ||
+        id.y == 0 || id.y == _sizeY + 1 ||
+        id.z == 0 || id.z == _sizeZ + 1 ) 
+    {
+        float3 offset = 0;
+        if(id.x == 0)
+            offset = float3(1, 0, 0);
+        if(id.x == _sizeX + 1)
+            offset = float3(-1, 0, 0);
+        if(id.y == 0)
+            offset = float3(0, 1, 0);
+        if(id.y == _sizeY + 1)
+            offset = float3(0, -1, 0);
+        if(id.z == 0)
+            offset = float3(0, 0, 1);
+        if(id.z == _sizeZ + 1)
+            offset = float3(0, 0, -1); 
+
+        int currIndex = IndexFrom3DCoord (id.x, id.y, id.z);
+        float3 currCoord = float3(id.x, id.y, id.z);
+        float3 coord = currCoord + offset;
+        int offsetIndex = IndexFrom3DCoord ( coord .x, coord .y,coord .z);
+        newBoundary[ currIndex ] = boundaryCondition * prevBoundary[ offsetIndex ];
+    }
 
 }
+
+// Copy utility
+[numthreads(256,1,1)]
+void Copy_StructuredBuffer(uint3 id : SV_DispatchThreadID)
+{
+    _Copy_Target[id.x] = _Copy_Source[id.x];
+} 

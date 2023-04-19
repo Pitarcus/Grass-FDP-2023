@@ -26,7 +26,6 @@ public class GrassMaskDisplayer : MonoBehaviour
 
     public void InitDisplayer()
     {
-        Debug.Log("Displaying init...");
         terrain = textureObject.terrain;
 
         if (terrain != null && textureObject.maskTexture != null)
