@@ -12,6 +12,20 @@ public class WindMaster : MonoBehaviour
     ComputeBuffer velocityBuffer;
     ComputeBuffer prevVelocityBuffer;   // Read only
     ComputeBuffer velocitySourcesBuffer;
+
+    // trying out using textures instead of buffers
+    RenderTexture velocityX;
+    RenderTexture prevVelocityX;
+    public RenderTexture velocitySourceX;
+    Texture3D velocityY;
+    Texture3D prevVelocityY;
+    Texture3D velocitSourceY;
+    Texture3D velocityZ;
+    Texture3D prevVelocityZ;
+    Texture3D velocitySourceZ;
+
+
+
     Vector3[] sourceVelocities;
     Vector3[] testvector    ;
 
@@ -34,23 +48,56 @@ public class WindMaster : MonoBehaviour
 
     public bool first = false;
 
+
+    private void InitTextures()
+    {
+        // visualization RT
+        renderTexture = new RenderTexture(volumeSizeX, volumeSizeY, 0);
+        renderTexture.enableRandomWrite = true;
+        renderTexture.filterMode = FilterMode.Point;
+        renderTexture.Create();
+
+        // --- VELOCITIES BUFFERS ---
+        velocitySourceX = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        velocitySourceX.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        velocitySourceX.volumeDepth = volumeSizeZ;
+        velocitySourceX.enableRandomWrite = true;
+        velocitySourceX.filterMode = FilterMode.Point;
+
+
+        velocityX = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        velocityX.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        velocityX.volumeDepth = volumeSizeZ;
+        velocityX.filterMode = FilterMode.Point;
+        velocityX.enableRandomWrite = true;
+
+        prevVelocityX = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        prevVelocityX.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        prevVelocityX.volumeDepth = volumeSizeZ;
+        prevVelocityX.filterMode = FilterMode.Point;
+        prevVelocityX.enableRandomWrite = true;
+
+    }
     // Start is called before the first frame update
     void Start()
     {
         numberOfVoxels = volumeSizeX * volumeSizeY * volumeSizeZ;
         Debug.Log("Number of voxels: " + numberOfVoxels);
         // Buffer allocation
-        velocityBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default);
-        prevVelocityBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default);
-        velocitySourcesBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        //velocityBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default);
+        //prevVelocityBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default);
+        //velocitySourcesBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
 
-        pressureBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
-        prevPressureBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
+        //pressureBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
+        //prevPressureBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
 
-        tmpBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
-        testBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
+        //tmpBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
+        //testBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
 
-        // Kernel IDs
+        // TEXTURES INSTEAD OF BUFFERS
+        InitTextures();
+
+        /*// Kernel IDs
         forceFluidId = windCompute.FindKernel("ForceGPUFluidSim3D");
         advectionId = windCompute.FindKernel("AdvectionGPUFluidSim3D");
         poissonSolverId = windCompute.FindKernel("PoissonSolver3D");
@@ -65,12 +112,7 @@ public class WindMaster : MonoBehaviour
         windCompute.SetInt("_sizeX", volumeSizeX - 2);
         windCompute.SetInt("_sizeY", volumeSizeY - 2);
         windCompute.SetInt("_sizeZ", volumeSizeZ - 2);
-        windCompute.SetFloat("_gridCellSize", 1);
-
-        renderTexture = new RenderTexture(volumeSizeX, volumeSizeY, volumeSizeZ);
-        renderTexture.enableRandomWrite = true;
-        renderTexture.filterMode = FilterMode.Point;
-        renderTexture.Create();
+        windCompute.SetFloat("_gridCellSize", 1);*/
 
         // starting velocities
         sourceVelocities = new Vector3[numberOfVoxels];
@@ -107,18 +149,17 @@ public class WindMaster : MonoBehaviour
         windComputeAddForces.SetInt("_sizeZ", volumeSizeZ - 2);
         windComputeAddForces.SetFloat("_gridCellSize", 1);
 
-        windComputeAddForces.SetBuffer(0, "velocityBuffer", velocityBuffer);
-        windComputeAddForces.SetBuffer(0, "prevVelocityBuffer", prevVelocityBuffer);
-        windComputeAddForces.SetBuffer(0, "velocitySourcesBuffer", velocitySourcesBuffer);
+        windComputeAddForces.SetTexture(0, "velocityBuffer", velocityX);
+        windComputeAddForces.SetTexture(0, "prevVelocityBuffer", prevVelocityX);
+        windComputeAddForces.SetTexture(0, "velocitySourcesBuffer", velocitySourceX);
         windComputeAddForces.SetTexture(0, "Result", renderTexture);
 
         windComputeAddForces.Dispatch(0, 1, 1, 1);
 
-        velocityBuffer.GetData(testvector);
-        for (int i = 0; i < numberOfVoxels; i++)
-        {
-            Debug.Log("Add foces before copy " + testvector[i] + " / Index: " + i);
-        }
+        //for (int i = 0; i < numberOfVoxels; i++)
+        //{
+        //    Debug.Log("Add foces before copy " + testvector[i] + " / Index: " + i);
+        //}
 
         //SwapBuffers(ref prevVelocityBuffer, ref velocityBuffer);
 

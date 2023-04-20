@@ -5,9 +5,14 @@
 // with cs.SetTexture
 RWTexture2D<float4> Result;
 
-RWStructuredBuffer<float3> velocityBuffer;
-StructuredBuffer<float3> prevVelocityBuffer;
-StructuredBuffer<float3>  velocitySourcesBuffer;
+RWTexture3D<float4> velocityBuffer;
+Texture3D<float4> prevVelocityBuffer;
+Texture3D<float4> velocitySourcesBuffer;
+
+
+//RWStructuredBuffer<float3> velocityBuffer;
+//StructuredBuffer<float3> prevVelocityBuffer;
+//StructuredBuffer<float3>  velocitySourcesBuffer;
 
 uint _numberOfVoxels;
 uint _sizeX;    // It is really, the size - 2 (last voxel not in the boundary)
@@ -25,16 +30,16 @@ void ForceGPUFluidSim3D(uint3 id : SV_DispatchThreadID)
     uint voxelIndex = IndexFrom3DCoord(id.x, id.y, id.z);
     if(voxelIndex < _numberOfVoxels) 
     {
-        float3 sourceForce = velocitySourcesBuffer[voxelIndex];
+        float4 sourceForce = velocitySourcesBuffer[id];
         if (sourceForce.x != 0 || sourceForce.y != 0 || sourceForce.z != 0) 
         {
-            velocityBuffer[voxelIndex] = sourceForce;// prevVelocityBuffer[voxelIndex] + sourceForce; //+ gravityForce;
-            Result[id.xy] = float4(sourceForce, 1);
+            velocityBuffer[id] = sourceForce;// prevVelocityBuffer[voxelIndex] + sourceForce; //+ gravityForce;
+            Result[id.xy] = sourceForce;
         }
         else
         {
-            velocityBuffer[voxelIndex] = prevVelocityBuffer[voxelIndex]; //+ gravityForce
-            Result[id.xy] = float4(prevVelocityBuffer[voxelIndex], 1);
+            velocityBuffer[id] = prevVelocityBuffer[id]; //+ gravityForce
+            Result[id.xy] = float4(0, 1, 0, 1);
         }
     }
 }
