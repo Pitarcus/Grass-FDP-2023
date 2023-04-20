@@ -142,6 +142,7 @@ Material:
     - _PositionModifierZ: 0.55
     - _QueueControl: 0
     - _QueueOffset: 1
+    - _RT_Resolution: 256
     - _RandomRotationNoiseScale: 16
     - _RandomYNoiseScale: 2.76
     - _RandomYRotationNoiseScale: 26.22
