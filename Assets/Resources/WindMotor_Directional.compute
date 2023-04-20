@@ -1,0 +1,32 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel ApplyDirectionalMotor
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+RWTexture3D<float4> _velocitySourcesX;
+RWTexture3D<float4> _velocitySourcesY;
+RWTexture3D<float4> _velocitySourcesZ;
+
+float _motorStrenght;
+float3 _motorDirection;
+float3 _motorPosWS;
+float _motorRadius;
+
+float _deltaTime;
+
+
+[numthreads(8,8,8)]
+void ApplyDirectionalMotor (uint3 id : SV_DispatchThreadID)
+{
+    float3 cellPosition = id;
+    float dist = length(cellPosition - _motorPosWS); // from GDC Talk at: "https://youtu.be/dDgyBKkSf7A?t=716"
+
+    if(dist < _motorRadius)
+    {
+        float4 addedForce = float4(_motorDirection * _motorStrenght , 1);//* _deltaTime, 1);
+        _velocitySourcesX[id] += addedForce.x;
+        _velocitySourcesY[id] += addedForce.y;
+        _velocitySourcesZ[id] += addedForce.z;
+    }
+}

@@ -2,29 +2,53 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public struct DirectionalMotor
+{
+    public float motorStrenght;
+    public Vector3 motorDirection;
+    public Vector3 motorPosWS;
+    public float motorRadius;
+
+    public DirectionalMotor(float strength, Vector3 direction, Vector3 position, float radius)
+    {
+        motorStrenght = strength;
+        motorDirection = direction;
+        motorPosWS = position;
+        motorRadius = radius;
+    }
+}
+
 public class WindMaster : MonoBehaviour
 {
+    [Header("Compute Shader references")]
     [SerializeField] ComputeShader windCompute;
     [SerializeField] ComputeShader windComputeAddForces;
+    [SerializeField] ComputeShader windComputeDirectionalMotor;
     public RenderTexture renderTexture;
-    public float viscosity = 1;
+   
 
     ComputeBuffer velocityBuffer;
     ComputeBuffer prevVelocityBuffer;   // Read only
     ComputeBuffer velocitySourcesBuffer;
 
+    [Space]
+
+    [Header("Texture buffers")]
     // trying out using textures instead of buffers
     RenderTexture velocityX;
     RenderTexture prevVelocityX;
     public RenderTexture velocitySourceX;
-    Texture3D velocityY;
-    Texture3D prevVelocityY;
-    Texture3D velocitSourceY;
-    Texture3D velocityZ;
-    Texture3D prevVelocityZ;
-    Texture3D velocitySourceZ;
+    RenderTexture velocityY;
+    RenderTexture prevVelocityY;
+    public RenderTexture velocitySourceY;
+    RenderTexture velocityZ;
+    RenderTexture prevVelocityZ;
+    public RenderTexture velocitySourceZ;
 
-
+    [Header("Directional Motor (testing)")]
+    // Test directional motor
+    public DirectionalMotor directionalMotor;
 
     Vector3[] sourceVelocities;
     Vector3[] testvector    ;
@@ -36,9 +60,11 @@ public class WindMaster : MonoBehaviour
 
     ComputeBuffer tmpBuffer;
 
+    [Header("Volume parameters")]
     [SerializeField] int volumeSizeX = 16;
     [SerializeField] int volumeSizeY = 16;
     [SerializeField] int volumeSizeZ = 16;
+    [SerializeField] float viscosity = 1;
     int numberOfVoxels;
 
     private int velocityBufferSize = sizeof(float) * 3;
@@ -58,12 +84,13 @@ public class WindMaster : MonoBehaviour
         renderTexture.Create();
 
         // --- VELOCITIES BUFFERS ---
+
+        // X
         velocitySourceX = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
         velocitySourceX.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
         velocitySourceX.volumeDepth = volumeSizeZ;
         velocitySourceX.enableRandomWrite = true;
         velocitySourceX.filterMode = FilterMode.Point;
-
 
         velocityX = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
         velocityX.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
@@ -77,42 +104,68 @@ public class WindMaster : MonoBehaviour
         prevVelocityX.filterMode = FilterMode.Point;
         prevVelocityX.enableRandomWrite = true;
 
+        // Y
+        velocitySourceY = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        velocitySourceY.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        velocitySourceY.volumeDepth = volumeSizeZ;
+        velocitySourceY.enableRandomWrite = true;
+        velocitySourceY.filterMode = FilterMode.Point;
+
+        velocityY = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        velocityY.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        velocityY.volumeDepth = volumeSizeZ;
+        velocityY.filterMode = FilterMode.Point;
+        velocityY.enableRandomWrite = true;
+
+        prevVelocityY = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        prevVelocityY.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        prevVelocityY.volumeDepth = volumeSizeZ;
+        prevVelocityY.filterMode = FilterMode.Point;
+        prevVelocityY.enableRandomWrite = true;
+
+        // Z
+        velocitySourceZ = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        velocitySourceZ.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        velocitySourceZ.volumeDepth = volumeSizeZ;
+        velocitySourceZ.enableRandomWrite = true;
+        velocitySourceZ.filterMode = FilterMode.Point;
+
+        velocityZ = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        velocityZ.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        velocityZ.volumeDepth = volumeSizeZ;
+        velocityZ.filterMode = FilterMode.Point;
+        velocityZ.enableRandomWrite = true;
+
+        prevVelocityZ = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        prevVelocityZ.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        prevVelocityZ.volumeDepth = volumeSizeZ;
+        prevVelocityZ.filterMode = FilterMode.Point;
+        prevVelocityZ.enableRandomWrite = true;
+
     }
     // Start is called before the first frame update
     void Start()
     {
         numberOfVoxels = volumeSizeX * volumeSizeY * volumeSizeZ;
         Debug.Log("Number of voxels: " + numberOfVoxels);
-        // Buffer allocation
-        //velocityBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default);
-        //prevVelocityBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default);
-        //velocitySourcesBuffer = new ComputeBuffer(numberOfVoxels, velocityBufferSize, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
-
-        //pressureBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
-        //prevPressureBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
-
-        //tmpBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
-        //testBuffer = new ComputeBuffer(numberOfVoxels, pressureBufferSize);
+        
 
         // TEXTURES INSTEAD OF BUFFERS
         InitTextures();
 
-        /*// Kernel IDs
-        forceFluidId = windCompute.FindKernel("ForceGPUFluidSim3D");
-        advectionId = windCompute.FindKernel("AdvectionGPUFluidSim3D");
-        poissonSolverId = windCompute.FindKernel("PoissonSolver3D");
-        divergenceId = windCompute.FindKernel("Divergence3D");
-        gradientId = windCompute.FindKernel("Gradient3D");
-        subtractId = windCompute.FindKernel("Subtract3D");
-        boundaryId = windCompute.FindKernel("BoundaryGPUFluidSim3D");
-        copyId = windCompute.FindKernel("Copy_StructuredBuffer");
 
-        // Uniforms
-        windCompute.SetInt("_numberOfVoxels", numberOfVoxels);
-        windCompute.SetInt("_sizeX", volumeSizeX - 2);
-        windCompute.SetInt("_sizeY", volumeSizeY - 2);
-        windCompute.SetInt("_sizeZ", volumeSizeZ - 2);
-        windCompute.SetFloat("_gridCellSize", 1);*/
+        // INIT DIRECTIONAL MOTOR
+        //DirectionalMotor directionalMotor = new DirectionalMotor(100, new Vector3(1, 1, 0).normalized, new Vector3(0, 0, 0), 5);
+
+        windComputeDirectionalMotor.SetTexture(0, "_velocitySourcesX", velocitySourceX);
+        windComputeDirectionalMotor.SetTexture(0, "_velocitySourcesY", velocitySourceY);
+        windComputeDirectionalMotor.SetTexture(0, "_velocitySourcesZ", velocitySourceZ);
+        windComputeDirectionalMotor.SetFloat("_motorStrenght", directionalMotor.motorStrenght);
+        windComputeDirectionalMotor.SetVector("_motorDirection", directionalMotor.motorDirection);
+        windComputeDirectionalMotor.SetVector("_motorPosWS", directionalMotor.motorPosWS);
+        windComputeDirectionalMotor.SetFloat("_motorRadius", directionalMotor.motorRadius);
+
+        windComputeDirectionalMotor.Dispatch(0, 1, 1, 1);
 
         // starting velocities
         sourceVelocities = new Vector3[numberOfVoxels];

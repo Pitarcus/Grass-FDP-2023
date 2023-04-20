@@ -33,13 +33,15 @@ void ForceGPUFluidSim3D(uint3 id : SV_DispatchThreadID)
         float4 sourceForce = velocitySourcesBuffer[id];
         if (sourceForce.x != 0 || sourceForce.y != 0 || sourceForce.z != 0) 
         {
-            velocityBuffer[id] = sourceForce;// prevVelocityBuffer[voxelIndex] + sourceForce; //+ gravityForce;
-            Result[id.xy] = sourceForce;
+            velocityBuffer[id] = prevVelocityBuffer[id] + sourceForce;// prevVelocityBuffer[voxelIndex] + sourceForce; //+ gravityForce;
+            if(id.z == 0)
+                Result[id.xy] = velocityBuffer[id];
         }
         else
         {
             velocityBuffer[id] = prevVelocityBuffer[id]; //+ gravityForce
-            Result[id.xy] = float4(0, 1, 0, 1);
+            if(id.z == 0)
+                Result[id.xy] = float4(0, 0, 0, 1);
         }
     }
 }
