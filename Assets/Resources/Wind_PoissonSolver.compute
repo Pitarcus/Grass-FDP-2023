@@ -1,0 +1,28 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel PoissonSolver
+
+
+Texture3D<float> b;
+Texture3D<float> x;
+
+RWTexture3D<float> Result;
+
+float _alpha;
+float _beta;
+
+[numthreads(8,8,8)]
+void PoissonSolver (uint3 id : SV_DispatchThreadID)
+{
+    uint3 currIndex = uint3(id.x, id.y, id.z);
+    uint3 leftIndex = uint3(id.x - 1 , id.y, id.z);
+    uint3 rightIndex = uint3 (id.x + 1 , id.y, id.z);
+    uint3 topIndex =  uint3 (id.x, id.y + 1 , id.z);
+    uint3 bottomIndex = uint3 (id.x, id.y - 1 , id.z);
+    uint3 frontIndex = uint3 (id.x, id.y, id.z + 1);
+    uint3 backIndex = uint3 (id.x, id.y, id.z - 1);
+
+    // Jacobi
+    Result[currIndex] = (b[ leftIndex ] + b[ rightIndex ] +
+    b[ topIndex ] + b[ bottomIndex ] + b[ frontIndex ] +
+    b[ backIndex ] + x[ currIndex ] * _alpha ) / _beta;   
+}

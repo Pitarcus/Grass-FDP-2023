@@ -1,0 +1,12 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel SwapTextures
+
+// COPY TEXTURE B TO TEXTURE A
+RWTexture3D<float4> textureA;
+Texture3D<float4> textureB;
+
+[numthreads(8,8,8)]
+void SwapTextures (uint3 id : SV_DispatchThreadID)
+{
+    textureA[id] = textureB[id];
+}

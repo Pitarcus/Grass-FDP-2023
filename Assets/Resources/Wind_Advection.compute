@@ -1,0 +1,71 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel AdvectX
+#pragma kernel AdvectY
+#pragma kernel AdvectZ
+
+Texture3D<float> velocityField;
+
+RWTexture3D<float> newQuantity;
+Texture3D<float> prevQuantity;
+
+float deltaTime;
+float3 domainSize;
+
+float TrilinearSample(Texture3D<float> t, float3 coord) 
+{
+    uint3 p1 = uint3(coord.x, coord.y, coord.z);
+    uint3 p2 = p1 + 1;
+
+    // Left Bottom Front voxel
+    float Q1 = t[p1];
+    // Left Top Front voxel
+    float Q2 = t[uint3(p1.x, p2.y, p1.z)];
+    // Left Bottom Back voxel
+    float Q3 = t[uint3(p1.x, p1.y, p2.z)];
+    // Left Top Back voxel
+    float Q4 = t[uint3(p1.x, p2.y, p2.z)];
+    // Right Bottom Front voxel
+    float Q5 = t[uint3(p2.x, p1.y, p1.z)];
+    // Right Top Front voxel
+    float Q6 = t[uint3(p2.x, p2.y, p1.z)];
+    // Right Bottom Back voxel
+    float Q7 = t[uint3(p2.x, p1.y, p2.z)];
+    // Right Top Back voxel
+    float Q8 = t[uint3(p2.x, p2.y, p2.z)];
+
+    float3 f = frac(coord);
+
+    float QY1 = lerp(Q1, Q2, f.y);
+    float QY2 = lerp(Q3, Q4, f.y);
+    float QY3 = lerp(Q5, Q6, f.y);
+    float QY4 = lerp(Q7, Q8, f.y);
+
+    float QZ1 = lerp(QY1, QY2, f.z);
+    float QZ2 = lerp(QY3, QY4, f.z);
+
+    return lerp(QZ1, QZ2, f.x);
+}
+
+[numthreads(8,8,8)]
+void AdvectX (uint3 id : SV_DispatchThreadID)
+{
+    float3 prevPos = float3(id.x - velocityField[id] * deltaTime, id.y, id.z);
+
+    newQuantity[id] = TrilinearSample(prevQuantity, prevPos);
+}
+
+[numthreads(8,8,8)]
+void AdvectY (uint3 id : SV_DispatchThreadID)
+{
+    float3 prevPos = float3(id.x, id.y - velocityField[id] * deltaTime, id.z);
+
+    newQuantity[id] = TrilinearSample(prevQuantity, prevPos);
+}
+
+[numthreads(8,8,8)]
+void AdvectZ (uint3 id : SV_DispatchThreadID)
+{
+    float3 prevPos = float3(id.x, id.y, id.z - velocityField[id] * deltaTime);
+
+    newQuantity[id] = TrilinearSample(prevQuantity, prevPos);
+}

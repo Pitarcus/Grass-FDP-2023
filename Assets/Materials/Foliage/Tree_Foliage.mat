@@ -84,7 +84,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
-    - _Billboard_Size: 1
+    - _Billboard_Size: 1.05
     - _Billboard_Strength: 1
     - _Blend: 0
     - _BumpScale: 1

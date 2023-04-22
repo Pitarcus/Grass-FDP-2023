@@ -1,13 +1,10 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel ForceGPUFluidSim3D
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-RWTexture2D<float4> Result;
 
-RWTexture3D<float4> velocityBuffer;
-Texture3D<float4> prevVelocityBuffer;
-Texture3D<float4> velocitySourcesBuffer;
+RWTexture3D<float> velocityBuffer;
+Texture3D<float> prevVelocityBuffer;
+Texture3D<float> velocitySourcesBuffer;
 
 
 //RWStructuredBuffer<float3> velocityBuffer;
@@ -30,18 +27,14 @@ void ForceGPUFluidSim3D(uint3 id : SV_DispatchThreadID)
     uint voxelIndex = IndexFrom3DCoord(id.x, id.y, id.z);
     if(voxelIndex < _numberOfVoxels) 
     {
-        float4 sourceForce = velocitySourcesBuffer[id];
-        if (sourceForce.x != 0 || sourceForce.y != 0 || sourceForce.z != 0) 
+        float sourceForce = velocitySourcesBuffer[id];
+        if (sourceForce != 0) 
         {
-            velocityBuffer[id] = prevVelocityBuffer[id] + sourceForce;// prevVelocityBuffer[voxelIndex] + sourceForce; //+ gravityForce;
-            if(id.z == 0)
-                Result[id.xy] = velocityBuffer[id];
+            velocityBuffer[id] = prevVelocityBuffer[id] + sourceForce; //+ gravityForce;
         }
         else
         {
             velocityBuffer[id] = prevVelocityBuffer[id]; //+ gravityForce
-            if(id.z == 0)
-                Result[id.xy] = float4(0, 0, 0, 1);
         }
     }
 }

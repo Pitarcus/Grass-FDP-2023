@@ -40,11 +40,11 @@ Material:
     - _Blend: 0
     - _CastShadows: 1
     - _Cull: 2
-    - _Distort: 3.44
-    - _DistortedNoiseScale: 0.92
+    - _Distort: 11.21
+    - _DistortedNoiseScale: 1.16
     - _DstBlend: 0
-    - _Fresnel: 1.37
-    - _Metallic: 0.99
+    - _Fresnel: 0.89
+    - _Metallic: 1.62
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
