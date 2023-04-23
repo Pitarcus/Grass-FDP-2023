@@ -86,7 +86,7 @@ public class WindMaster : MonoBehaviour
     [SerializeField] int volumeSizeY = 16;
     [SerializeField] int volumeSizeZ = 16;
     [SerializeField] float viscosity = 1;
-    static int JACOBI_ITERATIONS = 20;
+    static int JACOBI_ITERATIONS = 35;
     int numberOfVoxels;
 
     private int velocityBufferSize = sizeof(float) * 3;
@@ -516,7 +516,7 @@ public class WindMaster : MonoBehaviour
             AddForces();
             Advection();
             Diffusion();
-            Project();
+            //Project();
             //Boundary(); 
 
 
