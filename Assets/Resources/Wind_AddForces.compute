@@ -21,7 +21,7 @@ uint IndexFrom3DCoord(uint x, uint y, uint z)
     return x + y * (_sizeX+2) + z * (_sizeX+2) * (_sizeY+2);
 }
 
-[numthreads(8,8,8)]
+[numthreads(1,1,1)]
 void ForceGPUFluidSim3D(uint3 id : SV_DispatchThreadID) 
 {
     uint voxelIndex = IndexFrom3DCoord(id.x, id.y, id.z);

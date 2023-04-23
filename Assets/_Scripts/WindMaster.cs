@@ -26,6 +26,7 @@ public class WindMaster : MonoBehaviour
     [SerializeField] ComputeShader windComputeAddForces;
     [SerializeField] ComputeShader windComputeAdvection;
     [SerializeField] ComputeShader windComputePoissonSolver;
+    [SerializeField] ComputeShader windComputeProject;
     [SerializeField] ComputeShader windComputeDirectionalMotor;
     [SerializeField] ComputeShader swapTexturesCompute;
     public RenderTexture renderTexture;
@@ -39,22 +40,26 @@ public class WindMaster : MonoBehaviour
 
     [Header("Texture buffers")]
     // trying out using textures instead of buffers
-    [SerializeField] RenderTexture velocityX;
+    [SerializeField] public RenderTexture velocityX;
     [SerializeField] RenderTexture prevVelocityX;
     [SerializeField] RenderTexture velocitySourceX;
-    RenderTexture velocityY;
+    public RenderTexture velocityY;
     RenderTexture prevVelocityY;
     [SerializeField] RenderTexture velocitySourceY;
-    RenderTexture velocityZ;
+    public RenderTexture velocityZ;
     RenderTexture prevVelocityZ;
     [SerializeField] RenderTexture velocitySourceZ;
 
-    [SerializeField] RenderTexture pressureX;
+    [SerializeField] RenderTexture pressureTex;
+    [SerializeField] RenderTexture prevPressureTex;
+    /*[SerializeField] RenderTexture pressureX;
     [SerializeField] RenderTexture prevPressureX;
     RenderTexture pressureY;
     RenderTexture prevPressureY;
     RenderTexture pressureZ;
-    RenderTexture prevPressureZ;
+    RenderTexture prevPressureZ;*/
+
+    RenderTexture divergenceField;
 
     RenderTexture auxTexture;   // Auxiliar texture for swapping
 
@@ -81,6 +86,7 @@ public class WindMaster : MonoBehaviour
     [SerializeField] int volumeSizeY = 16;
     [SerializeField] int volumeSizeZ = 16;
     [SerializeField] float viscosity = 1;
+    static int JACOBI_ITERATIONS = 20;
     int numberOfVoxels;
 
     private int velocityBufferSize = sizeof(float) * 3;
@@ -157,7 +163,7 @@ public class WindMaster : MonoBehaviour
         prevVelocityZ.volumeDepth = volumeSizeZ;
         prevVelocityZ.filterMode = FilterMode.Point;
         prevVelocityZ.enableRandomWrite = true;
-
+        /*
         // X pressure
         pressureX = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
         pressureX.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
@@ -195,7 +201,26 @@ public class WindMaster : MonoBehaviour
         prevPressureZ.volumeDepth = volumeSizeZ;
         prevPressureZ.filterMode = FilterMode.Point;
         prevPressureZ.enableRandomWrite = true;
+        */
 
+        pressureTex = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_SFloat);
+        pressureTex.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        pressureTex.volumeDepth = volumeSizeZ;
+        pressureTex.filterMode = FilterMode.Point;
+        pressureTex.enableRandomWrite = true;
+
+        prevPressureTex = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_SFloat);
+        prevPressureTex.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        prevPressureTex.volumeDepth = volumeSizeZ;
+        prevPressureTex.filterMode = FilterMode.Point;
+        prevPressureTex.enableRandomWrite = true;
+
+        // Diverngence field
+        divergenceField = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        divergenceField.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        divergenceField.volumeDepth = volumeSizeZ;
+        divergenceField.enableRandomWrite = true;
+        divergenceField.filterMode = FilterMode.Point;
         // Aux
         auxTexture = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
         auxTexture.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
@@ -205,7 +230,7 @@ public class WindMaster : MonoBehaviour
 
     }
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         numberOfVoxels = volumeSizeX * volumeSizeY * volumeSizeZ;
         Debug.Log("Number of voxels: " + numberOfVoxels);
@@ -222,7 +247,7 @@ public class WindMaster : MonoBehaviour
         windComputeDirectionalMotor.SetVector("_motorPosWS", directionalMotor.motorPosWS);
         windComputeDirectionalMotor.SetFloat("_motorRadius", directionalMotor.motorRadius);
 
-        windComputeDirectionalMotor.Dispatch(0, 1, 1, 1);
+        windComputeDirectionalMotor.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
 
         // starting velocities
         sourceVelocities = new Vector3[numberOfVoxels];
@@ -243,7 +268,7 @@ public class WindMaster : MonoBehaviour
         windComputeAddForces.SetTexture(0, "prevVelocityBuffer", prevVelocityX);
         windComputeAddForces.SetTexture(0, "velocitySourcesBuffer", velocitySourceX);
 
-        windComputeAddForces.Dispatch(0, 1, 1, 1);
+        windComputeAddForces.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
 
         SwapTextures(ref velocityX, ref prevVelocityX);
 
@@ -252,7 +277,7 @@ public class WindMaster : MonoBehaviour
         windComputeAddForces.SetTexture(0, "prevVelocityBuffer", prevVelocityY);
         windComputeAddForces.SetTexture(0, "velocitySourcesBuffer", velocitySourceY);
 
-        windComputeAddForces.Dispatch(0, 1, 1, 1);
+        windComputeAddForces.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
 
         SwapTextures(ref velocityY, ref prevVelocityY);
 
@@ -261,7 +286,7 @@ public class WindMaster : MonoBehaviour
         windComputeAddForces.SetTexture(0, "prevVelocityBuffer", prevVelocityZ);
         windComputeAddForces.SetTexture(0, "velocitySourcesBuffer", velocitySourceZ);
 
-        windComputeAddForces.Dispatch(0, 1, 1, 1);
+        windComputeAddForces.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
 
         SwapTextures(ref velocityZ, ref prevVelocityZ);
     }
@@ -278,7 +303,7 @@ public class WindMaster : MonoBehaviour
         windComputeAdvection.SetTexture(0, "prevQuantity", prevVelocityX);
         windComputeAdvection.SetTexture(0, "newQuantity", velocityX);
         
-        windComputeAdvection.Dispatch(0, 1, 1, 1);
+        windComputeAdvection.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
 
         SwapTextures(ref velocityX, ref prevVelocityX);
 
@@ -287,7 +312,7 @@ public class WindMaster : MonoBehaviour
         windComputeAdvection.SetTexture(1, "prevQuantity", prevVelocityY);
         windComputeAdvection.SetTexture(1, "newQuantity", velocityY);
 
-        windComputeAdvection.Dispatch(1, 1, 1, 1);
+        windComputeAdvection.Dispatch(1, volumeSizeX, volumeSizeY, volumeSizeZ);
 
         SwapTextures(ref velocityY, ref prevVelocityY);
 
@@ -296,84 +321,115 @@ public class WindMaster : MonoBehaviour
         windComputeAdvection.SetTexture(2, "prevQuantity", prevVelocityZ);
         windComputeAdvection.SetTexture(2, "newQuantity", velocityZ);
 
-        windComputeAdvection.Dispatch(2, 1, 1, 1);
+        windComputeAdvection.Dispatch(2, volumeSizeX, volumeSizeY, volumeSizeZ);
 
         SwapTextures(ref velocityZ, ref prevVelocityZ);
     }
 
     void Diffusion()
     {
-        // X velocity diffusion
+       
         windComputePoissonSolver.SetFloat("_alpha", 1 / (viscosity * Time.deltaTime));
         windComputePoissonSolver.SetFloat("_beta", 1 / (viscosity * Time.deltaTime) + 6);
+
+        // X velocity diffusion
         windComputePoissonSolver.SetTexture(0, "b", prevVelocityX);
         
-        for(int i = 0; i < 30; i++)
+        for(int i = 0; i < JACOBI_ITERATIONS; i++)
         {
             windComputePoissonSolver.SetTexture(0, "x", prevVelocityX);
             windComputePoissonSolver.SetTexture(0, "Result", velocityX);
 
-            windComputePoissonSolver.Dispatch(0, 1, 1, 1);
+            windComputePoissonSolver.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
 
             SwapTextures(ref velocityX, ref prevVelocityX);
         }
-        //for (int i = 0; i < 30; i++)
-        //{
-        //    windCompute.SetBuffer(poissonSolverId, "x", prevVelocityBuffer);
-        //    windCompute.SetBuffer(poissonSolverId, "jacobiResult", velocityBuffer);
 
-        //    windCompute.Dispatch(poissonSolverId, 1, 1, 1);
+        // Y velocity diffusion
+        windComputePoissonSolver.SetTexture(0, "b", prevVelocityY);
 
-        //    SwapBuffers(ref prevVelocityBuffer, ref velocityBuffer);
-        //}
+        for (int i = 0; i < JACOBI_ITERATIONS; i++)
+        {
+            windComputePoissonSolver.SetTexture(0, "x", prevVelocityY);
+            windComputePoissonSolver.SetTexture(0, "Result", velocityY);
+
+            windComputePoissonSolver.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
+
+            SwapTextures(ref velocityY, ref prevVelocityY);
+        }
+
+        // Z velocity diffusion
+        windComputePoissonSolver.SetTexture(0, "b", prevVelocityZ);
+
+        for (int i = 0; i < JACOBI_ITERATIONS; i++)
+        {
+            windComputePoissonSolver.SetTexture(0, "x", prevVelocityZ);
+            windComputePoissonSolver.SetTexture(0, "Result", velocityZ);
+
+            windComputePoissonSolver.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
+
+            SwapTextures(ref velocityY, ref prevVelocityZ);
+        }
     }
 
     void Project()
     {
         // Divergence of velocity
-        windCompute.SetBuffer(divergenceId, "field", prevVelocityBuffer);
-        windCompute.SetBuffer(divergenceId, "divergenceField", velocityBuffer);
+        windComputeProject.SetTexture(0, "fieldX", prevVelocityX);
+        windComputeProject.SetTexture(0, "fieldY", prevVelocityY);
+        windComputeProject.SetTexture(0, "fieldZ", prevVelocityZ);
+        windComputeProject.SetTexture(0, "divergenceField", divergenceField);
 
-        windCompute.Dispatch(divergenceId, 1, 1, 1);
-        //SwapBuffers(ref prevVelocityBuffer, ref velocityBuffer);
+        windComputeProject.SetFloat("gridCellSize", 1);
+
+        windComputeProject.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
 
 
         // Solve Poisson equation for pressure
-        windCompute.SetBuffer(poissonSolverId, "bPoisson", prevVelocityBuffer);
+        windComputePoissonSolver.SetTexture(0, "b", divergenceField);
 
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < JACOBI_ITERATIONS; i++)
         {
-            windCompute.SetBuffer(poissonSolverId, "x", prevPressureBuffer);
-            windCompute.SetBuffer(poissonSolverId, "jacobiResult", pressureBuffer);
+            windComputePoissonSolver.SetTexture(0, "x", prevPressureTex);
+            windComputePoissonSolver.SetTexture(0, "jacobiResult", pressureTex);
 
-            windCompute.Dispatch(poissonSolverId, 1 , 1, 1);
+            windComputePoissonSolver.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
 
-           // SwapBuffers(ref prevPressureBuffer, ref pressureBuffer);
+            SwapTextures(ref pressureTex, ref prevPressureTex);
         }
 
 
         // Calculate gradient of pressure
-        windCompute.SetBuffer(gradientId, "inputFieldGradient", prevPressureBuffer); 
-        windCompute.SetBuffer(gradientId, "gradientField", pressureBuffer); 
+        windComputeProject.SetTexture(1, "gradientInputField", prevPressureTex);
+        windComputeProject.SetTexture(1, "gradientField", pressureTex);
 
-        windCompute.Dispatch(gradientId, 1, 1, 1);
-        //SwapBuffers(ref prevPressureBuffer, ref pressureBuffer);
+        windComputeProject.Dispatch(1, volumeSizeX, volumeSizeY, volumeSizeZ);
+        SwapTextures(ref pressureTex, ref prevPressureTex);
 
-        // Subtract
-        windCompute.SetBuffer(subtractId, "a", prevVelocityBuffer);
-        windCompute.SetBuffer(subtractId, "b", pressureBuffer);
-        windCompute.SetBuffer(subtractId, "subtractResult", velocityBuffer);
 
-        windCompute.SetTexture(subtractId, "Result", renderTexture);
+        // Subtract X
+        windComputeProject.SetTexture(2, "a", divergenceField);
+        windComputeProject.SetTexture(2, "b", pressureTex);
+        windComputeProject.SetTexture(2, "result", velocityX);
 
-        windCompute.Dispatch(subtractId, 1, 1, 1);
-       // SwapBuffers(ref prevVelocityBuffer, ref velocityBuffer);
+        windComputeProject.Dispatch(2, volumeSizeX, volumeSizeY, volumeSizeZ);
+        SwapTextures(ref velocityX, ref prevVelocityX);
 
-        prevVelocityBuffer.GetData(testvector);
-        for (int i = 0; i < numberOfVoxels; i++)
-        {
-            Debug.Log("Projection: " + testvector[i]);
-        }
+        // Subtract X
+        windComputeProject.SetTexture(3, "a", divergenceField);
+        windComputeProject.SetTexture(3, "b", pressureTex);
+        windComputeProject.SetTexture(3, "result", velocityY);
+
+        windComputeProject.Dispatch(3, volumeSizeX, volumeSizeY, volumeSizeZ);
+        SwapTextures(ref velocityY, ref prevVelocityY);
+
+        // Subtract X
+        windComputeProject.SetTexture(4, "a", divergenceField);
+        windComputeProject.SetTexture(4, "b", pressureTex);
+        windComputeProject.SetTexture(4, "result", velocityZ);
+
+        windComputeProject.Dispatch(4, volumeSizeX, volumeSizeY, volumeSizeZ);
+        SwapTextures(ref velocityZ, ref prevVelocityZ);
     }
 
     void Boundary()
@@ -401,17 +457,17 @@ public class WindMaster : MonoBehaviour
         swapTexturesCompute.SetTexture(0, "textureA", auxTexture);
         swapTexturesCompute.SetTexture(0, "textureB", t1);
 
-        swapTexturesCompute.Dispatch(0, 1, 1, 1);
+        swapTexturesCompute.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
 
         swapTexturesCompute.SetTexture(0, "textureA", t1);
         swapTexturesCompute.SetTexture(0, "textureB", t2);
 
-        swapTexturesCompute.Dispatch(0, 1, 1, 1);
+        swapTexturesCompute.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
 
         swapTexturesCompute.SetTexture(0, "textureA", t2);
         swapTexturesCompute.SetTexture(0, "textureB", auxTexture);
 
-        swapTexturesCompute.Dispatch(0, 1, 1, 1);
+        swapTexturesCompute.Dispatch(0, volumeSizeX, volumeSizeY, volumeSizeZ);
     }
 
     private void OnDisable()
@@ -460,11 +516,11 @@ public class WindMaster : MonoBehaviour
             AddForces();
             Advection();
             Diffusion();
-            //Project();
+            Project();
             //Boundary(); 
 
 
-            first = true;
+            //first = true;
            // prevVelocityBuffer.GetData(testvector);
            // for (int i = 0; i < numberOfVoxels; i++)
            // {

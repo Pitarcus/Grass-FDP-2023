@@ -1,0 +1,85 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Divergence3D
+#pragma kernel Gradient3D
+#pragma kernel Subtract3DX
+#pragma kernel Subtract3DY
+#pragma kernel Subtract3DZ
+
+
+Texture3D<float> fieldX;
+Texture3D<float> fieldY;
+Texture3D<float> fieldZ;
+RWTexture3D<float> divergenceField;
+
+float gridCellSize;
+
+
+[numthreads(1,1,1)]
+void Divergence3D (uint3 id : SV_DispatchThreadID)
+{
+    uint3 currIndex = uint3(id.x, id.y, id.z);
+    uint3 leftIndex = uint3(id.x - 1 , id.y, id.z);
+    uint3 rightIndex = uint3 (id.x + 1 , id.y, id.z);
+    uint3 topIndex =  uint3 (id.x, id.y + 1 , id.z);
+    uint3 bottomIndex = uint3 (id.x, id.y - 1 , id.z);
+    uint3 frontIndex = uint3 (id.x, id.y, id.z + 1);
+    uint3 backIndex = uint3 (id.x, id.y, id.z - 1);
+
+    float u = ( fieldX [ rightIndex ] - fieldX [ leftIndex ]);
+    float v = ( fieldY [ topIndex ] - fieldY [ bottomIndex ]);
+    float w = ( fieldZ [ frontIndex ] - fieldZ [ backIndex ]);
+    float divergence = (u + v + w) / (2 * gridCellSize );
+    divergenceField [ currIndex ] = divergence;
+
+}
+
+
+
+Texture3D<float> gradientInputField;
+RWTexture3D<float3> gradientField;
+
+[numthreads(1,1,1)]
+void Gradient3D (uint3 id : SV_DispatchThreadID)
+{
+    uint3 currIndex = uint3(id.x, id.y, id.z);
+    uint3 leftIndex = uint3(id.x - 1 , id.y, id.z);
+    uint3 rightIndex = uint3 (id.x + 1 , id.y, id.z);
+    uint3 topIndex =  uint3 (id.x, id.y + 1 , id.z);
+    uint3 bottomIndex = uint3 (id.x, id.y - 1 , id.z);
+    uint3 frontIndex = uint3 (id.x, id.y, id.z + 1);
+    uint3 backIndex = uint3 (id.x, id.y, id.z - 1);
+
+    // x is the first component of field that contains divergence value
+    float L = gradientInputField [ leftIndex ];
+    float R = gradientInputField [ rightIndex ];
+    float T = gradientInputField [ topIndex ];
+    float B = gradientInputField [ bottomIndex ];
+    float F = gradientInputField [ frontIndex ];
+    float BACK = gradientInputField [ backIndex ];
+    gradientField [ currIndex ] = float3 (R-L, T-B, F- BACK ) / (2 * gridCellSize );
+
+}
+
+
+
+Texture3D<float> a;     // Divergence field
+Texture3D<float3> b;    //pressure buffer
+
+RWTexture3D<float> result; // velocity field
+
+[numthreads(1,1,1)]
+void Subtract3DX (uint3 id : SV_DispatchThreadID)
+{
+    result[ id ] = a[ id ] - b[ id ].x;
+}
+[numthreads(1,1,1)]
+void Subtract3DY (uint3 id : SV_DispatchThreadID)
+{
+    result [ id ] = a[ id ] - b[ id ].y;
+}
+[numthreads(1,1,1)]
+void Subtract3DZ (uint3 id : SV_DispatchThreadID)
+{
+    result [ id ] = a[ id ] - b[ id ].z;
+}
+

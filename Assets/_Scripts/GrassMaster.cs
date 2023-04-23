@@ -55,6 +55,8 @@ public class GrassMaster : MonoBehaviour
 
     [Space]
 
+    [SerializeField] WindMaster windMaster;
+
     // Grass Material parameters
     [Header("Grass Material parameters")]
     [SerializeField] Color bottomColor;
@@ -148,7 +150,7 @@ public class GrassMaster : MonoBehaviour
 
     // ------------- FUNCTIONS --------------
 
-    private void Awake()
+    private void Start()
     {
         _grassResolution = grassSquareSize * grassDensity;
         _grassStep = grassSquareSize / (float) _grassResolution;
@@ -214,6 +216,7 @@ public class GrassMaster : MonoBehaviour
     }
     #endregion
 
+    /*
     private void InitializeQuadtreeNodes()
     {
         if (_grassQuadtrees != null)
@@ -224,6 +227,7 @@ public class GrassMaster : MonoBehaviour
             }
         }
     }
+    */
 
     private void SetAllChildren(ref GrassQuadtree qt)
     {
@@ -280,7 +284,7 @@ public class GrassMaster : MonoBehaviour
             qt.culledGrassDataBuffer = new ComputeBuffer((int)qt.numberOfGrassBlades, _grassDataBufferSize, ComputeBufferType.Append);
             qt.culledGrassDataBufferLOD = new ComputeBuffer((int)qt.numberOfGrassBlades, _grassDataBufferSize, ComputeBufferType.Append);
 
-           
+
             // Material parameters
             qt.material = new Material(grassMaterial);
             qt.materialLOD = new Material(grassMaterial);
@@ -288,8 +292,14 @@ public class GrassMaster : MonoBehaviour
             qt.materialLOD.SetBuffer("_GrassData", qt.culledGrassDataBufferLOD);
             SetMaterialProperties(ref qt.material);
             SetMaterialProperties(ref qt.materialLOD);
-            
-           
+
+            if (windMaster.velocityX != null)
+            {
+                qt.material.SetTexture("_WindTextureX", windMaster.velocityX);
+                qt.material.SetTexture("_WindTextureY", windMaster.velocityY);
+                qt.material.SetTexture("_WindTextureZ", windMaster.velocityZ);
+            }
+
             qt.hasBeenSet = true;
         }
     }

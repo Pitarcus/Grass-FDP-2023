@@ -10,7 +10,7 @@ RWTexture3D<float> Result;
 float _alpha;
 float _beta;
 
-[numthreads(8,8,8)]
+[numthreads(1,1,1)]
 void PoissonSolver (uint3 id : SV_DispatchThreadID)
 {
     uint3 currIndex = uint3(id.x, id.y, id.z);
