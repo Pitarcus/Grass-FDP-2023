@@ -46,7 +46,7 @@ float TrilinearSample(Texture3D<float> t, float3 coord)
     return lerp(QZ1, QZ2, f.x);
 }
 
-[numthreads(1,1,1)]
+[numthreads(8,8,8)]
 void AdvectX (uint3 id : SV_DispatchThreadID)
 {
     float3 prevPos = float3(id.x - velocityField[id] * deltaTime, id.y, id.z);
@@ -54,7 +54,7 @@ void AdvectX (uint3 id : SV_DispatchThreadID)
     newQuantity[id] = TrilinearSample(prevQuantity, prevPos);
 }
 
-[numthreads(1,1,1)]
+[numthreads(8,8,8)]
 void AdvectY (uint3 id : SV_DispatchThreadID)
 {
     float3 prevPos = float3(id.x, id.y - velocityField[id] * deltaTime, id.z);
@@ -62,7 +62,7 @@ void AdvectY (uint3 id : SV_DispatchThreadID)
     newQuantity[id] = TrilinearSample(prevQuantity, prevPos);
 }
 
-[numthreads(1,1,1)]
+[numthreads(8,8,8)]
 void AdvectZ (uint3 id : SV_DispatchThreadID)
 {
     float3 prevPos = float3(id.x, id.y, id.z - velocityField[id] * deltaTime);

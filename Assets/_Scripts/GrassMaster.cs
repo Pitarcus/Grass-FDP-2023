@@ -293,7 +293,7 @@ public class GrassMaster : MonoBehaviour
             SetMaterialProperties(ref qt.material);
             SetMaterialProperties(ref qt.materialLOD);
 
-            if (windMaster.velocityX != null)
+            if (windMaster != null)
             {
                 qt.material.SetTexture("_WindTextureX", windMaster.velocityX);
                 qt.material.SetTexture("_WindTextureY", windMaster.velocityY);

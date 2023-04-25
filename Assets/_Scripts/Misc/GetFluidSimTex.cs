@@ -9,6 +9,6 @@ public class GetFluidSimTex : MonoBehaviour
     // Start is called before the first frame update
     void Update()
     {
-        GetComponent<MeshRenderer>().material.mainTexture = windMaster.renderTexture;
+        //GetComponent<MeshRenderer>().material.mainTexture = windMaster.renderTexture;
     }
 }

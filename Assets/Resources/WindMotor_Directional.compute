@@ -4,19 +4,25 @@
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 
-RWTexture3D<float4> _velocitySourcesX;
-RWTexture3D<float4> _velocitySourcesY;
-RWTexture3D<float4> _velocitySourcesZ;
+RWTexture3D<float> _velocitySourcesX;
+RWTexture3D<float> _velocitySourcesY;
+RWTexture3D<float> _velocitySourcesZ;
 
 float _motorStrenght;
 float3 _motorDirection;
+float _directionRandomness;
 float3 _motorPosWS;
 float _motorRadius;
 
 float _deltaTime;
 
 
-[numthreads(1,1,1)]
+float rand(float2 co) 
+{
+    return(frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453)) * 1;
+}
+
+[numthreads(8,8,8)]
 void ApplyDirectionalMotor (uint3 id : SV_DispatchThreadID)
 {
     float3 cellPosition = id;
@@ -24,7 +30,11 @@ void ApplyDirectionalMotor (uint3 id : SV_DispatchThreadID)
 
     if(dist < _motorRadius)
     {
-        float4 addedForce = float4(_motorDirection * _motorStrenght , 1);//* _deltaTime, 1);
+        float3 newDirection = float3(_motorDirection.x + (rand(id.xy) * 2 - 1) * _directionRandomness,
+                                     _motorDirection.y + (rand(id.xy) * 2 - 1) * _directionRandomness,
+                                     _motorDirection.z + (rand(id.xy) * 2 - 1) * _directionRandomness);
+
+        float3 addedForce = float3(newDirection  * _motorStrenght * _deltaTime);
         _velocitySourcesX[id] += addedForce.x;
         _velocitySourcesY[id] += addedForce.y;
         _velocitySourcesZ[id] += addedForce.z;

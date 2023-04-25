@@ -16,12 +16,13 @@ uint _sizeX;    // It is really, the size - 2 (last voxel not in the boundary)
 uint _sizeY;
 uint _sizeZ;
 
+
 uint IndexFrom3DCoord(uint x, uint y, uint z) 
 {
     return x + y * (_sizeX+2) + z * (_sizeX+2) * (_sizeY+2);
 }
 
-[numthreads(1,1,1)]
+[numthreads(8,8,8)]
 void ForceGPUFluidSim3D(uint3 id : SV_DispatchThreadID) 
 {
     uint voxelIndex = IndexFrom3DCoord(id.x, id.y, id.z);

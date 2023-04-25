@@ -120,7 +120,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
-    - _Ambient_Occlusion: 0.35
+    - _Ambient_Occlusion: 0.4
     - _BendRandomnessScale: 20
     - _Blend: 0
     - _BumpScale: 1
@@ -133,7 +133,7 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _DynamicWindStrength: 3
+    - _DynamicWindStrength: 1
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -162,16 +162,17 @@ Material:
     - _ReceiveShadows: 1
     - _Scale: 1.06
     - _ScaleY: 1.2
-    - _Smoothness: 0.6
+    - _Smoothness: 0.4
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _StaticWindY: -0.8
     - _Surface: 0
     - _WindDistortion: 0.63
     - _WindNoiseScale: 0.08
     - _WindRotation: 0
     - _WindSpeed: 0.45
-    - _WindStrenght: 0
+    - _WindStrenght: 0.13
     - _WorkflowMode: 0
     - _WorldUV_Tiling: 1
     - _ZTest: 4

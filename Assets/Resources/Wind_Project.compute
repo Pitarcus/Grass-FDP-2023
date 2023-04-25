@@ -38,7 +38,7 @@ void Divergence3D (uint3 id : SV_DispatchThreadID)
 Texture3D<float> gradientInputField;
 RWTexture3D<float3> gradientField;
 
-[numthreads(1,1,1)]
+[numthreads(8,8,8)]
 void Gradient3D (uint3 id : SV_DispatchThreadID)
 {
     uint3 currIndex = uint3(id.x, id.y, id.z);
@@ -67,17 +67,17 @@ Texture3D<float3> b;    //pressure buffer
 
 RWTexture3D<float> result; // velocity field
 
-[numthreads(1,1,1)]
+[numthreads(8,8,8)]
 void Subtract3DX (uint3 id : SV_DispatchThreadID)
 {
     result[ id ] = a[ id ] - b[ id ].x;
 }
-[numthreads(1,1,1)]
+[numthreads(8,8,8)]
 void Subtract3DY (uint3 id : SV_DispatchThreadID)
 {
     result [ id ] = a[ id ] - b[ id ].y;
 }
-[numthreads(1,1,1)]
+[numthreads(8,8,8)]
 void Subtract3DZ (uint3 id : SV_DispatchThreadID)
 {
     result [ id ] = a[ id ] - b[ id ].z;
