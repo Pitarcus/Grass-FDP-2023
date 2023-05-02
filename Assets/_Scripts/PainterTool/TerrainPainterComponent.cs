@@ -19,8 +19,6 @@ public class TerrainPainterComponent : MonoBehaviour
     public BrushMode brushMode;
     public Vector2Int brushSize = new Vector2Int(50, 50);
     public float brushStrength = 1.0f;
-    public float minHeight = 0.0f;
-    public float maxHeight = 1.0f;
     public Texture2D maskTexture;
 
     public Terrain terrain; // The terrain is needed to set up the size of the texture correctly.

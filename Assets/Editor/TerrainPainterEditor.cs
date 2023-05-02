@@ -47,8 +47,8 @@ public class TerrainPainterEditor : Editor
 
         EditorGUILayout.Space();
 
-        terrainPainter.minHeight = EditorGUILayout.FloatField("Min Height", terrainPainter.minHeight);
-        terrainPainter.maxHeight = EditorGUILayout.FloatField("Max Height", terrainPainter.maxHeight);
+        //terrainPainter.minHeight = EditorGUILayout.FloatField("Min Height", terrainPainter.minHeight);
+        //terrainPainter.maxHeight = EditorGUILayout.FloatField("Max Height", terrainPainter.maxHeight);
 
         EditorGUILayout.Space();
 
