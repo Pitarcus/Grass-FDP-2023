@@ -38,16 +38,21 @@ public class WindMaster : MonoBehaviour
     [Space]
 
     [Header("Texture buffers")]
-    // trying out using textures instead of buffers TEXTURE ARE SERIALIZED ONLY FOR TESTING
+    // trying out using textures instead of buffers TEXTURE ARE SERIALIZED ONLY FOR TESTING and DEBUGGING
     [SerializeField] public RenderTexture velocityX;
     [SerializeField] RenderTexture prevVelocityX;
     [SerializeField] RenderTexture velocitySourceX;
+    RenderTexture prevVelocitySourceX;
+
     public RenderTexture velocityY;
     RenderTexture prevVelocityY;
     [SerializeField] RenderTexture velocitySourceY;
+    RenderTexture prevVelocitySourceY;
+
     public RenderTexture velocityZ;
     RenderTexture prevVelocityZ;
     [SerializeField] RenderTexture velocitySourceZ;
+    RenderTexture prevVelocitySourceZ;
 
     [SerializeField] RenderTexture pressureTex;
     [SerializeField] RenderTexture prevPressureTex;
@@ -56,11 +61,6 @@ public class WindMaster : MonoBehaviour
 
     RenderTexture auxTexture;   // Auxiliar texture for swapping
 
-    [Space]
-
-    [Header("Directional Motor (testing)")]
-    // Test directional motor
-   // public DirectionalMotorStruct directionalMotor;
 
     [Space]
 
@@ -69,15 +69,21 @@ public class WindMaster : MonoBehaviour
     [SerializeField] int volumeSizeY = 16;
     [SerializeField] int volumeSizeZ = 16;
     [SerializeField] float viscosity = 1;
-    static int JACOBI_ITERATIONS = 30;
-    int numberOfVoxels;
+
+    [SerializeField] Transform playerTransform;
+    [SerializeField] CharacterController playerRB;
+    public Vector3 prevPlayerPosition { get; private set; }
+    Vector3 playerPosition;
+    [SerializeField] public Vector3 gridPosition;
+    private Vector3 gridDisplacement; // Actual value that should be displaced
+
+    private static int JACOBI_ITERATIONS = 30;
+    private int numberOfVoxels;
 
     private int velocityBufferSize = sizeof(float) * 3;
     private int pressureBufferSize = sizeof(float) * 3;
 
-    int forceFluidId, advectionId, poissonSolverId, divergenceId, gradientId, subtractId, boundaryId, copyId;
-
-    public bool first = false;
+    private int forceFluidId, advectionId, poissonSolverId, divergenceId, gradientId, subtractId, boundaryId, copyId;
 
 
     private void InitTextures()
@@ -90,6 +96,12 @@ public class WindMaster : MonoBehaviour
         velocitySourceX.volumeDepth = volumeSizeZ;
         velocitySourceX.enableRandomWrite = true;
         velocitySourceX.filterMode = FilterMode.Point;
+
+        prevVelocitySourceX = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        prevVelocitySourceX.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        prevVelocitySourceX.volumeDepth = volumeSizeZ;
+        prevVelocitySourceX.enableRandomWrite = true;
+        prevVelocitySourceX.filterMode = FilterMode.Point;
 
         velocityX = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
         velocityX.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
@@ -110,6 +122,12 @@ public class WindMaster : MonoBehaviour
         velocitySourceY.enableRandomWrite = true;
         velocitySourceY.filterMode = FilterMode.Point;
 
+        prevVelocitySourceY = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        prevVelocitySourceY.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        prevVelocitySourceY.volumeDepth = volumeSizeZ;
+        prevVelocitySourceY.enableRandomWrite = true;
+        prevVelocitySourceY.filterMode = FilterMode.Point;
+
         velocityY = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
         velocityY.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
         velocityY.volumeDepth = volumeSizeZ;
@@ -128,6 +146,12 @@ public class WindMaster : MonoBehaviour
         velocitySourceZ.volumeDepth = volumeSizeZ;
         velocitySourceZ.enableRandomWrite = true;
         velocitySourceZ.filterMode = FilterMode.Point;
+
+        prevVelocitySourceZ = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
+        prevVelocitySourceZ.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        prevVelocitySourceZ.volumeDepth = volumeSizeZ;
+        prevVelocitySourceZ.enableRandomWrite = true;
+        prevVelocitySourceZ.filterMode = FilterMode.Point;
 
         velocityZ = new RenderTexture(volumeSizeX, volumeSizeY, 0, UnityEngine.Experimental.Rendering.GraphicsFormat.R16_SFloat);
         velocityZ.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
@@ -167,6 +191,11 @@ public class WindMaster : MonoBehaviour
         auxTexture.enableRandomWrite = true;
         auxTexture.filterMode = FilterMode.Point;
 
+
+        // START VALUES
+        //ClearRenderTexture(ref prevVelocityX, 0.5f);
+        //ClearRenderTexture(ref prevVelocityY, 0.5f);
+        //ClearRenderTexture(ref prevVelocityZ, 0.5f);
     }
     // Start is called before the first frame update
     void Awake()
@@ -177,20 +206,29 @@ public class WindMaster : MonoBehaviour
         // TEXTURES INSTEAD OF BUFFERS
         InitTextures();
 
-        //UpdateDirectionalMotor();
+        
+        gridDisplacement = gridPosition;
+
+
+        // SET GLOBAL PARAMETERS OF TEXTURE AND PLAYER POSITION
+        Shader.SetGlobalTexture("_WindTextureX", velocityX);
+        Shader.SetGlobalTexture("_WindTextureY", velocityY);
+        Shader.SetGlobalTexture("_WindTextureZ", velocityZ);
+
+        Vector3 gridSize = new Vector3(volumeSizeX, volumeSizeY, volumeSizeZ);
+        Shader.SetGlobalVector("_GridSize", gridSize);
+
+        Shader.SetGlobalVector("_PlayerPositionFloored", playerPosition);
     }
 
     public void UpdateDirectionalMotor(DirectionalMotorStruct directionalMotor)
     {
-
         int xDirectionSign = (int) (directionalMotor.motorDirection.x / Mathf.Abs(directionalMotor.motorDirection.x));
         int yDirectionSign = (int)(directionalMotor.motorDirection.y / Mathf.Abs(directionalMotor.motorDirection.y));
         int zDirectionSign = (int)(directionalMotor.motorDirection.z / Mathf.Abs(directionalMotor.motorDirection.z));
 
         Vector3 directionSigned = new Vector3(directionalMotor.motorDirection.normalized.x, directionalMotor.motorDirection.normalized.y,
             directionalMotor.motorDirection.normalized.z);
-
-        Debug.Log(directionSigned);
 
         // INIT DIRECTIONAL MOTOR
         windComputeDirectionalMotor.SetTexture(0, "_velocitySourcesX", velocitySourceX);
@@ -201,6 +239,7 @@ public class WindMaster : MonoBehaviour
         windComputeDirectionalMotor.SetVector("_motorPosWS", directionalMotor.motorPosWS);
         windComputeDirectionalMotor.SetFloat("_motorRadius", directionalMotor.motorRadius);
         windComputeDirectionalMotor.SetFloat("_deltaTime", Time.deltaTime);
+        windComputeDirectionalMotor.SetVector("_gridDisplacement", gridDisplacement - playerPosition);
 
         windComputeDirectionalMotor.Dispatch(0, volumeSizeX / 8, volumeSizeY / 8, volumeSizeZ / 8);
     }
@@ -249,8 +288,12 @@ public class WindMaster : MonoBehaviour
         windComputeAdvection.SetVector("domainSize", domainSize);
         windComputeAdvection.SetFloat("deltaTime", Time.deltaTime);
 
+        windComputeAdvection.SetTexture(0, "velocityFieldX", prevVelocityX);
+        windComputeAdvection.SetTexture(0, "velocityFieldY", prevVelocityY);
+        windComputeAdvection.SetTexture(0, "velocityFieldZ", prevVelocityZ);
+
         // X
-        windComputeAdvection.SetTexture(0, "velocityField", prevVelocityX);
+        //windComputeAdvection.SetTexture(0, "velocityField", prevVelocityX);
         windComputeAdvection.SetTexture(0, "prevQuantity", prevVelocityX);
         windComputeAdvection.SetTexture(0, "newQuantity", velocityX);
         
@@ -259,20 +302,20 @@ public class WindMaster : MonoBehaviour
         SwapTextures(ref velocityX, ref prevVelocityX);
 
         // Y
-        windComputeAdvection.SetTexture(1, "velocityField", prevVelocityY);
-        windComputeAdvection.SetTexture(1, "prevQuantity", prevVelocityY);
-        windComputeAdvection.SetTexture(1, "newQuantity", velocityY);
+        //windComputeAdvection.SetTexture(1, "velocityField", prevVelocityY);
+        windComputeAdvection.SetTexture(0, "prevQuantity", prevVelocityY);
+        windComputeAdvection.SetTexture(0, "newQuantity", velocityY);
 
-        windComputeAdvection.Dispatch(1, volumeSizeX / 8, volumeSizeY / 8, volumeSizeZ / 8);
+        windComputeAdvection.Dispatch(0, volumeSizeX / 8, volumeSizeY / 8, volumeSizeZ / 8);
 
         SwapTextures(ref velocityY, ref prevVelocityY);
 
         // Z
-        windComputeAdvection.SetTexture(2, "velocityField", prevVelocityZ);
-        windComputeAdvection.SetTexture(2, "prevQuantity", prevVelocityZ);
-        windComputeAdvection.SetTexture(2, "newQuantity", velocityZ);
+        //windComputeAdvection.SetTexture(2, "velocityField", prevVelocityZ);
+        windComputeAdvection.SetTexture(0, "prevQuantity", prevVelocityZ);
+        windComputeAdvection.SetTexture(0, "newQuantity", velocityZ);
 
-        windComputeAdvection.Dispatch(2, volumeSizeX / 8, volumeSizeY / 8, volumeSizeZ / 8);
+        windComputeAdvection.Dispatch(0, volumeSizeX / 8, volumeSizeY / 8, volumeSizeZ / 8);
 
         SwapTextures(ref velocityZ, ref prevVelocityZ);
     }
@@ -416,11 +459,23 @@ public class WindMaster : MonoBehaviour
         swapTexturesCompute.Dispatch(0, volumeSizeX / 8, volumeSizeY / 8, volumeSizeZ / 8);
     }
 
-    void ClearRenderTexture(ref RenderTexture rt)
+    void ClearRenderTexture(ref RenderTexture rt, float value)
     {
         clearRT.SetTexture(0, "Result", rt);
 
+        clearRT.SetFloat("Value", value);
+
         clearRT.Dispatch(0, volumeSizeX / 8, volumeSizeY / 8, volumeSizeZ / 8);
+    }
+
+    void MoveRenderTexture(ref RenderTexture result, ref RenderTexture textureToMove, Vector3 value)
+    {
+        clearRT.SetTexture(1, "Result", result);
+        clearRT.SetTexture(1, "textureToMove", textureToMove);
+
+        clearRT.SetVector("displacement", value);
+
+        clearRT.Dispatch(1, volumeSizeX / 8, volumeSizeY / 8, volumeSizeZ / 8);
     }
     private void OnDisable()
     {
@@ -441,26 +496,35 @@ public class WindMaster : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!first)
+        prevPlayerPosition = playerPosition;
+        playerPosition = new Vector3(Mathf.Floor(playerTransform.position.x) + 0.5f,
+                                     Mathf.Floor(playerTransform.position.y) + 0.5f,
+                                     Mathf.Floor(playerTransform.position.z) + 0.5f);
+        Vector3 positionDifference = prevPlayerPosition - playerPosition;
+
+        // FLUID SIM
+        AddForces();
+        Advection();
+        Diffusion();
+        //Project();
+        //Boundary(); 
+
+        if (positionDifference != Vector3.zero)
         {
-            
-            //UpdateDirectionalMotor();
+            Shader.SetGlobalVector("_PlayerPositionFloored", playerPosition);
+            MoveRenderTexture(ref velocityX, ref prevVelocityX, positionDifference);
+            SwapTextures(ref velocityX, ref prevVelocityX);
 
-            // FLUID SIM
-            AddForces();
-            Advection();
-            Diffusion();
-            //Project();
-            //Boundary(); 
+            MoveRenderTexture(ref velocityY, ref prevVelocityY, positionDifference);
+            SwapTextures(ref velocityY, ref prevVelocityY);
 
-            ClearRenderTexture(ref velocitySourceX);
-            ClearRenderTexture(ref velocitySourceY);
-            ClearRenderTexture(ref velocitySourceZ);
-
-            //first = true;
-
-            // SOURCES SHOULD BE CLEARED AFTER EACH FRAME
+            MoveRenderTexture(ref velocityZ, ref prevVelocityZ, positionDifference);
+            SwapTextures(ref velocityZ, ref prevVelocityZ);
         }
+
+        ClearRenderTexture(ref velocitySourceX, 0);
+        ClearRenderTexture(ref velocitySourceY, 0);
+        ClearRenderTexture(ref velocitySourceZ, 0);
 
     }
 }

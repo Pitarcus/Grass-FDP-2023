@@ -14,6 +14,8 @@ float _directionRandomness;
 float3 _motorPosWS;
 float _motorRadius;
 
+float3 _gridDisplacement;
+
 float _deltaTime;
 
 
@@ -25,7 +27,7 @@ float rand(float2 co)
 [numthreads(8,8,8)]
 void ApplyDirectionalMotor (uint3 id : SV_DispatchThreadID)
 {
-    float3 cellPosition = id;
+    float3 cellPosition = id - _gridDisplacement;
     float dist = length(cellPosition - _motorPosWS); // from GDC Talk at: "https://youtu.be/dDgyBKkSf7A?t=716"
 
     if(dist < _motorRadius)

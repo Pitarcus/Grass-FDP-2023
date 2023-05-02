@@ -8,7 +8,7 @@ public class GrassMaster : MonoBehaviour
     // Parameters
     [Range(1, 2000)]
     [SerializeField] int grassSquareSize = 128;
-    [Range(1, 6)]
+    [Range(1, 10)]
     [SerializeField] int grassDensity = 1;
     [Range(0, 2)]
     [SerializeField] float offsetXAmount = 0.5f;
@@ -249,7 +249,8 @@ public class GrassMaster : MonoBehaviour
             if(!qt.hasBeenSet)
                 _nodeResolution = (int)(qt.boundary.halfDimension * 2 * grassDensity);
 
-            if(!qt.hasBeenSet)
+            Debug.Log(_nodeResolution * _nodeResolution);
+            if (!qt.hasBeenSet)
                 qt.grassCompute = Resources.Load<ComputeShader>("GrassCompute");
 
             qt.grassDataBuffer = new ComputeBuffer(_nodeResolution * _nodeResolution, _grassDataBufferSize, ComputeBufferType.Append);
@@ -293,12 +294,13 @@ public class GrassMaster : MonoBehaviour
             SetMaterialProperties(ref qt.material);
             SetMaterialProperties(ref qt.materialLOD);
 
-            if (windMaster != null)
-            {
-                qt.material.SetTexture("_WindTextureX", windMaster.velocityX);
-                qt.material.SetTexture("_WindTextureY", windMaster.velocityY);
-                qt.material.SetTexture("_WindTextureZ", windMaster.velocityZ);
-            }
+            //if (windMaster != null)
+            //{
+
+            //    qt.material.SetTexture("_WindTextureX", windMaster.velocityX);
+            //    qt.material.SetTexture("_WindTextureY", windMaster.velocityY);
+            //    qt.material.SetTexture("_WindTextureZ", windMaster.velocityZ);
+            //}
 
             qt.hasBeenSet = true;
         }
@@ -402,14 +404,6 @@ public class GrassMaster : MonoBehaviour
         qt.culledGrassDataBufferLOD.SetCounterValue(0);
         cullGrassCompute.Dispatch(0, Mathf.CeilToInt(_nodeResolution * _nodeResolution / culledNumThreadsX), 1, 1);
 
-        /*uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
-
-        ComputeBuffer.CopyCount(qt.culledGrassDataBufferLOD, qt.argsLODBuffer, sizeof(uint));
-        qt.argsLODBuffer.GetData(newArgs);
-
-        //qt.numberOfInstances = newArgs[1];
-
-        Debug.Log("Number of LOD: " + newArgs[1]);*/
     }
 
     void Update()
@@ -422,6 +416,7 @@ public class GrassMaster : MonoBehaviour
 
         // Update material parameters
         _playerPosition = playerTransform.position;
+
         _cameraAngleToGroundNormalized = Vector3.Angle(Camera.main.transform.forward, Vector3.up);
         if(_cameraAngleToGroundNormalized > 100)
         {

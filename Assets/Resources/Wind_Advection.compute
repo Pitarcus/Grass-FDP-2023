@@ -1,9 +1,14 @@
 // Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel AdvectAll
 #pragma kernel AdvectX
 #pragma kernel AdvectY
 #pragma kernel AdvectZ
 
 Texture3D<float> velocityField;
+
+Texture3D<float> velocityFieldX;
+Texture3D<float> velocityFieldY;
+Texture3D<float> velocityFieldZ;
 
 RWTexture3D<float> newQuantity;
 Texture3D<float> prevQuantity;
@@ -44,6 +49,14 @@ float TrilinearSample(Texture3D<float> t, float3 coord)
     float QZ2 = lerp(QY3, QY4, f.z);
 
     return lerp(QZ1, QZ2, f.x);
+}
+
+[numthreads(8,8,8)]
+void AdvectAll (uint3 id : SV_DispatchThreadID)
+{
+    float3 prevPos = float3(id.x - velocityFieldX[id] * deltaTime, id.y - velocityFieldY[id] * deltaTime, id.z - velocityFieldZ[id] * deltaTime);
+
+    newQuantity[id] = TrilinearSample(prevQuantity, prevPos);
 }
 
 [numthreads(8,8,8)]

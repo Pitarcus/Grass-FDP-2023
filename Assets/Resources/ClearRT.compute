@@ -1,12 +1,27 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#pragma kernel ClearRT
+#pragma kernel MoveRT
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWTexture3D<float> Result;
 
+float Value;
+
+
 [numthreads(8,8,8)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+void ClearRT (uint3 id : SV_DispatchThreadID)
 {
-    Result[id] = 0;
+    Result[id] = Value;
+}
+
+RWTexture3D<float> textureToMove;
+int3 displacement;
+
+int3 gridSize;
+
+[numthreads(8,8,8)]
+void MoveRT (uint3 id : SV_DispatchThreadID)
+{
+    Result[id] = textureToMove[int3(id.x + displacement.x, id.y + displacement.y, id.z + displacement.z)];
 }
