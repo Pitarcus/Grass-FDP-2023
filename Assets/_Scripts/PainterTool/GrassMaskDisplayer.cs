@@ -13,7 +13,7 @@ public class GrassMaskDisplayer : MonoBehaviour
 
     TerrainLayer terrainLayer;
 
-    public Texture2D newTex;
+    //public Texture2D newTex;
 
     public DecalProjector decalProjector;   // Decal object that should be updated
     Material decalMaterial;
@@ -32,11 +32,12 @@ public class GrassMaskDisplayer : MonoBehaviour
         {
             texture = textureObject.maskTexture;
 
-            // Create the new texture that will have the proper 
+            /* FOR NOW IT HAS NO UTILITY
+            // Create the new texture that will have the proper size
             newTex = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, true);
             newTex.wrapMode = TextureWrapMode.Clamp;
             newTex.filterMode = FilterMode.Point;
-
+            */
             terrainLayer = new TerrainLayer();
 
             decalMaterial = new Material(decalShader);

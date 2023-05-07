@@ -110,16 +110,15 @@ public class TerrainPainterComponent : MonoBehaviour
             
             // Convert the position to the terrain's local coordinates
             Vector3 localPosition = transform.InverseTransformPoint(ray.origin + ray.direction * (height - ray.origin.y) / ray.direction.y);
-            //Vector3 localPosition = transform.InverseTransformPoint(hit.point);
 
             // Convert the position to the alphamap coordinates
-            Vector2 terrainPosition = new Vector2(localPosition.x / terrainData.size.x * terrainData.alphamapWidth, localPosition.z / terrainData.size.z * terrainData.alphamapHeight);
+            Vector2 inTerrainPosition = new Vector2(localPosition.x / terrainData.size.x * terrainData.alphamapWidth, localPosition.z / terrainData.size.z * terrainData.alphamapHeight);
 
-            if (terrainPosition.x >= -terrainData.alphamapWidth && terrainPosition.x < terrainData.alphamapWidth 
-                && terrainPosition.y >= -terrainData.alphamapHeight && terrainPosition.y < terrainData.alphamapHeight)  // The position is inside the bounds of the terrain
+            if (inTerrainPosition.x >= -terrainData.alphamapWidth && inTerrainPosition.x < terrainData.alphamapWidth 
+                && inTerrainPosition.y >= -terrainData.alphamapHeight && inTerrainPosition.y < terrainData.alphamapHeight)  // The position is inside the bounds of the terrain
             {
                 // Update the brush position
-                brushPosition = terrainPosition;
+                brushPosition = inTerrainPosition;
 
                 // Paint the mask texture
                 int brushSizeX = Mathf.RoundToInt(brushSize.x);

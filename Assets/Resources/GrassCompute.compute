@@ -63,7 +63,7 @@ void GrassGenerator (uint3 id : SV_DispatchThreadID)
         if(_PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a > 0.1f) {    // Only display grass where there is alpha map
 
              // Calculate the actual world position
-            float Xoffset = rand(id.xy) *_OffsetXAmount;
+            float Xoffset = rand(id.xy) *_OffsetXAmount; // Hola buenas tardes soy un dinosaurio
             float Yoffset = rand(id.xy) *_OffsetYAmount;
            
             float3 pos =  0.0f;

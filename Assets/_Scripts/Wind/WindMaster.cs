@@ -31,10 +31,6 @@ public class WindMaster : MonoBehaviour
     [SerializeField] ComputeShader clearRT;
 
 
-    ComputeBuffer velocityBuffer;
-    ComputeBuffer prevVelocityBuffer;   // Read only
-    ComputeBuffer velocitySourcesBuffer;
-
     [Space]
 
     [Header("Texture buffers")]
@@ -479,17 +475,6 @@ public class WindMaster : MonoBehaviour
     }
     private void OnDisable()
     {
-        if (velocityBuffer != null)
-            velocityBuffer.Release();
-        velocityBuffer = null;
-
-        if (prevVelocityBuffer != null)
-            prevVelocityBuffer.Release();
-        prevVelocityBuffer = null;
-
-        if (velocitySourcesBuffer != null)
-            velocitySourcesBuffer.Release();
-        velocitySourcesBuffer = null;
 
     }
 

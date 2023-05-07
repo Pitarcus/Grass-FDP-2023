@@ -52,21 +52,22 @@ public class AABB
     }
 
     // Frustum stuff 
-    public bool IsOnFrustum(Plane[] frustum)
+    public bool IsOnFrustum(Plane[] frustum, Texture2D heightmap, float displacementStrength)
     {
-        return this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Left]) &&
-            this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Right]) &&
-            this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Down]) &&
-            this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Up]) &&
-            this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Near]) &&
-            this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Far]);
+        float heightValue = heightmap.GetPixel(heightmap.width / 2, heightmap.height / 2).r * displacementStrength;
+        return this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Left], heightValue) &&
+            this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Right], heightValue) &&
+            this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Down], heightValue) &&
+            this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Up], heightValue) &&
+            this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Near], heightValue) &&
+            this.IsOnOrForwardPlane(frustum[(int)FustrumPlane.Far], heightValue);
     }
 
-    public bool IsOnOrForwardPlane(Plane plane)
+    public bool IsOnOrForwardPlane(Plane plane, float heightValue)
     {
-        float r = halfDimension * Mathf.Abs(plane.normal.x) + 100 * Mathf.Abs(plane.normal.y) + halfDimension * Mathf.Abs(plane.normal.z);
+        float r = halfDimension * Mathf.Abs(plane.normal.x) + halfDimension * 2 * Mathf.Abs(plane.normal.y) + halfDimension * Mathf.Abs(plane.normal.z);
 
-        return -r <= plane.GetDistanceToPoint(new Vector3(p.x, 50, p.y));
+        return -r <= plane.GetDistanceToPoint(new Vector3(p.x, heightValue, p.y));
     }
 }
 
@@ -160,6 +161,7 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
 
     public Texture2D grassMask;
     public Texture2D heightMap;
+    public float heightDisplacementStrength;
     public Material material;
     public Material materialLOD;
     public ComputeShader grassCompute;
@@ -179,7 +181,7 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
 
     public bool subdivided = false;
 
-    public GrassQuadtree(AABB boundary, int currentDepth, int maxDepth, Texture2D grassMask, Texture2D heighMap)
+    public GrassQuadtree(AABB boundary, int currentDepth, int maxDepth, Texture2D grassMask, Texture2D heighMap, float heightDisplacementStrength)
     {
         this.boundary = boundary;
 
@@ -190,6 +192,8 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
         this.grassMask = grassMask;
 
         this.heightMap = heighMap;
+
+        this.heightDisplacementStrength = heightDisplacementStrength;
     }
 
     public void Subdivide()
@@ -200,16 +204,16 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
 
 
         AABB nw = new AABB(x - w, y + w, w);
-        northWest = new GrassQuadtree(nw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, true, true), SubdivideTexture(heightMap, false, true, false));
+        northWest = new GrassQuadtree(nw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, true, true), SubdivideTexture(heightMap, false, true, false), heightDisplacementStrength);
 
         AABB ne = new AABB(x + w, y + w, w);
-        northEast = new GrassQuadtree(ne, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, true, true), SubdivideTexture(heightMap, true, true, false));
+        northEast = new GrassQuadtree(ne, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, true, true), SubdivideTexture(heightMap, true, true, false), heightDisplacementStrength);
 
         AABB sw = new AABB(x - w, y - w, w);
-        southWest = new GrassQuadtree(sw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, false, true), SubdivideTexture(heightMap, false, false, false));
+        southWest = new GrassQuadtree(sw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, false, true), SubdivideTexture(heightMap, false, false, false), heightDisplacementStrength);
 
         AABB se = new AABB(x + w, y - w, w);
-        southEast = new GrassQuadtree(se, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, false, true), SubdivideTexture(heightMap, true, false, false));
+        southEast = new GrassQuadtree(se, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, false, true), SubdivideTexture(heightMap, true, false, false), heightDisplacementStrength);
 
         subdivided = true;
     }
@@ -295,7 +299,7 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
     // Test the frustum against a quadtree, only visible quadtrees with grass will appear
     public bool TestFrustum(Vector3 cameraPosition, float leafCutoffDistance, float quadtreeCutoffDistance, Plane[] frustum, ref List<GrassQuadtree> validQuadtrees)
     {
-        if(!boundary.IsOnFrustum(frustum))
+        if(!boundary.IsOnFrustum(frustum, heightMap, heightDisplacementStrength))
         {
             return false;
         }
