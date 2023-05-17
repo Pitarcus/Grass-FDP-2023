@@ -4,32 +4,32 @@ using UnityEngine;
 
 public class FollowRotation : MonoBehaviour
 {
-    [SerializeField] Transform target;
-    [SerializeField] bool followX;
-    [SerializeField] bool followY;
-    [SerializeField] bool followZ;
+    public Transform target;
+    public bool followX, followY, followZ;
+    //public Vector3 initialOffsetRotation;
 
-    int x, y, z;
+    private Quaternion initialRotation;
 
-    private float offsetX;
-    private float offsetY;
-    private float offsetZ;
-
-    Quaternion newRotation;
-
-    private void Start()
+    void Start()
     {
-        offsetX = transform.rotation.eulerAngles.x;
-        offsetY = transform.rotation.eulerAngles.y;
-        offsetZ = transform.rotation.eulerAngles.z;
-        x = followX ? 1 : 0;
-        y = followY ? 1 : 0;
-        z = followZ ? 1 : 0;
+        // Save the initial rotation offset
+        initialRotation = transform.rotation;
     }
-    // Update is called once per frame
+
     void Update()
     {
-        newRotation = Quaternion.Euler(target.rotation.x * x + offsetX, target.rotation.y * y + offsetY, target.rotation.z * z + offsetZ);
-        transform.rotation = newRotation;
+        // Get the target's rotation
+        Quaternion targetRotation = target.rotation;
+
+        // Apply the initial rotation offset
+        targetRotation *= initialRotation;
+
+        // Only follow the target's rotation in the specified axes
+        if (!followX) targetRotation.x = transform.rotation.x;
+        if (!followY) targetRotation.y = transform.rotation.y;
+        if (!followZ) targetRotation.z = transform.rotation.z;
+
+        // Set the rotation of this object to match the target's rotation
+        transform.rotation = targetRotation;
     }
 }

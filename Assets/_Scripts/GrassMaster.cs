@@ -262,37 +262,29 @@ public class GrassMaster : MonoBehaviour
             qt.grassDataBuffer.SetCounterValue(0);
             qt.grassCompute.Dispatch(0, (int)(qt.boundary.halfDimension * 2 * grassDensity / _numThreadsX), (int)(qt.boundary.halfDimension * 2 * grassDensity / _numThreadsY), 1);
 
-            /*uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
+            uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
             qt.argsLODBuffer.SetData(_lowerLODArgs);
             ComputeBuffer.CopyCount(qt.grassDataBuffer, qt.argsLODBuffer, sizeof(uint));
-            qt.argsLODBuffer.GetData(newArgs);*/
+            qt.argsLODBuffer.GetData(newArgs);
 
-            uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
-            qt.argsBuffer.SetData(_mainLODArgs);
-            ComputeBuffer.CopyCount(qt.grassDataBuffer, qt.argsBuffer, sizeof(uint));
-            qt.argsBuffer.GetData(newArgs);
+            //uint[] newArgs = new uint[5] { 0, 1, 0, 0, 0 };
+            //qt.argsBuffer.SetData(_mainLODArgs);
+            //ComputeBuffer.CopyCount(qt.grassDataBuffer, qt.argsBuffer, sizeof(uint));
+            //qt.argsBuffer.GetData(newArgs);
 
             qt.numberOfGrassBlades = newArgs[1];
 
-            //qt.culledGrassDataBuffer = new ComputeBuffer((int)qt.numberOfGrassBlades, _grassDataBufferSize, ComputeBufferType.Append);
-            //qt.culledGrassDataBufferLOD = new ComputeBuffer((int)qt.numberOfGrassBlades, _grassDataBufferSize, ComputeBufferType.Append);
+            qt.culledGrassDataBuffer = new ComputeBuffer((int)qt.numberOfGrassBlades, _grassDataBufferSize, ComputeBufferType.Append);
+            qt.culledGrassDataBufferLOD = new ComputeBuffer((int)qt.numberOfGrassBlades, _grassDataBufferSize, ComputeBufferType.Append);
 
 
             // Material parameters
             qt.material = new Material(grassMaterial);
             qt.materialLOD = new Material(grassMaterial);
-            qt.material.SetBuffer("_GrassData", qt.grassDataBuffer);
-           // qt.materialLOD.SetBuffer("_GrassData", qt.culledGrassDataBufferLOD);
+            qt.material.SetBuffer("_GrassData", qt.culledGrassDataBuffer);
+            qt.materialLOD.SetBuffer("_GrassData", qt.culledGrassDataBufferLOD);
             SetMaterialProperties(ref qt.material);
             SetMaterialProperties(ref qt.materialLOD);
-
-            //if (windMaster != null)
-            //{
-
-            //    qt.material.SetTexture("_WindTextureX", windMaster.velocityX);
-            //    qt.material.SetTexture("_WindTextureY", windMaster.velocityY);
-            //    qt.material.SetTexture("_WindTextureZ", windMaster.velocityZ);
-            //}
 
             qt.hasBeenSet = true;
         }
@@ -318,7 +310,7 @@ public class GrassMaster : MonoBehaviour
         grassMaterial.SetFloat(windRotationId, windRotation);
         grassMaterial.SetFloat(windScaleNoiseId, windScaleNoise);
         grassMaterial.SetFloat(windDistortionId, windDistortion);
-        grassMaterial.SetVector(playerPositionId, _playerPosition);
+        //grassMaterial.SetVector(playerPositionId, _playerPosition);
         grassMaterial.SetFloat(playerPositionModifierXId, playerPositionModifierX);
         grassMaterial.SetFloat(playerPositionModifierYId, playerPositionModifierY);
         grassMaterial.SetFloat(playerPositionModifierZId, playerPositionModifierZ);
@@ -372,7 +364,13 @@ public class GrassMaster : MonoBehaviour
         qt.culledGrassDataBufferLOD = null;
     }
 
-    void CullGrass(GrassQuadtree qt, Matrix4x4 VP, bool noLOD)
+    /// <summary>
+    /// Set everything needed for the compute shader in charge of culling. The argument buffers are reset everyframe in order to 
+    /// count how many instances are going to be rendered.
+    /// </summary>
+    /// <param name="qt"> Quadtree </param>
+    /// <param name="VP"> View-projection matrix </param>
+    void CullGrass(GrassQuadtree qt, Matrix4x4 VP)
     {
         // Reset Args Buffer by setting default arrays
         qt.argsBuffer.SetData(_mainLODArgs);
@@ -457,16 +455,15 @@ public class GrassMaster : MonoBehaviour
                     SetQuadtreeNode(ref currentQT);
                 } 
 
-                //CullGrass(currentQT, VP, true);
+                CullGrass(currentQT, VP);
 
-                
                 SetMaterialProperties(ref currentQT.material);
                 SetMaterialProperties(ref currentQT.materialLOD);
 
                 var bounds = new Bounds(new Vector3(currentQT.boundary.p.x, 0, currentQT.boundary.p.y), new Vector3(currentQT.boundary.halfDimension * 2, 600, currentQT.boundary.halfDimension * 2));
 
-                Graphics.DrawMeshInstancedIndirect(grassMesh, 0, currentQT.material, bounds, currentQT.argsBuffer);
-                //Graphics.DrawMeshInstancedIndirect(grassMeshLOD, 0, currentQT.materialLOD, bounds, currentQT.argsLODBuffer);
+                Graphics.DrawMeshInstancedIndirect(grassMesh, 0, currentQT.material, bounds, currentQT.argsBuffer, 0, new MaterialPropertyBlock());
+                Graphics.DrawMeshInstancedIndirect(grassMeshLOD, 0, currentQT.materialLOD, bounds, currentQT.argsLODBuffer);
             }
         }
         

@@ -66,10 +66,12 @@ public class WindMaster : MonoBehaviour
     [SerializeField] int volumeSizeZ = 16;
     [SerializeField] float viscosity = 1;
 
+
+    // Player position and grid displacement
     [SerializeField] Transform playerTransform;
     [SerializeField] CharacterController playerRB;
     public Vector3 prevPlayerPosition { get; private set; }
-    Vector3 playerPosition;
+    Vector3 playerPositionFloored;
     [SerializeField] public Vector3 gridPosition;
     private Vector3 gridDisplacement; // Actual value that should be displaced
 
@@ -214,7 +216,7 @@ public class WindMaster : MonoBehaviour
         Vector3 gridSize = new Vector3(volumeSizeX, volumeSizeY, volumeSizeZ);
         Shader.SetGlobalVector("_GridSize", gridSize);
 
-        Shader.SetGlobalVector("_PlayerPositionFloored", playerPosition);
+        Shader.SetGlobalVector("_PlayerPositionFloored", playerPositionFloored);
     }
 
     public void UpdateDirectionalMotor(DirectionalMotorStruct directionalMotor)
@@ -235,7 +237,7 @@ public class WindMaster : MonoBehaviour
         windComputeDirectionalMotor.SetVector("_motorPosWS", directionalMotor.motorPosWS);
         windComputeDirectionalMotor.SetFloat("_motorRadius", directionalMotor.motorRadius);
         windComputeDirectionalMotor.SetFloat("_deltaTime", Time.deltaTime);
-        windComputeDirectionalMotor.SetVector("_gridDisplacement", gridDisplacement - playerPosition);
+        windComputeDirectionalMotor.SetVector("_gridDisplacement", gridDisplacement - playerPositionFloored);
 
         windComputeDirectionalMotor.Dispatch(0, volumeSizeX / 8, volumeSizeY / 8, volumeSizeZ / 8);
     }
@@ -478,25 +480,19 @@ public class WindMaster : MonoBehaviour
 
     }
 
-    // Update is called once per frame
-    void Update()
+    private void SetPlayerPosition()
     {
-        prevPlayerPosition = playerPosition;
-        playerPosition = new Vector3(Mathf.Floor(playerTransform.position.x) + 0.5f,
+        prevPlayerPosition = playerPositionFloored;
+        playerPositionFloored = new Vector3(Mathf.Floor(playerTransform.position.x) + 0.5f,
                                      Mathf.Floor(playerTransform.position.y) + 0.5f,
                                      Mathf.Floor(playerTransform.position.z) + 0.5f);
-        Vector3 positionDifference = prevPlayerPosition - playerPosition;
 
-        // FLUID SIM
-        AddForces();
-        Advection();
-        Diffusion();
-        //Project();
-        //Boundary(); 
+        Vector3 positionDifference = prevPlayerPosition - playerPositionFloored;
 
         if (positionDifference != Vector3.zero)
         {
-            Shader.SetGlobalVector("_PlayerPositionFloored", playerPosition);
+            Shader.SetGlobalVector("_PlayerPositionFloored", playerPositionFloored);
+            
             MoveRenderTexture(ref velocityX, ref prevVelocityX, positionDifference);
             SwapTextures(ref velocityX, ref prevVelocityX);
 
@@ -506,6 +502,18 @@ public class WindMaster : MonoBehaviour
             MoveRenderTexture(ref velocityZ, ref prevVelocityZ, positionDifference);
             SwapTextures(ref velocityZ, ref prevVelocityZ);
         }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        SetPlayerPosition();
+        // FLUID SIM
+        AddForces();
+        Advection();
+        Diffusion();
+        //Project();
+        //Boundary(); 
 
         ClearRenderTexture(ref velocitySourceX, 0);
         ClearRenderTexture(ref velocitySourceY, 0);

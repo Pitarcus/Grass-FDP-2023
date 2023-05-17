@@ -93,6 +93,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _PlayerPositionMask:
+        m_Texture: {fileID: 2800000, guid: 2bd5659b0ffd9ff4ebf9fa20267de9ad, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _PositionRT:
         m_Texture: {fileID: 8600000, guid: 9ec995b3d178ce843b3ac70af6f4a661, type: 2}
         m_Scale: {x: 1, y: 1}
@@ -144,7 +148,7 @@ Material:
     - _BendRandomnessScale: 20
     - _Blend: 0
     - _BumpScale: 1
-    - _CameraSize: 40
+    - _CameraSize: 20
     - _CastShadows: 0
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -177,7 +181,7 @@ Material:
     - _PositionModifierZ: 0.55
     - _QueueControl: 0
     - _QueueOffset: 1
-    - _RT_Resolution: 256
+    - _RT_Resolution: 1024
     - _RandomRotationNoiseScale: 16
     - _RandomYNoiseScale: 2.76
     - _RandomYRotationNoiseScale: 26.22
