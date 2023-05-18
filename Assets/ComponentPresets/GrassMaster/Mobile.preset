@@ -1,0 +1,202 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Mobile
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: 532edd01fcec347459d5c7c975af37f4,
+      type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: grassSquareSize
+    value: 128
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: grassDensity
+    value: 6
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: offsetXAmount
+    value: 0.37
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: offsetYAmount
+    value: 0.57
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: cutoffDistance
+    value: 20
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: LODDistance
+    value: 10
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: heightDisplacementStrenght
+    value: 200
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: quadtreeMaxDepth
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: quadtreeCutoffDistance
+    value: 130
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: leafCutoffDistance
+    value: 40
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: grassCompute
+    value: 
+    objectReference: {fileID: 7200000, guid: 9174038621ce9144985e68d36b210b7c, type: 3}
+  - target: {fileID: 0}
+    propertyPath: cullGrassCompute
+    value: 
+    objectReference: {fileID: 7200000, guid: ddfd63412d10ec84089268b8e9284aa5, type: 3}
+  - target: {fileID: 0}
+    propertyPath: grassMesh
+    value: 
+    objectReference: {fileID: 2628081596423325682, guid: d3bc2bde3007df14f8b37baeca99e5f3,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: grassMeshLOD
+    value: 
+    objectReference: {fileID: -252076373907899161, guid: e33f1a0021c98db4fb0824aaac9fddf4,
+      type: 3}
+  - target: {fileID: 0}
+    propertyPath: grassMaterial
+    value: 
+    objectReference: {fileID: 2100000, guid: 6286073168e362e4fbb568d9b9869af9, type: 2}
+  - target: {fileID: 0}
+    propertyPath: windMaster
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bottomColor.r
+    value: 0.2784314
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bottomColor.g
+    value: 0.58431375
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bottomColor.b
+    value: 0.039215688
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bottomColor.a
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: topColor.r
+    value: 0.89411765
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: topColor.g
+    value: 0.99215686
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: topColor.b
+    value: 0.29411766
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: topColor.a
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: worldUVTiling
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: scaleY
+    value: 1.3
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: randomYScaleNoise
+    value: 2.76
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: minRandomY
+    value: 0.79
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: maxRandomY
+    value: 1.83
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: maxYRotation
+    value: 360
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: randomYRotationNoise
+    value: 26.22
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: maxBend
+    value: 30
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: maxAdditionalBend
+    value: 30
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bendRandomnessScale
+    value: 20
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: windStrenght
+    value: 0.08
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: windSpeed
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: windRotation
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: windScaleNoise
+    value: 0.02
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: windDistortion
+    value: 0.93
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: playerTransform
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: playerPositionModifierX
+    value: -0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: playerPositionModifierY
+    value: 0.8
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: playerPositionModifierZ
+    value: -0.5
+    objectReference: {fileID: 0}
+  m_ExcludedProperties: []
