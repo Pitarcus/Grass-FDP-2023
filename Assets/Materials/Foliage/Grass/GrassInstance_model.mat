@@ -182,7 +182,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 1
     - _RT_Resolution: 1024
-    - _RandomBend: 0
+    - _RandomBend: 1
     - _RandomRotationNoiseScale: 16
     - _RandomYNoiseScale: 2.76
     - _RandomYRotationNoiseScale: 26.22
