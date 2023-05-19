@@ -182,6 +182,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 1
     - _RT_Resolution: 1024
+    - _RandomBend: 0
     - _RandomRotationNoiseScale: 16
     - _RandomYNoiseScale: 2.76
     - _RandomYRotationNoiseScale: 26.22
@@ -192,8 +193,9 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _StaticWindY: -0.8
+    - _StaticWindY: -2
     - _Surface: 0
+    - _WindBendStrength: 90
     - _WindDistortion: 0.63
     - _WindNoiseScale: 0.08
     - _WindRotation: 0
