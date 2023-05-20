@@ -1,0 +1,23 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel MoveTexture
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture3D<float> Result;
+Texture3D<float> textureToMove;
+
+float3 positionDifference;
+float3 gridSize;
+
+[numthreads(8,8,8)]
+void MoveTexture (uint3 id : SV_DispatchThreadID)
+{
+    int3 texCoord = int3(id.x + positionDifference.x, id.y + positionDifference.y, id.z + positionDifference.z);
+
+    // Perform boundary checks to prevent out-of-bounds access
+    texCoord.x = clamp(texCoord.x, 0, gridSize.x - 1);
+    texCoord.y = clamp(texCoord.y, 0, gridSize.y - 1);
+    texCoord.z = clamp(texCoord.z, 0, gridSize.z - 1);
+
+    Result[id] = textureToMove[texCoord];
+}

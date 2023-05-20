@@ -2,8 +2,8 @@
 #pragma kernel SwapTextures
 
 // COPY TEXTURE B TO TEXTURE A
-RWTexture3D<float4> textureA;
-Texture3D<float4> textureB;
+RWTexture3D<float> textureA;
+Texture3D<float> textureB;
 
 [numthreads(8,8,8)]
 void SwapTextures (uint3 id : SV_DispatchThreadID)

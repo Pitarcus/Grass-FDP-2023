@@ -393,7 +393,8 @@ public class GrassMaster : MonoBehaviour
 
         qt.culledGrassDataBuffer.SetCounterValue(0);    // THIS IS SUPER FUCKING IMPORTANT
         qt.culledGrassDataBufferLOD.SetCounterValue(0);
-        cullGrassCompute.Dispatch(0, Mathf.CeilToInt(_nodeResolution * _nodeResolution / culledNumThreadsX), 1, 1);
+       
+        cullGrassCompute.Dispatch(0, Mathf.CeilToInt((float)qt.numberOfGrassBlades / (float) culledNumThreadsX), 1, 1); // This is probably causing the flickering
     }
 
     void Update()
