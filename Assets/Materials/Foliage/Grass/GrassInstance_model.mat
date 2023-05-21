@@ -101,12 +101,36 @@ Material:
         m_Texture: {fileID: 8600000, guid: 9ec995b3d178ce843b3ac70af6f4a661, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_49f74c04734749419fce0d940fe08ace_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_4dc4e9ae46ab4b559077025a7eb04a58_Texture_1:
+        m_Texture: {fileID: 2800000, guid: c906568e73ed587468960f0d77d92a04, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2DLOD_a97f94fb8d7f406d8152965b5342fb79_Texture_1:
         m_Texture: {fileID: 2800000, guid: 02800fb9cff14da47a04572790384d8b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_bc67b6f7fcc9423d89aae75cddbd0bb4_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_d6c42490002f43b4aadb239ba258381b_Texture_1:
+        m_Texture: {fileID: 2800000, guid: c906568e73ed587468960f0d77d92a04, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_df18ac9a106f4e459031f3dad264d887_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_70dbaf2af1634654b4866241b7cba7dc_Texture_1:
         m_Texture: {fileID: 2800000, guid: 81606765f8e6c504a9749c43e3c8da58, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_a112ee675b934aec9ddcf4cfaee238f3_Texture_1:
+        m_Texture: {fileID: 2800000, guid: facb1b655c5d5574fb581d67773b1a2a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -166,7 +190,7 @@ Material:
     - _GlossyReflections: 0
     - _Height_Influence: 0.5
     - _Height_Influence_Distance: 1
-    - _MaxBend: 36.6
+    - _MaxBend: 10.1
     - _MaxRandomY: 1.54
     - _MaxRotation: 360
     - _MaxXRotation: 0
@@ -182,7 +206,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 1
     - _RT_Resolution: 1024
-    - _RandomBend: 1
+    - _RandomBend: 0
     - _RandomRotationNoiseScale: 16
     - _RandomYNoiseScale: 2.76
     - _RandomYRotationNoiseScale: 26.22
@@ -217,6 +241,7 @@ Material:
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecularColor: {r: 0.09433961, g: 0.09433961, b: 0.09433961, a: 0}
     - _Tiling_Diffuse: {r: 1, g: 1, b: 0, a: 0}
+    - _TipColor: {r: 0.20921852, g: 0.5660378, b: 0.0021359494, a: 0}
     - _TopColor: {r: 0.8943515, g: 0.99215686, b: 0.29411772, a: 1}
     - _WindDirection: {r: 1.42, g: 5.33, b: 0, a: 0}
   m_BuildTextureStacks: []
