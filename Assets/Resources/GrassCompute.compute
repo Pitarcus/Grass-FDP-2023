@@ -17,8 +17,10 @@ AppendStructuredBuffer<GrassData> _GrassData;
 //float4x4 _LocalToWorld;
 
 uint _Size; // The size of the chunk of grass on the terrain
+uint _rootSize; // Size of the root quadtree
 
 uint _Resolution;   // Amount of blades in each axis
+uint rootResolution;
 
 float _Step;    // Distance between each blade
 
@@ -32,9 +34,18 @@ float _OffsetYAmount;
 Texture2D<float4> _PositionMap;
 SamplerState sampler_PositionMap;
 
+SamplerState my_linear_repeat_sampler;
+SamplerState my_linear_clamp_sampler;
+
 // Height displacement stuff
 Texture2D<float4> _HeightMap;
 SamplerState sampler_HeightMap;
+
+int heightmapWidth;
+int heightmapHeight;
+
+int heightmapSampleOffsetX;
+int heightmapSampleOffsetY;
 
 float _HeightDisplacementStrenght;
 
@@ -54,15 +65,19 @@ float rand(float2 co)
 [numthreads(16,16,1)]
 void GrassGenerator (uint3 id : SV_DispatchThreadID)
 {
-    if (id.x < _Resolution && id.y < _Resolution) 
-    {
+        float2 uvheight = 0.0f;
         float2 uv = 0.0f;
+
+        uvheight.x = (id.x * _Step * heightmapWidth / _rootSize + heightmapSampleOffsetX) / heightmapWidth;
+        uvheight.y = (id.y * _Step * heightmapHeight / _rootSize + heightmapSampleOffsetY) / heightmapHeight;
         uv.x = id.x * _Step / _Size;
         uv.y = id.y * _Step / _Size;
 
-        if(_PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a > 0.1f) {    // Only display grass where there is alpha map
+        float alphaValue = _PositionMap.SampleLevel(my_linear_clamp_sampler, uv , 0).a;
 
-             // Calculate the actual world position
+        if(alphaValue > 0.1f) {    // Only display grass where there is alpha map
+
+            // Calculate the actual world position
             float Xoffset = rand(id.xy) *_OffsetXAmount; // Hola buenas tardes soy un dinosaurio
             float Yoffset = rand(id.xy) *_OffsetYAmount;
            
@@ -71,15 +86,14 @@ void GrassGenerator (uint3 id : SV_DispatchThreadID)
             pos.z = _NodePositionY + id.y * _Step - _Size * 0.5f + Yoffset;
 
             // Sample & set the height
-            float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0); 
+            float4 displacement = _HeightMap.SampleLevel(my_linear_repeat_sampler, uvheight, 0); 
             pos.y = displacement.r * _HeightDisplacementStrenght + 0.01f;
 
-            float3 scale = {1, _PositionMap.SampleLevel(sampler_PositionMap, uv , 0).a, 1};
+            float3 scale = {1, alphaValue, 1};
 
             GrassData gd = {pos, scale};
 
             // Add all information to the outputbuffer
             _GrassData.Append(gd);
         }
-    }
 }

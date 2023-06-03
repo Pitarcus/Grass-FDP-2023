@@ -172,10 +172,13 @@ public class GrassMaster : MonoBehaviour
                 quadtreeMaxDepth,
                 positionMaps[i],
                 heightMaps[i],
-                heightDisplacementStrenght);
+                heightDisplacementStrenght,
+                new Vector2(0, 0));
 
+            _grassQuadtrees[i].SetRootHeightmap(heightMaps[i]);
             _grassQuadtrees[i].Build();
         }
+       
 
         _visibleGrassQuadtrees = new List<GrassQuadtree>();
         _pastVisibleGrassQuadtrees = new List<GrassQuadtree>();
@@ -247,7 +250,14 @@ public class GrassMaster : MonoBehaviour
             qt.argsLODBuffer= new ComputeBuffer(5, sizeof(uint), ComputeBufferType.IndirectArguments);
 
             qt.grassCompute.SetInt(sizeId, (int)qt.boundary.halfDimension * 2);
+
+            qt.grassCompute.SetInt("heightmapWidth", qt.rootHeightmap.width);
+            qt.grassCompute.SetInt("heightmapHeight", qt.rootHeightmap.height);
+            qt.grassCompute.SetInt("heightmapSampleOffsetX", qt.textureOffsetX);
+            qt.grassCompute.SetInt("heightmapSampleOffsetY", qt.textureOffsetY);
+
             qt.grassCompute.SetInt(resolutionId, _nodeResolution);
+            qt.grassCompute.SetInt("_rootSize", grassSquareSize);
             qt.grassCompute.SetFloat(stepId, _grassStep);
             qt.grassCompute.SetFloat("_NodePositionX", qt.boundary.p.x);
             qt.grassCompute.SetFloat("_NodePositionY", qt.boundary.p.y);
@@ -255,7 +265,7 @@ public class GrassMaster : MonoBehaviour
             qt.grassCompute.SetFloat(offsetYAmountId, offsetYAmount);
             qt.grassCompute.SetFloat(heightDisplacementStrenghtId, heightDisplacementStrenght);
 
-            qt.grassCompute.SetTexture(0, "_HeightMap", qt.heightMap);
+            qt.grassCompute.SetTexture(0, "_HeightMap", qt.rootHeightmap);
             qt.grassCompute.SetTexture(0, positionMapID, qt.grassMask);
             qt.grassCompute.SetBuffer(0, "_GrassData", qt.grassDataBuffer);
 
@@ -436,7 +446,7 @@ public class GrassMaster : MonoBehaviour
 
                 if (currentQT.grassDataBuffer != null)
                 {
-                    Debug.Log("Freeing up quadtree at position: " + currentQT.boundary.p.x + ", " + currentQT.boundary.p.y);
+                    //Debug.Log("Freeing up quadtree at position: " + currentQT.boundary.p.x + ", " + currentQT.boundary.p.y);
                     FreeQuadtreeNode(ref currentQT);
                 }
             }

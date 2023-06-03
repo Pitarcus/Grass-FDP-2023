@@ -51,6 +51,8 @@ public class AABB
                 p.y + halfDimension >= point.y); // The TOP HALF has preference        
     }
 
+
+
     // Frustum stuff 
     public bool IsOnFrustum(Plane[] frustum, Texture2D heightmap, float displacementStrength)
     {
@@ -159,8 +161,12 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
     public bool containsGrass;
     public bool hasBeenSet;
 
+    public int textureOffsetX;
+    public int textureOffsetY;
+
     public Texture2D grassMask;
     public Texture2D heightMap;
+    public Texture2D rootHeightmap;
     public float heightDisplacementStrength;
     public Material material;
     public Material materialLOD;
@@ -181,7 +187,7 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
 
     public bool subdivided = false;
 
-    public GrassQuadtree(AABB boundary, int currentDepth, int maxDepth, Texture2D grassMask, Texture2D heighMap, float heightDisplacementStrength)
+    public GrassQuadtree(AABB boundary, int currentDepth, int maxDepth, Texture2D grassMask, Texture2D heightMap, float heightDisplacementStrength, Vector2 offsets)
     {
         this.boundary = boundary;
 
@@ -191,9 +197,19 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
 
         this.grassMask = grassMask;
 
-        this.heightMap = heighMap;
+        this.heightMap = heightMap;
 
         this.heightDisplacementStrength = heightDisplacementStrength;
+
+        this.textureOffsetX = (int)offsets.x;
+        this.textureOffsetY = (int)offsets.y;
+
+        Debug.Log("Position: {" + boundary.p.x + ", " + boundary.p.y + "}\n Texture offset: {" + textureOffsetX + ", " + textureOffsetY + "}");
+    }
+
+    public void SetRootHeightmap(Texture2D texture) 
+    {
+        rootHeightmap = texture;
     }
 
     public void Subdivide()
@@ -204,16 +220,24 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
 
 
         AABB nw = new AABB(x - w, y + w, w);
-        northWest = new GrassQuadtree(nw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, true, true), SubdivideTexture(heightMap, false, true, false), heightDisplacementStrength);
+        northWest = new GrassQuadtree(nw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, true, true), 
+            SubdivideTexture(heightMap, false, true, false), heightDisplacementStrength, CalculateChildTextureOffsets(heightMap, false, true));
+        northWest.SetRootHeightmap(rootHeightmap);
 
         AABB ne = new AABB(x + w, y + w, w);
-        northEast = new GrassQuadtree(ne, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, true, true), SubdivideTexture(heightMap, true, true, false), heightDisplacementStrength);
+        northEast = new GrassQuadtree(ne, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, true, true), 
+            SubdivideTexture(heightMap, true, true, false), heightDisplacementStrength, CalculateChildTextureOffsets(heightMap, true, true));
+        northEast.SetRootHeightmap(rootHeightmap);
 
         AABB sw = new AABB(x - w, y - w, w);
-        southWest = new GrassQuadtree(sw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, false, true), SubdivideTexture(heightMap, false, false, false), heightDisplacementStrength);
+        southWest = new GrassQuadtree(sw, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, false, false, true), 
+            SubdivideTexture(heightMap, false, false, false), heightDisplacementStrength, CalculateChildTextureOffsets(heightMap, false, false));
+        southWest.SetRootHeightmap(rootHeightmap);
 
         AABB se = new AABB(x + w, y - w, w);
-        southEast = new GrassQuadtree(se, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, false, true), SubdivideTexture(heightMap, true, false, false), heightDisplacementStrength);
+        southEast = new GrassQuadtree(se, currentDepth + 1, maxDepth, SubdivideTexture(grassMask, true, false, true), 
+            SubdivideTexture(heightMap, true, false, false), heightDisplacementStrength, CalculateChildTextureOffsets(heightMap, true, false));
+        southEast.SetRootHeightmap(rootHeightmap);
 
         subdivided = true;
     }
@@ -237,18 +261,27 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
         int startX, startY;
 
         if (positiveX)
-            startX = texture.width/2;
-        else
-            startX = 0;
-
-        if (positiveY)
-            startY = texture.height / 2;
-        else
-            startY = 0;
-
-        for(int y = startY; y < startY + texture.height / 2; y++)
         {
-            for(int x = startX; x < startX + texture.width / 2; x++)
+            startX = texture.width / 2;
+        }
+        else
+        {
+            startX = 0;
+        }
+
+        if (positiveY) 
+        {
+            startY = texture.height / 2;
+        }
+        else 
+        {
+            startY = 0;
+        }
+
+
+        for (int y = startY; y < startY + texture.height / 2; y++)
+        {
+            for (int x = startX; x < startX + texture.width / 2; x++)
             {
                 resultTexture.SetPixel(x % (texture.width / 2), y % (texture.height / 2), texture.GetPixel(x, y));
             }
@@ -259,6 +292,30 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
         return resultTexture;
     }
 
+    private Vector2 CalculateChildTextureOffsets(Texture2D subdividedTex, bool positiveX, bool positiveY)
+    {
+        int childOffsetX, childOffsetY;
+
+        if (positiveX)
+        {
+            childOffsetX = textureOffsetX + subdividedTex.width / 2;
+        }
+        else
+        {
+            childOffsetX = textureOffsetX;
+        }
+
+        if (positiveY)
+        {
+            childOffsetY = textureOffsetY + subdividedTex.height / 2;
+        }
+        else
+        {
+            childOffsetY = textureOffsetY;
+        }
+
+        return new Vector2(childOffsetX, childOffsetY);
+    }
     private bool GrassTextureContainsAlpha()
     {
         for (int y = 0; y < grassMask.height; y++) // Loop through the size of the mask
