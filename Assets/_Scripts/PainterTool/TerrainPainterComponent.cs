@@ -1,6 +1,4 @@
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -13,32 +11,33 @@ public enum BrushMode
 [ExecuteInEditMode]
 public class TerrainPainterComponent : MonoBehaviour
 {
-    // brush settings
-    public LayerMask hitMask = 1;
-    public Texture2D brushTexture;
-    public BrushMode brushMode;
-    public Vector2Int brushSize = new Vector2Int(50, 50);
-    public float brushStrength = 1.0f;
-    public Texture2D maskTexture;
+    // brush settings - for editor
+    [SerializeField] private LayerMask hitMask = 1;
 
-    public Terrain terrain; // The terrain is needed to set up the size of the texture correctly.
+    [SerializeField] private Texture2D brushTexture;
+    [SerializeField] private BrushMode brushMode;
+    [SerializeField] public float brushSize = 50f;
+    [SerializeField] private float brushStrength = 1.0f;
 
-    public Texture2D heightMap;
 
-    [HideInInspector] public TerrainData terrainData;
-    [HideInInspector] public bool isPainting = false;
-    [HideInInspector] public Vector2 brushPosition;
+    // other properties
+    [SerializeField] public Texture2D maskTexture;
+    public Texture2D heightMap { get; private set; }
+    public Terrain terrain { get; private set; } // The terrain is needed to set up the size of the texture correctly.
+    public TerrainData terrainData { get; private set; }
+
+    private bool isPainting = false;
+    private Vector2 brushPosition;
+
 
     // raycast vars
-    [HideInInspector]
-    public Vector3 hitPosGizmo;
+    public Vector3 hitPosGizmo { get; private set; }
     Vector3 mousePos;
-    public Vector3 hitPoint;
-    [HideInInspector]
-    public Vector3 hitNormal;
+    public Vector3 hitNormal { get; private set; }
 
-    public UnityEvent onInitFinished;
+    public UnityEvent onInitFinished;   // Used to set up displayer
     public UnityEvent onPaintingMask;
+
 
     private void OnValidate()
     {
@@ -72,7 +71,9 @@ public class TerrainPainterComponent : MonoBehaviour
             onInitFinished.Invoke();
         }
     }
-#if UNITY_EDITOR
+
+
+
     void OnEnable()
     {
         // Remove delegate listener if it has previously
@@ -121,8 +122,8 @@ public class TerrainPainterComponent : MonoBehaviour
                 brushPosition = inTerrainPosition;
 
                 // Paint the mask texture
-                int brushSizeX = Mathf.RoundToInt(brushSize.x);
-                int brushSizeY = Mathf.RoundToInt(brushSize.y);
+                int brushSizeX = Mathf.RoundToInt(brushSize);
+                int brushSizeY = Mathf.RoundToInt(brushSize);
                 int startX = Mathf.RoundToInt(brushPosition.x - brushSizeX / 2);
                 int startY = Mathf.RoundToInt(brushPosition.y - brushSizeY / 2);
 
@@ -206,7 +207,7 @@ public class TerrainPainterComponent : MonoBehaviour
                 {
                     isPainting = true;
                     PaintMask(scene, mousePos);
-                    Undo.RecordObject(this, "Paint Mask");
+                    Undo.RecordObject(maskTexture, "Paint Mask");
                     currentEvent.Use();
                 }
                 break;
@@ -220,7 +221,7 @@ public class TerrainPainterComponent : MonoBehaviour
                 break;
         }
     }
-#endif
+
 
     public void ClearMask()
     {

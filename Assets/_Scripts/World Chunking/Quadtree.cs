@@ -203,8 +203,6 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
 
         this.textureOffsetX = (int)offsets.x;
         this.textureOffsetY = (int)offsets.y;
-
-        Debug.Log("Position: {" + boundary.p.x + ", " + boundary.p.y + "}\n Texture offset: {" + textureOffsetX + ", " + textureOffsetY + "}");
     }
 
     public void SetRootHeightmap(Texture2D texture) 

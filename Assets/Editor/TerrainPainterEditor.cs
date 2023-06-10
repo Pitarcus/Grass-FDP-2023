@@ -5,17 +5,36 @@ using UnityEditorInternal;
 [CustomEditor(typeof(TerrainPainterComponent))]
 public class TerrainPainterEditor : Editor
 {
-    
-    private Texture2D brushPreviewTexture;
+    #region SerializedProperties
+    SerializedProperty hitMask;
+    SerializedProperty brushTexture;
+    SerializedProperty brushMode;
+    SerializedProperty brushSize;
+    SerializedProperty brushStrength;
+    SerializedProperty maskTexture;
+    #endregion
 
+    private bool m_brushGroup = true;
+
+    private Texture2D brushPreviewTexture;
+    private TerrainPainterComponent terrainPainter;
     private void OnEnable()
     {
-        TerrainPainterComponent terrainPainter = (TerrainPainterComponent)target;
+        terrainPainter = (TerrainPainterComponent)target;
+        /*TerrainPainterComponent terrainPainter = (TerrainPainterComponent)target;
         brushPreviewTexture = new Texture2D(256, 256);
         brushPreviewTexture.filterMode = FilterMode.Bilinear;
         brushPreviewTexture.wrapMode = TextureWrapMode.Clamp;
         //brushPreviewTexture.SetPixels(terrainPainter.brushTexture.GetPixels());
-        brushPreviewTexture.Apply();
+        brushPreviewTexture.Apply();*/
+
+        hitMask = serializedObject.FindProperty("hitMask");
+        brushTexture = serializedObject.FindProperty("brushTexture");
+        brushMode = serializedObject.FindProperty("brushMode");
+        brushSize = serializedObject.FindProperty("brushSize");
+        brushStrength = serializedObject.FindProperty("brushStrength");
+        maskTexture = serializedObject.FindProperty("maskTexture");
+
     }
 
     private void OnDisable()
@@ -25,76 +44,55 @@ public class TerrainPainterEditor : Editor
 
     public override void OnInspectorGUI()   // Assign and construct the editor window and its appearance. Should be done always
     {
-        TerrainPainterComponent terrainPainter = (TerrainPainterComponent)target;
+        serializedObject.Update();
 
-        LayerMask tempMask = EditorGUILayout.MaskField("Hit Mask", InternalEditorUtility.LayerMaskToConcatenatedLayersMask(terrainPainter.hitMask), InternalEditorUtility.layers);
-        terrainPainter.hitMask = InternalEditorUtility.ConcatenatedLayersMaskToLayerMask(tempMask);
-
-        EditorGUILayout.Space();
-
-        EditorGUI.BeginChangeCheck();
-        terrainPainter.brushTexture = (Texture2D)EditorGUILayout.ObjectField("Brush Texture", terrainPainter.brushTexture, typeof(Texture2D), false);
-        if (EditorGUI.EndChangeCheck())
+        EditorGUILayout.BeginFadeGroup(m_brushGroup ? 1 : 0);
+        m_brushGroup = EditorGUILayout.BeginFoldoutHeaderGroup(m_brushGroup, "Brush Parameters");
+        if (m_brushGroup)
         {
-            brushPreviewTexture.SetPixels(terrainPainter.brushTexture.GetPixels());
-            brushPreviewTexture.Apply();
+            EditorGUILayout.PropertyField(brushTexture);
+            EditorGUILayout.PropertyField(brushMode);
+            EditorGUILayout.PropertyField(brushSize);
+            EditorGUILayout.PropertyField(brushStrength);
         }
+        EditorGUILayout.EndFoldoutHeaderGroup();
+        EditorGUILayout.EndFadeGroup();
 
-        terrainPainter.brushMode = (BrushMode)EditorGUILayout.EnumPopup("Brush Mode", terrainPainter.brushMode);
+        EditorGUILayout.Space(15);
 
-        terrainPainter.brushSize = EditorGUILayout.Vector2IntField("Brush Size",(Vector2Int) terrainPainter.brushSize);
-        terrainPainter.brushStrength = EditorGUILayout.Slider("Brush Strength", terrainPainter.brushStrength, 0, 1);
+        EditorGUILayout.LabelField("Mask Texture (debug purposes)");
+        EditorGUILayout.PropertyField(maskTexture);
 
-        EditorGUILayout.Space();
+        EditorGUILayout.PropertyField(hitMask);
 
-        //terrainPainter.minHeight = EditorGUILayout.FloatField("Min Height", terrainPainter.minHeight);
-        //terrainPainter.maxHeight = EditorGUILayout.FloatField("Max Height", terrainPainter.maxHeight);
-
-        EditorGUILayout.Space();
-
-        terrainPainter.maskTexture = (Texture2D)EditorGUILayout.ObjectField("Mask Texture", terrainPainter.maskTexture, typeof(Texture2D), false);
-
-        EditorGUILayout.Space();
-
-        terrainPainter.terrain = (Terrain)EditorGUILayout.ObjectField("Terrain Object", terrainPainter.terrain, typeof(Terrain), true);
-
-        EditorGUILayout.Space();
+        serializedObject.ApplyModifiedProperties();
 
 
-        this.serializedObject.Update();
-        EditorGUILayout.PropertyField(this.serializedObject.FindProperty("onPaintingMask"), true);
-        this.serializedObject.ApplyModifiedProperties();
-
-        EditorGUILayout.Space();
-
-
-
-        EditorGUILayout.Space();
+        EditorGUILayout.Space(15);
 
         if (GUILayout.Button("Clear Mask"))
         {
-            Undo.RecordObject(terrainPainter, "Clear Mask");
+            Undo.RecordObject(terrainPainter.maskTexture, "Clear Mask");
             terrainPainter.ClearMask();
         }
 
         if (GUILayout.Button("Create Texture"))
         {
-            Undo.RecordObject(terrainPainter, "Create Texture");
+            Undo.RecordObject(terrainPainter.maskTexture, "Create Texture");
             terrainPainter.Init();
         }
     }
 
     private void OnSceneGUI()
     {
-        TerrainPainterComponent terrainPainter = (TerrainPainterComponent)target;
-
+ 
         // Draw the brush in the Scene view
 
         Color discColor = new Color(Color.green.r, Color.green.g, Color.green.b, 0.5f);
         Handles.color = discColor;
 
         Handles.DrawSolidDisc
-            (terrainPainter.hitPosGizmo, terrainPainter.hitNormal, (float)terrainPainter.brushSize.x / (float)terrainPainter.terrainData.alphamapWidth * terrainPainter.terrainData.size.x);
+            (terrainPainter.hitPosGizmo, terrainPainter.hitNormal, (float)terrainPainter.brushSize / (float)terrainPainter.terrainData.alphamapWidth * terrainPainter.terrainData.size.x);
 
     }
 }

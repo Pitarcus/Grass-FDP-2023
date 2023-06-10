@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0777d029ed3dffa4692f417d4aba19ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 31d0dcc6f2dd4e4408d18036a2c93862, type: 2}
   m_DrawDistance: 1000
   m_FadeScale: 0.994
   m_StartAngleFade: 180
@@ -108,8 +108,6 @@ MonoBehaviour:
   brushMode: 0
   brushSize: {x: 50, y: 50}
   brushStrength: 1
-  minHeight: 0
-  maxHeight: 1
   maskTexture: {fileID: 0}
   terrain: {fileID: 0}
   heightMap: {fileID: 2800000, guid: b1c68eacd450c3343a090c77b6e5a82b, type: 3}
@@ -149,9 +147,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8928926e7293ba4d980f65fa6dd9f91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textureObject: {fileID: 8731211943791936416}
   texture: {fileID: 0}
-  newTex: {fileID: 0}
-  decalProjector: {fileID: 8731211943143099568}
-  decalShader: {fileID: -6465566751694194690, guid: 9b4e681081e2b4c469111bb649e2f7ee,
-    type: 3}
