@@ -17,7 +17,7 @@ public class TerrainPainterComponent : MonoBehaviour
     [SerializeField] private Texture2D brushTexture;
     [SerializeField] private BrushMode brushMode;
     [SerializeField] public float brushSize = 50f;
-    [SerializeField] private float brushStrength = 1.0f;
+    [SerializeField] [Range(0, 1)] private float brushStrength = 1.0f;
 
 
     // other properties
@@ -84,13 +84,19 @@ public class TerrainPainterComponent : MonoBehaviour
         }
 
         // Add (or re-add) the delegate.
-        SceneView.duringSceneGui += this.OnScene;
+        SceneView.beforeSceneGui += this.OnScene;
 
     }
 
     private void OnDestroy()
     {
-        SceneView.duringSceneGui -= this.OnScene;
+        isPainting = false;
+        SceneView.beforeSceneGui -= this.OnScene;
+    }
+    private void OnDisable()
+    {
+        isPainting = false;
+        SceneView.beforeSceneGui -= this.OnScene;
     }
 
     public void PaintMask(SceneView scene, Vector3 mousePos)
@@ -169,13 +175,7 @@ public class TerrainPainterComponent : MonoBehaviour
         }
     }
 
-    private void OnDisable()
-    {
-        isPainting = false;
 
-        SceneView.duringSceneGui -= this.OnScene;
-
-    }
 
     private void OnScene(SceneView scene)
     {
@@ -202,21 +202,32 @@ public class TerrainPainterComponent : MonoBehaviour
         // Evaluate mouse event
         switch (currentEvent.type)
         {
-            case EventType.MouseDrag:
-                if (currentEvent.button == 1)
+            case EventType.MouseDown:
+                if (currentEvent.button == 0)
                 {
+                    // register texture state for the undo system
+                    Undo.RegisterCompleteObjectUndo(maskTexture, "Paint grass mask");
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(maskTexture);
+                    Undo.FlushUndoRecordObjects();
+
                     isPainting = true;
                     PaintMask(scene, mousePos);
-                    Undo.RecordObject(maskTexture, "Paint Mask");
-                    currentEvent.Use();
+                    Event.current.Use();
+                }
+                break;
+            case EventType.MouseDrag:
+                if (currentEvent.button == 0)
+                {
+                    PaintMask(scene, mousePos);
+                    Event.current.Use();
                 }
                 break;
             case EventType.MouseUp:
-                if (currentEvent.button == 1)
+                if (currentEvent.button == 0)
                 {
                     isPainting = false;
                     onPaintingMask.Invoke();
-                    currentEvent.Use();
+                    Event.current.Use();
                 }
                 break;
         }

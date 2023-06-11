@@ -39,7 +39,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8731211943143099570}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0777d029ed3dffa4692f417d4aba19ca, type: 3}
   m_Name: 
@@ -106,17 +106,9 @@ MonoBehaviour:
     m_Bits: 64
   brushTexture: {fileID: 2800000, guid: bd2e48787aa2be845be6fdcdf070f4ce, type: 3}
   brushMode: 0
-  brushSize: {x: 50, y: 50}
+  brushSize: 50
   brushStrength: 1
   maskTexture: {fileID: 0}
-  terrain: {fileID: 0}
-  heightMap: {fileID: 2800000, guid: b1c68eacd450c3343a090c77b6e5a82b, type: 3}
-  terrainData: {fileID: 15600000, guid: 776925e720985d445941e1883d52a0c6, type: 2}
-  isPainting: 0
-  brushPosition: {x: -68.39778, y: -8.226181}
-  hitPosGizmo: {x: 63.910683, y: 0, z: 6.712944}
-  hitPoint: {x: 0, y: 0, z: 0}
-  hitNormal: {x: 0.09719977, y: 0.9952649, z: 0}
   onInitFinished:
     m_PersistentCalls:
       m_Calls:
@@ -147,4 +139,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8928926e7293ba4d980f65fa6dd9f91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  texture: {fileID: 0}

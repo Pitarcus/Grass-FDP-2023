@@ -64,7 +64,7 @@ public class GrassMaskDisplayer : MonoBehaviour
 
     void ToggleDecal()
     {
-        if (gameObject == null)
+        if (gameObject == null || decalProjector == null)
         {
             return;
         }

@@ -55,7 +55,7 @@ public class GrassMaster : MonoBehaviour
 
     [Space]
 
-    [SerializeField] WindMaster windMaster;
+    //[SerializeField] WindMaster windMaster;
 
     // Grass Material parameters
     [Header("Grass Material parameters")]

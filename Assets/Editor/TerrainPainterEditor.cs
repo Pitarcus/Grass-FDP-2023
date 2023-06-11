@@ -67,20 +67,16 @@ public class TerrainPainterEditor : Editor
 
         serializedObject.ApplyModifiedProperties();
 
-
         EditorGUILayout.Space(15);
 
         if (GUILayout.Button("Clear Mask"))
         {
-            Undo.RecordObject(terrainPainter.maskTexture, "Clear Mask");
+            Undo.RegisterCompleteObjectUndo(terrainPainter.maskTexture, "Clear grass mask");
+            PrefabUtility.RecordPrefabInstancePropertyModifications(terrainPainter.maskTexture);
+            Undo.FlushUndoRecordObjects();
             terrainPainter.ClearMask();
         }
-
-        if (GUILayout.Button("Create Texture"))
-        {
-            Undo.RecordObject(terrainPainter.maskTexture, "Create Texture");
-            terrainPainter.Init();
-        }
+       
     }
 
     private void OnSceneGUI()

@@ -48,7 +48,7 @@ void CullGrass (uint3 id : SV_DispatchThreadID)
         if(withinDistance && inView)
         {
 
-            if(distanceToCamera < _LOD_DISTANCE) 
+            if(distanceToCamera < _LOD_DISTANCE && _GrassDataBuffer[id.x].scale.y > 0.25f) 
             {
                 InterlockedAdd(_ArgsBuffer[1], 1);
                 _CulledGrassOutputBuffer.Append(_GrassDataBuffer[id.x]);
