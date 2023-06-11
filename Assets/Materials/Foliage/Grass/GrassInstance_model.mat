@@ -101,6 +101,10 @@ Material:
         m_Texture: {fileID: 8600000, guid: 9ec995b3d178ce843b3ac70af6f4a661, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_108f1dc35e6344cd892c1137f435ff25_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 61bb3bb6fabaee54481a0d6dacebd1db, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2DLOD_49f74c04734749419fce0d940fe08ace_Texture_1:
         m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -206,7 +210,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 1
     - _RT_Resolution: 1024
-    - _RandomBend: 0
+    - _RandomBend: 1
     - _RandomRotationNoiseScale: 16
     - _RandomYNoiseScale: 2.76
     - _RandomYRotationNoiseScale: 26.22
@@ -217,7 +221,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _StaticWindY: -2
+    - _StaticWindY: -1.15
     - _Surface: 0
     - _WindBendStrength: 90
     - _WindDistortion: 0.63

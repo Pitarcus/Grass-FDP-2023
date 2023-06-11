@@ -164,8 +164,8 @@ public class GrassMaster : MonoBehaviour
         // GENERATE QUADTREE
         for (int i = 0; i < grassPainters.Length; i++)
         {
-            positionMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().maskTexture;
-            heightMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().heightMap;
+            positionMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().GetMaskTexture();
+            heightMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().GetHeightMap();
 
             _grassQuadtrees[i] = new GrassQuadtree(new AABB(grassPainters[i].transform.position.x, grassPainters[i].transform.position.z, grassSquareSize/2),   // last number is half the size of the terrain
                 0,

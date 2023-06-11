@@ -76,7 +76,13 @@ public class TerrainPainterEditor : Editor
             Undo.FlushUndoRecordObjects();
             terrainPainter.ClearMask();
         }
-       
+
+        if (GUILayout.Button("Save texture"))
+        {
+            terrainPainter.SaveTexture();
+        }
+
+        //base.OnInspectorGUI();
     }
 
     private void OnSceneGUI()

@@ -1,4 +1,7 @@
+#if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -22,7 +25,9 @@ public class TerrainPainterComponent : MonoBehaviour
 
     // other properties
     [SerializeField] public Texture2D maskTexture;
-    public Texture2D heightMap { get; private set; }
+    public string grassMaskPath { get; private set; }
+    private Texture2D grassMaskTextureReal; // Actual texture to show
+    private Texture2D heightMap;
     public Terrain terrain { get; private set; } // The terrain is needed to set up the size of the texture correctly.
     public TerrainData terrainData { get; private set; }
 
@@ -73,7 +78,7 @@ public class TerrainPainterComponent : MonoBehaviour
     }
 
 
-
+#if UNITY_EDITOR
     void OnEnable()
     {
         // Remove delegate listener if it has previously
@@ -233,6 +238,35 @@ public class TerrainPainterComponent : MonoBehaviour
         }
     }
 
+    public void SaveTexture()
+    {
+        byte[] _bytes = maskTexture.EncodeToPNG();
+
+        var dirPath = Application.dataPath + "/Textures/GrassPositions/";
+        if (!Directory.Exists(dirPath))
+        {
+            Directory.CreateDirectory(dirPath);
+        }
+
+        grassMaskPath = dirPath + transform.parent.name + "_grassPlacementInfo.png";
+
+        File.WriteAllBytes(grassMaskPath, _bytes);
+
+        grassMaskTextureReal = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets/Textures/GrassPositions/" + transform.parent.name + "_grassPlacementInfo.png", typeof(Texture2D));
+
+        string assetPath = AssetDatabase.GetAssetPath(grassMaskTextureReal);
+        var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+
+        if (importer != null)
+        {
+            importer.isReadable = true; // Set the "isReadable" property to true
+
+            // Apply the modified import settings
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            AssetDatabase.Refresh();
+        }
+    }
+#endif
 
     public void ClearMask()
     {
@@ -246,4 +280,13 @@ public class TerrainPainterComponent : MonoBehaviour
         maskTexture.Apply();
     }
 
+    public Texture2D GetMaskTexture()
+    {
+        return maskTexture;
+    }
+
+    public Texture2D GetHeightMap()
+    {
+        return heightMap;
+    }
 }

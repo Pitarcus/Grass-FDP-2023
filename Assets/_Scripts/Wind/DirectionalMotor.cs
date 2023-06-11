@@ -17,6 +17,7 @@ public class DirectionalMotor : MonoBehaviour
         directionalMotor.motorPosWS = transform.position;
         directionalMotor.motorDirection = transform.forward;
 
+        // SHOULD BE CHECKING IF IT'S IN RANGE OD THE VOLUME (not run the shader for every motor in the world)
         // INIT DIRECTIONAL MOTOR
         windMaster.UpdateDirectionalMotor(directionalMotor);
     }
