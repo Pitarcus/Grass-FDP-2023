@@ -24,10 +24,8 @@ public class TerrainPainterComponent : MonoBehaviour
 
 
     // other properties
-    [SerializeField] public Texture2D maskTexture;
-    public string grassMaskPath { get; private set; }
-    private Texture2D grassMaskTextureReal; // Actual texture to show
-    private Texture2D heightMap;
+    public Texture2D maskTexture;
+    public Texture2D heightMap;
     public Terrain terrain { get; private set; } // The terrain is needed to set up the size of the texture correctly.
     public TerrainData terrainData { get; private set; }
 
@@ -76,7 +74,6 @@ public class TerrainPainterComponent : MonoBehaviour
             onInitFinished.Invoke();
         }
     }
-
 
 #if UNITY_EDITOR
     void OnEnable()
@@ -238,9 +235,10 @@ public class TerrainPainterComponent : MonoBehaviour
         }
     }
 
-    public void SaveTexture()
+    /*public void SaveTexture()
     {
-        byte[] _bytes = maskTexture.EncodeToPNG();
+        Texture2D auxtex = maskTexture;
+        byte[] _bytes = auxtex.EncodeToPNG();
 
         var dirPath = Application.dataPath + "/Textures/GrassPositions/";
         if (!Directory.Exists(dirPath))
@@ -265,7 +263,7 @@ public class TerrainPainterComponent : MonoBehaviour
             AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
             AssetDatabase.Refresh();
         }
-    }
+    }*/
 #endif
 
     public void ClearMask()

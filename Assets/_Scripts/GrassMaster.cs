@@ -166,19 +166,19 @@ public class GrassMaster : MonoBehaviour
         {
             positionMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().GetMaskTexture();
             heightMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().GetHeightMap();
+     
+             _grassQuadtrees[i] = new GrassQuadtree(new AABB(grassPainters[i].transform.position.x, grassPainters[i].transform.position.z, grassSquareSize/2),   // last number is half the size of the terrain
+                 0,
+                 quadtreeMaxDepth,
+                 positionMaps[i],
+                 heightMaps[i],
+                 heightDisplacementStrenght,
+                 new Vector2(0, 0));
 
-            _grassQuadtrees[i] = new GrassQuadtree(new AABB(grassPainters[i].transform.position.x, grassPainters[i].transform.position.z, grassSquareSize/2),   // last number is half the size of the terrain
-                0,
-                quadtreeMaxDepth,
-                positionMaps[i],
-                heightMaps[i],
-                heightDisplacementStrenght,
-                new Vector2(0, 0));
-
-            _grassQuadtrees[i].SetRootHeightmap(heightMaps[i]);
-            _grassQuadtrees[i].Build();
+             _grassQuadtrees[i].SetRootHeightmap(heightMaps[i]);
+             _grassQuadtrees[i].Build();
         }
-       
+
 
         _visibleGrassQuadtrees = new List<GrassQuadtree>();
         _pastVisibleGrassQuadtrees = new List<GrassQuadtree>();
@@ -194,6 +194,7 @@ public class GrassMaster : MonoBehaviour
         _lowerLODArgs[1] = (uint)0;
         _lowerLODArgs[2] = (uint)grassMeshLOD.GetIndexStart(0);
         _lowerLODArgs[3] = (uint)grassMeshLOD.GetBaseVertex(0);
+     
     }
 
     void UpdateGrassAttributes()

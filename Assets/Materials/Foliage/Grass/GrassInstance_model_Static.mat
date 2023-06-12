@@ -95,8 +95,40 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _PlayerPositionMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _PositionRT:
         m_Texture: {fileID: 8600000, guid: 9ec995b3d178ce843b3ac70af6f4a661, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_108f1dc35e6344cd892c1137f435ff25_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 61bb3bb6fabaee54481a0d6dacebd1db, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_49f74c04734749419fce0d940fe08ace_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_4dc4e9ae46ab4b559077025a7eb04a58_Texture_1:
+        m_Texture: {fileID: 2800000, guid: c906568e73ed587468960f0d77d92a04, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_bc67b6f7fcc9423d89aae75cddbd0bb4_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_d6c42490002f43b4aadb239ba258381b_Texture_1:
+        m_Texture: {fileID: 2800000, guid: c906568e73ed587468960f0d77d92a04, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_df18ac9a106f4e459031f3dad264d887_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_a112ee675b934aec9ddcf4cfaee238f3_Texture_1:
+        m_Texture: {fileID: 2800000, guid: facb1b655c5d5574fb581d67773b1a2a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -147,6 +179,8 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
+    - _DynamicWindNoiseMin: 0
+    - _DynamicWindNoiseStrenght: 1
     - _DynamicWindStrength: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
@@ -170,6 +204,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 1
     - _RT_Resolution: 0
+    - _RandomBend: 0
     - _RandomRotationNoiseScale: 16
     - _RandomYNoiseScale: 0
     - _RandomYRotationNoiseScale: 28.41
@@ -182,6 +217,8 @@ Material:
     - _SrcBlend: 5
     - _StaticWindY: -0.8
     - _Surface: 1
+    - _ViewDirectionShiftIntensity: 0
+    - _WindBendStrength: 0
     - _WindDistortion: 0.63
     - _WindNoiseScale: 0.08
     - _WindRotation: 0
@@ -203,6 +240,7 @@ Material:
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecularColor: {r: 0.09433961, g: 0.09433961, b: 0.09433961, a: 0}
     - _Tiling_Diffuse: {r: 0.97, g: 1, b: 0, a: 0}
+    - _TipColor: {r: 0.5662391, g: 0.9529411, b: 0, a: 0}
     - _TopColor: {r: 0.27686608, g: 0.5943396, b: 0, a: 1}
     - _WindDirection: {r: 1.42, g: 5.33, b: 0, a: 0}
   m_BuildTextureStacks: []

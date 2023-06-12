@@ -11,7 +11,7 @@ public class TerrainPainterEditor : Editor
     SerializedProperty brushMode;
     SerializedProperty brushSize;
     SerializedProperty brushStrength;
-    SerializedProperty maskTexture;
+    //SerializedProperty maskTexture;
     #endregion
 
     private bool m_brushGroup = true;
@@ -33,7 +33,7 @@ public class TerrainPainterEditor : Editor
         brushMode = serializedObject.FindProperty("brushMode");
         brushSize = serializedObject.FindProperty("brushSize");
         brushStrength = serializedObject.FindProperty("brushStrength");
-        maskTexture = serializedObject.FindProperty("maskTexture");
+        //maskTexture = serializedObject.FindProperty("maskTexture");
 
     }
 
@@ -61,7 +61,7 @@ public class TerrainPainterEditor : Editor
         EditorGUILayout.Space(15);
 
         EditorGUILayout.LabelField("Mask Texture (debug purposes)");
-        EditorGUILayout.PropertyField(maskTexture);
+        //EditorGUILayout.PropertyField(maskTexture);
 
         EditorGUILayout.PropertyField(hitMask);
 
@@ -77,10 +77,10 @@ public class TerrainPainterEditor : Editor
             terrainPainter.ClearMask();
         }
 
-        if (GUILayout.Button("Save texture"))
+        /*if (GUILayout.Button("Save texture"))
         {
             terrainPainter.SaveTexture();
-        }
+        }*/
 
         //base.OnInspectorGUI();
     }

@@ -223,6 +223,7 @@ Material:
     - _SrcBlend: 1
     - _StaticWindY: -1.15
     - _Surface: 0
+    - _ViewDirectionShiftIntensity: 0.2
     - _WindBendStrength: 90
     - _WindDistortion: 0.63
     - _WindNoiseScale: 0.08
