@@ -32,27 +32,24 @@ public class WindMaster : MonoBehaviour
     [SerializeField] ComputeShader moveTexture;
 
 
-    [Space]
-
-    [Header("Texture buffers")]
     // trying out using textures instead of buffers TEXTURE ARE SERIALIZED ONLY FOR TESTING and DEBUGGING
-    [SerializeField] public RenderTexture velocityX;
-    [SerializeField] RenderTexture prevVelocityX;
-    [SerializeField] RenderTexture velocitySourceX;
+    RenderTexture velocityX;
+    RenderTexture prevVelocityX;
+    RenderTexture velocitySourceX;
     RenderTexture prevVelocitySourceX;
 
-    public RenderTexture velocityY;
+    RenderTexture velocityY;
     RenderTexture prevVelocityY;
-    [SerializeField] RenderTexture velocitySourceY;
+    RenderTexture velocitySourceY;
     RenderTexture prevVelocitySourceY;
 
-    public RenderTexture velocityZ;
+    RenderTexture velocityZ;
     RenderTexture prevVelocityZ;
-    [SerializeField] RenderTexture velocitySourceZ;
+    RenderTexture velocitySourceZ;
     RenderTexture prevVelocitySourceZ;
 
-    [SerializeField] RenderTexture pressureTex;
-    [SerializeField] RenderTexture prevPressureTex;
+    RenderTexture pressureTex;
+    RenderTexture prevPressureTex;
    
     RenderTexture divergenceField;
 
@@ -70,7 +67,6 @@ public class WindMaster : MonoBehaviour
 
     // Player position and grid displacement
     [SerializeField] Transform playerTransform;
-    [SerializeField] CharacterController playerRB;
     public Vector3 prevPlayerPosition { get; private set; }
     Vector3 playerPositionFloored;
     [SerializeField] public Vector3 gridPosition;
@@ -79,7 +75,7 @@ public class WindMaster : MonoBehaviour
 
     private static int JACOBI_ITERATIONS = 30;
     private int numberOfVoxels;
-    private Vector3 gridSize;
+    private Vector3 gridSize = new Vector3(8, 8, 8);
 
 
     private void InitTextures()
@@ -219,7 +215,6 @@ public class WindMaster : MonoBehaviour
 
     public void UpdateDirectionalMotor(DirectionalMotorStruct directionalMotor)
     {
-        
         Vector3 directionSigned = new Vector3(directionalMotor.motorDirection.normalized.x, directionalMotor.motorDirection.normalized.y,
             directionalMotor.motorDirection.normalized.z);
 

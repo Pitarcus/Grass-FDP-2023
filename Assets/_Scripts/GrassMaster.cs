@@ -140,8 +140,8 @@ public class GrassMaster : MonoBehaviour
 
 
     // CONST
-    private int _positionsBufferSize = 3 * sizeof(float); // 3 floats per position * 4 bytes per float
-    private int _scalesBufferSize = 4;
+    //private int _positionsBufferSize = 3 * sizeof(float); // 3 floats per position * 4 bytes per float
+    //private int _scalesBufferSize = 4;
     private int _grassDataBufferSize = 3 * sizeof(float) + 3 * sizeof(float);
     private int _nodeResolution = 0;
 
@@ -458,6 +458,7 @@ public class GrassMaster : MonoBehaviour
         // RENDER GRASS IN NODES
         for (int i = 0; i < _visibleGrassQuadtrees.Count; i++)
         {
+            
             GrassQuadtree currentQT = _visibleGrassQuadtrees[i];
 
             if (!currentQT.subdivided)
@@ -473,6 +474,8 @@ public class GrassMaster : MonoBehaviour
                 SetMaterialProperties(ref currentQT.materialLOD);
 
                 var bounds = new Bounds(new Vector3(currentQT.boundary.p.x, 0, currentQT.boundary.p.y), new Vector3(currentQT.boundary.halfDimension * 2, 600, currentQT.boundary.halfDimension * 2));
+
+                Debug.Log("Drawing tile...");
 
                 Graphics.DrawMeshInstancedIndirect(grassMesh, 0, currentQT.material, bounds, currentQT.argsBuffer, 0, new MaterialPropertyBlock());
                 Graphics.DrawMeshInstancedIndirect(grassMeshLOD, 0, currentQT.materialLOD, bounds, currentQT.argsLODBuffer);

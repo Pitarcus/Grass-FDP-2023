@@ -93,8 +93,9 @@ public class TerrainPainterEditor : Editor
         Color discColor = new Color(Color.green.r, Color.green.g, Color.green.b, 0.5f);
         Handles.color = discColor;
 
+        if(terrainPainter != null)
         Handles.DrawSolidDisc
-            (terrainPainter.hitPosGizmo, terrainPainter.hitNormal, (float)terrainPainter.brushSize / (float)terrainPainter.terrainData.alphamapWidth * terrainPainter.terrainData.size.x);
+            (terrainPainter.hitPosGizmo, terrainPainter.hitNormal, (float)terrainPainter.brushSize / (float)terrainPainter.terrainData.alphamapWidth * terrainPainter.terrainData.size.x / 2);
 
     }
 }

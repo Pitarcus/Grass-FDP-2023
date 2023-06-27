@@ -39,7 +39,8 @@ public class GrassMaskDisplayer : MonoBehaviour
         {
             texture = textureObject.GetMaskTexture();
 
-            decalProjector.size = new Vector3( terrain.terrainData.size.x, terrain.terrainData.size.z, 75);
+            decalProjector.transform.localPosition = new Vector3(0, terrain.terrainData.heightmapScale.y / 2, 0);
+            decalProjector.size = new Vector3( terrain.terrainData.size.x, terrain.terrainData.size.z, terrain.terrainData.size.y + 1);
             decalMaterial.SetTexture("Base_Map", texture);
         }
     }

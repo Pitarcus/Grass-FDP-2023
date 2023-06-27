@@ -2,5 +2,5 @@ using UnityEngine;
 
 public class HeightmapHolder : MonoBehaviour
 {
-    public Texture2D heighMap;
+    public Texture2D heightMap;
 }

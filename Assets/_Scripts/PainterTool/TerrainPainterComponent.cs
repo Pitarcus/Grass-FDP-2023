@@ -11,6 +11,7 @@ public enum BrushMode
     Erase
 }
 
+[RequireComponent(typeof(HeightmapHolder))]
 [ExecuteInEditMode]
 public class TerrainPainterComponent : MonoBehaviour
 {
@@ -56,7 +57,7 @@ public class TerrainPainterComponent : MonoBehaviour
         {
             terrainData = terrain.terrainData;
 
-            heightMap = transform.parent.GetComponent<HeightmapHolder>().heighMap;
+            heightMap = GetComponent<HeightmapHolder>().heightMap;
 
             int alphamapWidth = terrainData.alphamapWidth;
             int alphamapHeight = terrainData.alphamapHeight;

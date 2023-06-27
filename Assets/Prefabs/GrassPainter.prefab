@@ -52,7 +52,7 @@ MonoBehaviour:
   m_UVScale: {x: 1, y: 1}
   m_UVBias: {x: 0, y: 0}
   m_ScaleMode: 0
-  m_Offset: {x: 0, y: 0, z: 37.5}
+  m_Offset: {x: 0, y: 0, z: 0}
   m_Size: {x: 128, y: 128, z: 75}
   m_FadeFactor: 1
 --- !u!1 &8731211943791936418
@@ -66,6 +66,7 @@ GameObject:
   - component: {fileID: 8731211943791936417}
   - component: {fileID: 8731211943791936416}
   - component: {fileID: 8731211943791936431}
+  - component: {fileID: 2900954173595589832}
   m_Layer: 0
   m_Name: GrassPainter
   m_TagString: GrassPainter
@@ -109,6 +110,7 @@ MonoBehaviour:
   brushSize: 50
   brushStrength: 1
   maskTexture: {fileID: 0}
+  heightMap: {fileID: 0}
   onInitFinished:
     m_PersistentCalls:
       m_Calls:
@@ -139,3 +141,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8928926e7293ba4d980f65fa6dd9f91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2900954173595589832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8731211943791936418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99fcb201c67871442a98c9f1ed66d2ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  heightMap: {fileID: 0}
