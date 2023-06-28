@@ -223,7 +223,7 @@ Material:
     - _ReceiveShadows: 1
     - _Scale: 1.06
     - _ScaleY: 1.2
-    - _Smoothness: 0.59
+    - _Smoothness: 0.6
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -249,10 +249,11 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GridSize: {r: 16, g: 16, b: 16, a: 0}
     - _PlayerPosition: {r: 0, g: 0, b: 0, a: 0}
+    - _SSSColor: {r: 0.4660857, g: 0.6509804, b: 0.29803923, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecularColor: {r: 0.09433961, g: 0.09433961, b: 0.09433961, a: 0}
     - _Tiling_Diffuse: {r: 1, g: 1, b: 0, a: 0}
-    - _TipColor: {r: 0.20921852, g: 0.5660378, b: 0.0021359494, a: 0}
+    - _TipColor: {r: 0.1763199, g: 0.5647059, b: 0.003921554, a: 0}
     - _TopColor: {r: 0.8943515, g: 0.99215686, b: 0.29411772, a: 1}
     - _WindDirection: {r: 1.42, g: 5.33, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -96,7 +96,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
-    - _Billboard_Size: 1.05
+    - _Billboard_Size: 0.97
     - _Billboard_Strength: 1
     - _Blend: 0
     - _BumpScale: 1
@@ -107,14 +107,14 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DistortionAmount: 0.1
-    - _DitortedNoiseScale: 0.08
+    - _DitortedNoiseScale: 0.29
     - _DstBlend: 0
     - _EnvironmentReflections: 1
-    - _Fresnel_Power: 6.41
+    - _Fresnel_Power: 6.29
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Inflate: 0
+    - _Inflate: 0.44
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -134,8 +134,9 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Fresnel_Color: {r: 0.3511018, g: 0.4811321, b: 0.19699182, a: 0}
-    - _Leaves_Color: {r: 0.5698584, g: 0.7169812, b: 0.18533282, a: 0}
+    - _Fresnel_Color: {r: 0.43306246, g: 0.48235294, b: 0.19607845, a: 0}
+    - _Leaves_Color: {r: 0.36567917, g: 0.7176471, b: 0.18431371, a: 0}
+    - _SSSColor: {r: 0.3848185, g: 0.49019608, b: 0.16862747, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _vertex_offset: {r: -0.66, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

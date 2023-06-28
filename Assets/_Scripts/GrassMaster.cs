@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GrassMaster : MonoBehaviour
 {
-    // Parameters
+    // General grass parameters
     [Range(1, 2000)]
     [SerializeField] int grassSquareSize = 128;
     [Range(1, 10)]
@@ -25,7 +25,7 @@ public class GrassMaster : MonoBehaviour
 
     [Space]
 
-    // QUADTREE STUFF
+    // Quadtree parameters
     [SerializeField] int quadtreeMaxDepth = 4;
 
     [Range(0, 1000)]
@@ -55,12 +55,13 @@ public class GrassMaster : MonoBehaviour
 
     [Space]
 
-    //[SerializeField] WindMaster windMaster;
-
     // Grass Material parameters
     [Header("Grass Material parameters")]
     [SerializeField] Color bottomColor;
     [SerializeField] Color topColor;
+    [SerializeField] Color tipColor; 
+    [SerializeField] Color SSSColor;
+
     [SerializeField] float worldUVTiling = 1;
     [Header("Scale")]
     [SerializeField] float scaleY = 1;
@@ -71,20 +72,33 @@ public class GrassMaster : MonoBehaviour
     [SerializeField][Range(0, 360)] float maxYRotation = 0;
     [SerializeField] float randomYRotationNoise = 1;
     [SerializeField][Range(0, 90)] float maxBend = 20;
+    [SerializeField] bool randomBend = false;
     [SerializeField][Range(0, 90)] float maxAdditionalBend = 20;
     [SerializeField] float bendRandomnessScale = 1;
-    [Header("Wind")]
+    [Header("Static Wind")]
     [SerializeField] float windStrenght = 0.1f;
+    [SerializeField] float baseWindDisplacement = 0f;
+    [SerializeField] float baseWindYDisplacement = 0f;
+    [SerializeField] float staticWindYMultiplier = -0.2f;
+
     [SerializeField] float windSpeed = 0.3f;
     [SerializeField][Range(0, 360)] float windRotation = 0;
     [SerializeField] float windScaleNoise = 0.1f;
     [SerializeField] float windDistortion = 0.7f;
+
+    [Header("Dynamic Wind")]
+    [SerializeField] float dynamicWindStrength = 1.2f;//
+    [SerializeField] float dynamicWindNoiseStrength = 1f;//
+
+    [Header("Player interaction")]
     [SerializeField] Transform playerTransform;
     Vector3 _playerPosition;
     [SerializeField] float playerPositionModifierX = 1f;
     [SerializeField] float playerPositionModifierY = 1f;
     [SerializeField] float playerPositionModifierZ = 1f;
 
+
+    // PRIVATE VARIABLES
 
     private float _cameraAngleToGroundNormalized;
 
@@ -106,7 +120,6 @@ public class GrassMaster : MonoBehaviour
 
     // Grass material properties to id
     static readonly int
-        positionsId = Shader.PropertyToID("_Positions"),
         sizeId = Shader.PropertyToID("_Size"),
         resolutionId = Shader.PropertyToID("_Resolution"),
         stepId = Shader.PropertyToID("_Step"),
@@ -114,10 +127,11 @@ public class GrassMaster : MonoBehaviour
         offsetYAmountId = Shader.PropertyToID("_OffsetYAmount"),
         heightDisplacementStrenghtId = Shader.PropertyToID("_HeightDisplacementStrenght"),
         positionMapID = Shader.PropertyToID("_PositionMap"),
-        scalesId = Shader.PropertyToID("_YScales"),
 
         bottomColorId = Shader.PropertyToID("_BottomColor"),
         topColorId = Shader.PropertyToID("_TopColor"),
+        tipColorId = Shader.PropertyToID("_TipColor"),
+        SSSColorId = Shader.PropertyToID("_SSSColor"),
         worldUVTilingId = Shader.PropertyToID("_WorldUV_Tiling"),
         scaleYId = Shader.PropertyToID("_ScaleY"),
         randomYScaleNoiseId = Shader.PropertyToID("_RandomYNoiseScale"),
@@ -126,12 +140,18 @@ public class GrassMaster : MonoBehaviour
         maxYRotationId = Shader.PropertyToID("_MaxYRotation"),
         randomYRotationNoiseId = Shader.PropertyToID("_RandomYRotationNoiseScale"),
         maxBendId = Shader.PropertyToID("_MaxBend"),
+        randomBendId = Shader.PropertyToID("_RandomBend"), 
         bendRandomnessScaleId = Shader.PropertyToID("_BendRandomnessScale"),
         windStrenghtId = Shader.PropertyToID("_WindStrenght"),
+        baseWindDisplacementId = Shader.PropertyToID("_BaseWindDisplacement"),
+        baseWindYDisplacementId = Shader.PropertyToID("_BaseWindYDisplacement"),
+        staticWindYMultiplierId = Shader.PropertyToID("_StaticWindY"),
         windSpeedId = Shader.PropertyToID("_WindSpeed"),
         windRotationId = Shader.PropertyToID("_WindRotation"),
         windScaleNoiseId = Shader.PropertyToID("_WindNoiseScale"),
         windDistortionId = Shader.PropertyToID("_WindDistortion"),
+        dynamicWindStrengthId = Shader.PropertyToID("_DynamicWindStrength"),
+        dynamicWindNoiseStrengthId = Shader.PropertyToID("_DynamicWindNoiseStrenght"),
         playerPositionId = Shader.PropertyToID("_PlayerPosition"),
         playerPositionModifierXId = Shader.PropertyToID("_PositionModifierX"),
         playerPositionModifierYId = Shader.PropertyToID("_PositionModifierY"),
@@ -306,22 +326,36 @@ public class GrassMaster : MonoBehaviour
     {
         grassMaterial.SetColor(topColorId, topColor);
         grassMaterial.SetColor(bottomColorId, bottomColor);
+        grassMaterial.SetColor(tipColorId, tipColor);
+        grassMaterial.SetColor(SSSColorId, SSSColor);
 
         grassMaterial.SetFloat(worldUVTilingId, worldUVTiling);
+
         grassMaterial.SetFloat(scaleYId, scaleY);
         grassMaterial.SetFloat(randomYScaleNoiseId, randomYScaleNoise);
         grassMaterial.SetFloat(minRandomYId, minRandomY);
         grassMaterial.SetFloat(maxRandomYId, maxRandomY);
+
         grassMaterial.SetFloat(maxYRotationId, maxYRotation);
         grassMaterial.SetFloat(randomYRotationNoiseId, randomYRotationNoise);
         grassMaterial.SetFloat(maxBendId, maxBend + maxAdditionalBend * _cameraAngleToGroundNormalized);
+        grassMaterial.SetInt(randomBendId, randomBend? 1 : 0);
         grassMaterial.SetFloat(bendRandomnessScaleId, bendRandomnessScale);
+
         grassMaterial.SetFloat(windStrenghtId, windStrenght);
+        grassMaterial.SetFloat(baseWindDisplacementId, baseWindDisplacement);
+        grassMaterial.SetFloat(baseWindYDisplacementId, baseWindYDisplacement);
+        grassMaterial.SetFloat(staticWindYMultiplierId, staticWindYMultiplier);
         grassMaterial.SetFloat(windSpeedId, windSpeed);
         grassMaterial.SetFloat(windRotationId, windRotation);
         grassMaterial.SetFloat(windScaleNoiseId, windScaleNoise);
         grassMaterial.SetFloat(windDistortionId, windDistortion);
-        //grassMaterial.SetVector(playerPositionId, _playerPosition);
+
+        grassMaterial.SetFloat(dynamicWindStrengthId, dynamicWindStrength);
+        grassMaterial.SetFloat(dynamicWindNoiseStrengthId, dynamicWindNoiseStrength);
+
+        //grassMaterial.SetVector(playerPositionId, _playerPosition); Set in SetShaderPlayerPosition.cs (in camera that follows the player)
+
         grassMaterial.SetFloat(playerPositionModifierXId, playerPositionModifierX);
         grassMaterial.SetFloat(playerPositionModifierYId, playerPositionModifierY);
         grassMaterial.SetFloat(playerPositionModifierZId, playerPositionModifierZ);
