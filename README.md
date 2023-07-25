@@ -33,7 +33,7 @@ The optimization techniques that the system features are: **quadtree world divis
 
 ## Video trailer
 
-[![VIDEO TRAILER IMAGE TO YOUTUBE](https://img.youtube.com/vi/syXk2TzY0O4&ab_channel=VideojuegosUJI/0.jpg)](https://www.youtube.com/watch?v=syXk2TzY0O4&ab_channel=VideojuegosUJI)
+[![VIDEO TRAILER IMAGE TO YOUTUBE](./readmesource/android_gpu2.jpg)](https://www.youtube.com/watch?v=syXk2TzY0O4&ab_channel=VideojuegosUJI)
 
 ## Example images
 Here are some images of what can be achieved with the system.
