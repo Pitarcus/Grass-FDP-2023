@@ -31,6 +31,10 @@ The system is based on C#, compute shaders and Shader Graph. C# is used to manag
 
 The optimization techniques that the system features are: **quadtree world division**, **frustum culling**, **distance culling** and **LOD**. The fluid simulation uses 3D textures used in a similar way to *Santa Monica Studios' Rupert Renard* explanation in [Wind Simulation in God of War](https://www.youtube.com/watch?v=dDgyBKkSf7A&t=1531s&ab_channel=GDC).
 
+## Video trailer
+
+[![VIDEO TRAILER IMAGE TO YOUTUBE](https://img.youtube.com/vi/syXk2TzY0O4&ab_channel=VideojuegosUJI/0.jpg)](https://www.youtube.com/watch?v=syXk2TzY0O4&ab_channel=VideojuegosUJI)
+
 ## Example images
 Here are some images of what can be achieved with the system.
 
