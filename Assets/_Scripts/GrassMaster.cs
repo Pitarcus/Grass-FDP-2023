@@ -519,7 +519,7 @@ public class GrassMaster : MonoBehaviour
     }
 
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         if (_visibleGrassQuadtrees != null)
         {
@@ -539,5 +539,5 @@ public class GrassMaster : MonoBehaviour
             Gizmos.DrawWireCube(new Vector3(_visibleGrassQuadtrees[i].boundary.p.x, 0, _visibleGrassQuadtrees[i].boundary.p.y),
                new Vector3(_visibleGrassQuadtrees[i].boundary.halfDimension * 2, 0, _visibleGrassQuadtrees[i].boundary.halfDimension * 2));
         }
-    }
+    }*/
 }

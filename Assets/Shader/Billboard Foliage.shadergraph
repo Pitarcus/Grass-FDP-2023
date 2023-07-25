@@ -8901,6 +8901,9 @@
             "m_Id": "17c2e1cea4f143c5b69d3a5112a1dd3b"
         },
         {
+            "m_Id": "e32b294fbf874b889eb83844cdcffcdf"
+        },
+        {
             "m_Id": "16d6aaff97554dd3ae89e5c29db09eb8"
         },
         {
@@ -8919,16 +8922,33 @@
         "46b1fb2e-10c8-42ff-979e-561e2222f5b0",
         "a802892d-38fa-4b38-984c-c78bb0fc3d3e",
         "132318b7-59a3-482f-aff4-04c7f6215ab4",
-        "ce82d228-d3b4-41b7-a77f-de9b5d3feb46"
+        "ce82d228-d3b4-41b7-a77f-de9b5d3feb46",
+        "5b27465e-eade-4aea-ba19-eb25264f012a"
     ],
     "m_PropertyIds": [
         -1427286189,
         1455423999,
         676500557,
-        1375748454
+        1375748454,
+        505936412
     ],
     "m_Dropdowns": [],
     "m_DropdownSelectedEntries": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "e32b294fbf874b889eb83844cdcffcdf",
+    "m_Id": 505936412,
+    "m_DisplayName": "SunPunchScale",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "_SunPunchScale",
+    "m_StageCapability": 3,
+    "m_Value": 0.20000000298023225,
+    "m_DefaultValue": 0.0,
+    "m_Labels": []
 }
 
 {
