@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[ExecuteAlways]
 public class GrassMaster : MonoBehaviour
 {
     // General grass parameters
@@ -172,8 +173,14 @@ public class GrassMaster : MonoBehaviour
 
     private void Start()
     {
+
+        InitializeGrass();
+    }
+
+    void InitializeGrass()
+    {
         _grassResolution = grassSquareSize * grassDensity;
-        _grassStep = grassSquareSize / (float) _grassResolution;
+        _grassStep = grassSquareSize / (float)_grassResolution;
 
         // A quadtree for each "tile"
         GameObject[] grassPainters = GameObject.FindGameObjectsWithTag("GrassPainter");
@@ -186,17 +193,17 @@ public class GrassMaster : MonoBehaviour
         {
             positionMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().GetMaskTexture();
             heightMaps[i] = grassPainters[i].GetComponent<TerrainPainterComponent>().GetHeightMap();
-     
-             _grassQuadtrees[i] = new GrassQuadtree(new AABB(grassPainters[i].transform.position.x, grassPainters[i].transform.position.z, grassSquareSize/2),   // last number is half the size of the terrain
-                 0,
-                 quadtreeMaxDepth,
-                 positionMaps[i],
-                 heightMaps[i],
-                 heightDisplacementStrenght,
-                 new Vector2(0, 0));
 
-             _grassQuadtrees[i].SetRootHeightmap(heightMaps[i]);
-             _grassQuadtrees[i].Build();
+            _grassQuadtrees[i] = new GrassQuadtree(new AABB(grassPainters[i].transform.position.x, grassPainters[i].transform.position.z, grassSquareSize / 2),   // last number is half the size of the terrain
+                0,
+                quadtreeMaxDepth,
+                positionMaps[i],
+                heightMaps[i],
+                heightDisplacementStrenght,
+                new Vector2(0, 0));
+
+            _grassQuadtrees[i].SetRootHeightmap(heightMaps[i]);
+            _grassQuadtrees[i].Build();
         }
 
 
@@ -214,7 +221,6 @@ public class GrassMaster : MonoBehaviour
         _lowerLODArgs[1] = (uint)0;
         _lowerLODArgs[2] = (uint)grassMeshLOD.GetIndexStart(0);
         _lowerLODArgs[3] = (uint)grassMeshLOD.GetBaseVertex(0);
-     
     }
 
     void UpdateGrassAttributes()
@@ -229,8 +235,9 @@ public class GrassMaster : MonoBehaviour
     void OnEnable()
     {
         grassCompute.GetKernelThreadGroupSizes(0, out _numThreadsX, out _numThreadsY, out _);
-
-        //InitializeQuadtreeNodes();
+#if UNITY_EDITOR
+        InitializeGrass();
+#endif
     }
 
 
@@ -342,14 +349,14 @@ public class GrassMaster : MonoBehaviour
         grassMaterial.SetInt(randomBendId, randomBend? 1 : 0);
         grassMaterial.SetFloat(bendRandomnessScaleId, bendRandomnessScale);
 
-        grassMaterial.SetFloat(windStrenghtId, windStrenght);
+        //grassMaterial.SetFloat(windStrenghtId, windStrenght);
         grassMaterial.SetFloat(baseWindDisplacementId, baseWindDisplacement);
         grassMaterial.SetFloat(baseWindYDisplacementId, baseWindYDisplacement);
         grassMaterial.SetFloat(staticWindYMultiplierId, staticWindYMultiplier);
-        grassMaterial.SetFloat(windSpeedId, windSpeed);
-        grassMaterial.SetFloat(windRotationId, windRotation);
-        grassMaterial.SetFloat(windScaleNoiseId, windScaleNoise);
-        grassMaterial.SetFloat(windDistortionId, windDistortion);
+       // grassMaterial.SetFloat(windSpeedId, windSpeed);
+       // grassMaterial.SetFloat(windRotationId, windRotation);
+       // grassMaterial.SetFloat(windScaleNoiseId, windScaleNoise);
+       // grassMaterial.SetFloat(windDistortionId, windDistortion);
 
         grassMaterial.SetFloat(dynamicWindStrengthId, dynamicWindStrength);
         grassMaterial.SetFloat(dynamicWindNoiseStrengthId, dynamicWindNoiseStrength);
@@ -508,8 +515,6 @@ public class GrassMaster : MonoBehaviour
                 SetMaterialProperties(ref currentQT.materialLOD);
 
                 var bounds = new Bounds(new Vector3(currentQT.boundary.p.x, 0, currentQT.boundary.p.y), new Vector3(currentQT.boundary.halfDimension * 2, 600, currentQT.boundary.halfDimension * 2));
-
-                Debug.Log("Drawing tile...");
 
                 Graphics.DrawMeshInstancedIndirect(grassMesh, 0, currentQT.material, bounds, currentQT.argsBuffer, 0, new MaterialPropertyBlock());
                 Graphics.DrawMeshInstancedIndirect(grassMeshLOD, 0, currentQT.materialLOD, bounds, currentQT.argsLODBuffer);

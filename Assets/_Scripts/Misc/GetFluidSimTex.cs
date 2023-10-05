@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GetFluidSimTex : MonoBehaviour
 {
-    public WindMaster windMaster;
+    public DynamicWindMaster windMaster;
 
     // Start is called before the first frame update
     void Update()

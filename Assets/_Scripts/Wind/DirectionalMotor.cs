@@ -6,7 +6,7 @@ public class DirectionalMotor : MonoBehaviour
 {
     [SerializeField] ComputeShader directionalWindGenerator;
 
-    [SerializeField] WindMaster windMaster;
+    [SerializeField] DynamicWindMaster windMaster;
 
     [SerializeField] DirectionalMotorStruct directionalMotor;
    
