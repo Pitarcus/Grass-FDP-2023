@@ -251,6 +251,8 @@ Material:
     - _RandomYNoiseScale: 2.76
     - _RandomYRotationNoiseScale: 26.22
     - _ReceiveShadows: 1
+    - _SSSPunchIntensity: 0.4
+    - _SSSPunchScale: 0.7
     - _Scale: 1.06
     - _ScaleY: 1.2
     - _Smoothness: 0.8
