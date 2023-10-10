@@ -77,15 +77,9 @@ public class GrassMaster : MonoBehaviour
     [SerializeField][Range(0, 90)] float maxAdditionalBend = 20;
     [SerializeField] float bendRandomnessScale = 1;
     [Header("Static Wind")]
-    [SerializeField] float windStrenght = 0.1f;
     [SerializeField] float baseWindDisplacement = 0f;
     [SerializeField] float baseWindYDisplacement = 0f;
     [SerializeField] float staticWindYMultiplier = -0.2f;
-
-    [SerializeField] float windSpeed = 0.3f;
-    [SerializeField][Range(0, 360)] float windRotation = 0;
-    [SerializeField] float windScaleNoise = 0.1f;
-    [SerializeField] float windDistortion = 0.7f;
 
     [Header("Dynamic Wind")]
     [SerializeField] float dynamicWindStrength = 1.2f;//
@@ -143,17 +137,11 @@ public class GrassMaster : MonoBehaviour
         maxBendId = Shader.PropertyToID("_MaxBend"),
         randomBendId = Shader.PropertyToID("_RandomBend"), 
         bendRandomnessScaleId = Shader.PropertyToID("_BendRandomnessScale"),
-        windStrenghtId = Shader.PropertyToID("_WindStrenght"),
         baseWindDisplacementId = Shader.PropertyToID("_BaseWindDisplacement"),
         baseWindYDisplacementId = Shader.PropertyToID("_BaseWindYDisplacement"),
         staticWindYMultiplierId = Shader.PropertyToID("_StaticWindY"),
-        windSpeedId = Shader.PropertyToID("_WindSpeed"),
-        windRotationId = Shader.PropertyToID("_WindRotation"),
-        windScaleNoiseId = Shader.PropertyToID("_WindNoiseScale"),
-        windDistortionId = Shader.PropertyToID("_WindDistortion"),
         dynamicWindStrengthId = Shader.PropertyToID("_DynamicWindStrength"),
         dynamicWindNoiseStrengthId = Shader.PropertyToID("_DynamicWindNoiseStrenght"),
-        playerPositionId = Shader.PropertyToID("_PlayerPosition"),
         playerPositionModifierXId = Shader.PropertyToID("_PositionModifierX"),
         playerPositionModifierYId = Shader.PropertyToID("_PositionModifierY"),
         playerPositionModifierZId = Shader.PropertyToID("_PositionModifierZ")
@@ -349,14 +337,9 @@ public class GrassMaster : MonoBehaviour
         grassMaterial.SetInt(randomBendId, randomBend? 1 : 0);
         grassMaterial.SetFloat(bendRandomnessScaleId, bendRandomnessScale);
 
-        //grassMaterial.SetFloat(windStrenghtId, windStrenght);
         grassMaterial.SetFloat(baseWindDisplacementId, baseWindDisplacement);
         grassMaterial.SetFloat(baseWindYDisplacementId, baseWindYDisplacement);
         grassMaterial.SetFloat(staticWindYMultiplierId, staticWindYMultiplier);
-       // grassMaterial.SetFloat(windSpeedId, windSpeed);
-       // grassMaterial.SetFloat(windRotationId, windRotation);
-       // grassMaterial.SetFloat(windScaleNoiseId, windScaleNoise);
-       // grassMaterial.SetFloat(windDistortionId, windDistortion);
 
         grassMaterial.SetFloat(dynamicWindStrengthId, dynamicWindStrength);
         grassMaterial.SetFloat(dynamicWindNoiseStrengthId, dynamicWindNoiseStrength);
@@ -446,7 +429,7 @@ public class GrassMaster : MonoBehaviour
         qt.culledGrassDataBuffer.SetCounterValue(0);    // THIS IS SUPER FUCKING IMPORTANT
         qt.culledGrassDataBufferLOD.SetCounterValue(0);
        
-        cullGrassCompute.Dispatch(0, Mathf.CeilToInt((float)qt.numberOfGrassBlades / (float) culledNumThreadsX), 1, 1); // This is probably causing the flickering
+        cullGrassCompute.Dispatch(0, Mathf.CeilToInt((float)qt.numberOfGrassBlades / (float) culledNumThreadsX), 1, 1);
     }
 
     void Update()
@@ -458,7 +441,6 @@ public class GrassMaster : MonoBehaviour
         Matrix4x4 VP = P * V;
 
         // Update material parameters
-        _playerPosition = playerTransform.position;
 
         _cameraAngleToGroundNormalized = Vector3.Angle(Camera.main.transform.forward, Vector3.up);
         if(_cameraAngleToGroundNormalized > 100)
