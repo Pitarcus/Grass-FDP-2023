@@ -202,11 +202,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AO_Bottom: 0.9
+    - _AO_Top: 1
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Ambient_Occlusion: 0.7
     - _BaseWindDisplacement: 0.3
-    - _BaseWindYDisplacement: 0.1
+    - _BaseWindYDisplacement: 0.46
     - _BendRandomnessScale: 20
     - _Blend: 0
     - _BlendModePreserveSpecular: 0
@@ -251,6 +253,7 @@ Material:
     - _RandomYNoiseScale: 2.76
     - _RandomYRotationNoiseScale: 26.22
     - _ReceiveShadows: 1
+    - _Rounded_Normals: 0
     - _SSSPunchIntensity: 0.4
     - _SSSPunchScale: 0.7
     - _Scale: 1.06
@@ -259,7 +262,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _StaticWindY: -0.37
+    - _StaticWindY: -0.5
     - _Surface: 0
     - _ViewDirectionShiftIntensity: 0.2
     - _WindBendStrength: 90
