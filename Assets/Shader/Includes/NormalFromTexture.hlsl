@@ -1,15 +1,20 @@
-void NormalFromTexture_float (Texture2D _texture, SamplerState SS, float2 _UV, float _offset, float strength, out float3 out) 
+void NormalFromTexture_float (UnityTexture2D myTexture, SamplerState SS, float2 UV, float _offset, float strength, out float3 normal) 
 {
-	float sample = tex2D(_texture, SS, _UV).r;
-	float sampleX = tex2D(_texture, SS, _UV - float2(_offset, 0)).r;
-	float sampleY = tex2D(_texture, SS, _UV - float2(0, _offset)).r;
+	float _sample = SAMPLE_TEXTURE2D_LOD(myTexture, SS, UV, 0).r;
+	float _sampleX = SAMPLE_TEXTURE2D_LOD(myTexture, SS, UV - float2(_offset, 0), 0).r;
+	float _sampleY = SAMPLE_TEXTURE2D_LOD(myTexture, SS, UV - float2(0, _offset), 0).r; 
 
-	sampleX -= sample;
-	sampleY -= sample;
+	//float _sampleA = SAMPLE_TEXTURE2D_LOD(myTexture, SS, UV, 0).a;
 
-	sampleX *= strength;
-	sampleY *= strength;
+	_sampleX -= _sample;
+	_sampleY -= _sample;
 
-	float3 normalized = normalize(float3(sampleX, sampleY, 1));
-	out = normalized;
+	_sampleX = -(_sampleX);
+	_sampleY = -(_sampleY);
+
+	_sampleX *= strength;
+	_sampleY *= strength;
+
+	float3 normalized = normalize(float3(_sampleX, _sampleY, 1));
+	normal = normalized;
 }
