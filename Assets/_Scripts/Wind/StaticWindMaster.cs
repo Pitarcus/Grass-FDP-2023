@@ -5,7 +5,7 @@ using UnityEngine;
 [ExecuteAlways]
 public class StaticWindMaster : MonoBehaviour
 {
-    [SerializeField][Range(0, 4)] float windStrength = 1;
+    [SerializeField][Range(0, 3)] float windStrength = 1;
     [SerializeField] float windSpeed = 1;
     [SerializeField][Range(0, 360)] float windRotation = 0;
     [SerializeField] float windNoiseScale = 1;
@@ -17,7 +17,7 @@ public class StaticWindMaster : MonoBehaviour
     static readonly int
         arrowMeshMaterialColorId = Shader.PropertyToID("_WindArrowColor"),
 
-        windStrengthId = Shader.PropertyToID("_WindStrenght"),
+        windStrengthId = Shader.PropertyToID("_WindStrength"),
         windSpeedId = Shader.PropertyToID("_WindSpeed"),
         windRotationId = Shader.PropertyToID("_WindRotation"),
         windNoiseScaleId = Shader.PropertyToID("_WindNoiseScale"),
@@ -33,7 +33,7 @@ public class StaticWindMaster : MonoBehaviour
     {
         transform.rotation = Quaternion.AngleAxis(windRotation.Remap(0, 360, -90, 270), Vector3.up);
         if(_arrowMeshMaterial != null)
-            _arrowMeshMaterial.SetColor(arrowMeshMaterialColorId, windArrowColorGradient.Evaluate(windSpeed * windStrength / 4f));
+            _arrowMeshMaterial.SetColor(arrowMeshMaterialColorId, windArrowColorGradient.Evaluate(windSpeed * windStrength / 3f));
 
         UpdateGlobalVariables();
     }

@@ -80,6 +80,7 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] float baseWindDisplacement = 0f;
     [SerializeField] float baseWindYDisplacement = 0f;
     [SerializeField] float staticWindYMultiplier = -0.2f;
+    [SerializeField] float staticWindDisplacementMultiplier = 1f;
 
     [Header("Dynamic Wind")]
     [SerializeField] float dynamicWindStrength = 1.2f;//
@@ -139,6 +140,7 @@ public class GrassMaster : MonoBehaviour
         bendRandomnessScaleId = Shader.PropertyToID("_BendRandomnessScale"),
         baseWindDisplacementId = Shader.PropertyToID("_BaseWindDisplacement"),
         baseWindYDisplacementId = Shader.PropertyToID("_BaseWindYDisplacement"),
+        staticWindDisplacementMultiplierId = Shader.PropertyToID("_StaticWindDisplacementMultiplier"),
         staticWindYMultiplierId = Shader.PropertyToID("_StaticWindY"),
         dynamicWindStrengthId = Shader.PropertyToID("_DynamicWindStrength"),
         dynamicWindNoiseStrengthId = Shader.PropertyToID("_DynamicWindNoiseStrenght"),
@@ -340,6 +342,7 @@ public class GrassMaster : MonoBehaviour
         grassMaterial.SetFloat(baseWindDisplacementId, baseWindDisplacement);
         grassMaterial.SetFloat(baseWindYDisplacementId, baseWindYDisplacement);
         grassMaterial.SetFloat(staticWindYMultiplierId, staticWindYMultiplier);
+        grassMaterial.SetFloat(staticWindDisplacementMultiplierId, staticWindDisplacementMultiplier);
 
         grassMaterial.SetFloat(dynamicWindStrengthId, dynamicWindStrength);
         grassMaterial.SetFloat(dynamicWindNoiseStrengthId, dynamicWindNoiseStrength);

@@ -11,6 +11,7 @@ public class FollowPosition : MonoBehaviour
     [SerializeField] bool keepOffsetY;
     [SerializeField] bool followZ;
     [SerializeField] bool keepOffsetZ;
+    [SerializeField] bool followRotation = true;
     [SerializeField] bool followFloored;
     [SerializeField] bool followSmooth;
     [SerializeField] float smoothTime = 0.2f;
@@ -19,6 +20,7 @@ public class FollowPosition : MonoBehaviour
 
     private Vector3 offset;
     private Vector3 currentvelocity;
+    private Quaternion originalRotation;
 
     private void Start()
     {
@@ -31,10 +33,16 @@ public class FollowPosition : MonoBehaviour
         offsetZ = keepOffsetZ ? 1 : 0;
 
         currentvelocity = new Vector3();
+
+        originalRotation = transform.rotation;
     }
     // Update is called once per frame
     void Update()
     {
+        if (!followRotation)
+        {
+            transform.rotation = originalRotation;
+        }
         if(followFloored)
         {
             transform.position = new Vector3(Mathf.Floor(target.position.x * x + offset.x * offsetX) + 0.5f,
