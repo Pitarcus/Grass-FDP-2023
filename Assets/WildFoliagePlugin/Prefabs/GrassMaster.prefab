@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7049318128626124865
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7049318128626124871}
+  - component: {fileID: 7049318128626124870}
+  m_Layer: 0
+  m_Name: GrassMaster
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7049318128626124871
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7049318128626124865}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 10.661797, y: 13.690273, z: 10.20651}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7049318128626124870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7049318128626124865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 532edd01fcec347459d5c7c975af37f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grassSquareSize: 512
+  grassDensity: 1
+  offsetXAmount: 0.3
+  offsetYAmount: 0.5
+  cutoffDistance: 65
+  LODDistance: 25
+  heightDisplacementStrenght: 600
+  quadtreeMaxDepth: 4
+  quadtreeCutoffDistance: 200
+  leafCutoffDistance: 120
+  grassCompute: {fileID: 7200000, guid: 9174038621ce9144985e68d36b210b7c, type: 3}
+  cullGrassCompute: {fileID: 7200000, guid: ddfd63412d10ec84089268b8e9284aa5, type: 3}
+  grassMesh: {fileID: -1200148108225945437, guid: 4c4ef47b01c4ec040b6dd1b735d6f139,
+    type: 3}
+  grassMeshLOD: {fileID: -252076373907899161, guid: e33f1a0021c98db4fb0824aaac9fddf4,
+    type: 3}
+  grassMaterial: {fileID: 2100000, guid: 6286073168e362e4fbb568d9b9869af9, type: 2}
+  bottomColor: {r: 0, g: 0.4339623, b: 0.056812245, a: 0}
+  topColor: {r: 0, g: 0.6415094, b: 0.00089963875, a: 0}
+  tipColor: {r: 0, g: 0, b: 0, a: 0}
+  SSSColor: {r: 0, g: 0, b: 0, a: 0}
+  worldUVTiling: 1
+  scaleY: 1
+  randomYScaleNoise: 1
+  minRandomY: 1
+  maxRandomY: 2
+  maxYRotation: 360
+  randomYRotationNoise: 1
+  maxBend: 20
+  randomBend: 0
+  maxAdditionalBend: 20
+  bendRandomnessScale: 1
+  baseWindDisplacement: 0
+  baseWindYDisplacement: 0
+  staticWindYMultiplier: -0.2
+  staticWindDisplacementMultiplier: 1
+  dynamicWindStrength: 1.2
+  dynamicWindNoiseStrength: 1
+  playerTransform: {fileID: 0}
+  playerPositionModifierX: -0.4
+  playerPositionModifierY: 0.5
+  playerPositionModifierZ: -0.4

@@ -131,6 +131,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: c906568e73ed587468960f0d77d92a04, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_a53beb3d5eeb420fbf98045fe5f02a61_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: c906568e73ed587468960f0d77d92a04, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2DLOD_bc67b6f7fcc9423d89aae75cddbd0bb4_Texture_1:
         m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -197,6 +201,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AO_Bottom: 0.5
+    - _AO_Top: 1
     - _AlphaClip: 1
     - _AlphaToMask: 0
     - _Ambient_Occlusion: 1
@@ -246,12 +252,15 @@ Material:
     - _RandomYNoiseScale: 0
     - _RandomYRotationNoiseScale: 28.41
     - _ReceiveShadows: 1
+    - _SSSPunchIntensity: 1
+    - _SSSPunchScale: 0.5
     - _Scale: 1.06
     - _ScaleY: 1
     - _Smoothness: 0.55
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 5
+    - _StaticWindDisplacementMultiplier: 1
     - _StaticWindY: -0.8
     - _Surface: 1
     - _ViewDirectionShiftIntensity: 0
