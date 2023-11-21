@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 [ExecuteAlways]
@@ -96,6 +97,7 @@ public class GrassMaster : MonoBehaviour
 
     // PRIVATE VARIABLES
 
+    private Camera _currentCamera;
     private float _cameraAngleToGroundNormalized;
 
     // Data structure to communicate GPU and CPU
@@ -163,7 +165,6 @@ public class GrassMaster : MonoBehaviour
 
     private void Start()
     {
-
         InitializeGrass();
     }
 
@@ -225,9 +226,10 @@ public class GrassMaster : MonoBehaviour
     void OnEnable()
     {
         grassCompute.GetKernelThreadGroupSizes(0, out _numThreadsX, out _numThreadsY, out _);
-#if UNITY_EDITOR
+        
+        #if UNITY_EDITOR
         InitializeGrass();
-#endif
+        #endif
     }
 
 
@@ -416,7 +418,7 @@ public class GrassMaster : MonoBehaviour
 
         cullGrassCompute.SetMatrix("MATRIX_VP", VP);
         cullGrassCompute.SetFloat("_CullDistance", cutoffDistance);
-        cullGrassCompute.SetVector("_CameraPosition", Camera.main.transform.position);
+        cullGrassCompute.SetVector("_CameraPosition", _currentCamera.transform.position);
         cullGrassCompute.SetFloat("_GrassDataNumberofElements", qt.numberOfGrassBlades);
         cullGrassCompute.SetFloat("_LOD_DISTANCE", LODDistance);
 
@@ -437,15 +439,21 @@ public class GrassMaster : MonoBehaviour
 
     void Update()
     {
+        if(_currentCamera == null)
+        {
+            _currentCamera = Camera.current;
+            return;
+        }
+
         UpdateGrassAttributes();
 
-        Matrix4x4 P = Camera.main.projectionMatrix;
-        Matrix4x4 V = Camera.main.transform.worldToLocalMatrix;
+        Matrix4x4 P = _currentCamera.projectionMatrix;
+        Matrix4x4 V = _currentCamera.transform.worldToLocalMatrix;
         Matrix4x4 VP = P * V;
 
         // Update material parameters
 
-        _cameraAngleToGroundNormalized = Vector3.Angle(Camera.main.transform.forward, Vector3.up);
+        _cameraAngleToGroundNormalized = Vector3.Angle(_currentCamera.transform.forward, Vector3.up);
         if(_cameraAngleToGroundNormalized > 100)
         {
             _cameraAngleToGroundNormalized = (_cameraAngleToGroundNormalized - 100) / (180 - 100);    // Remap value to [0, 1]
@@ -460,7 +468,7 @@ public class GrassMaster : MonoBehaviour
         // Get visible nodes
         for (int i = 0; i < _grassQuadtrees.Length; i++)
         {
-            _grassQuadtrees[i].TestFrustum(Camera.main.transform.position, leafCutoffDistance, quadtreeCutoffDistance, GeometryUtility.CalculateFrustumPlanes(Camera.main), ref _visibleGrassQuadtrees);  // Hay error aquí, coge de los que no debería
+            _grassQuadtrees[i].TestFrustum(_currentCamera.transform.position, leafCutoffDistance, quadtreeCutoffDistance, GeometryUtility.CalculateFrustumPlanes(_currentCamera), ref _visibleGrassQuadtrees);  // Hay error aquí, coge de los que no debería
         }
 
         // Free up the memory of non-visible nodes
