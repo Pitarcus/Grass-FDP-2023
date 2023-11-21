@@ -565,20 +565,6 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
-                    "m_Id": "b1d31caac27b46dfa52c276bdf8597c0"
-                },
-                "m_SlotId": 3
-            },
-            "m_InputSlot": {
-                "m_Node": {
-                    "m_Id": "544ff150e3974c11bbe7ca973c6d5bd9"
-                },
-                "m_SlotId": -1547176611
-            }
-        },
-        {
-            "m_OutputSlot": {
-                "m_Node": {
                     "m_Id": "b7f1cca1179746e08dd04314c9c0d0d3"
                 },
                 "m_SlotId": 2
@@ -2695,9 +2681,6 @@
             "m_Id": "394f3c5416e445239f45c6fb71b4a1d0"
         },
         {
-            "m_Id": "dfa4bffb15454ba4b858aa161b34b52f"
-        },
-        {
             "m_Id": "42141df3882c490984c8c593ce5fbfb9"
         },
         {
@@ -3666,7 +3649,7 @@
     },
     "m_Name": "Split",
     "m_DrawState": {
-        "m_Expanded": false,
+        "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
             "x": -743.2000122070313,
@@ -4623,9 +4606,9 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -882.4000854492188,
-            "y": 1448.0,
-            "width": 162.39990234375,
+            "x": -676.0,
+            "y": 1058.4000244140625,
+            "width": 161.60009765625,
             "height": 33.5999755859375
         }
     },
@@ -4809,10 +4792,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -688.8001098632813,
-            "y": 1448.0,
+            "x": -482.39996337890627,
+            "y": 1058.4000244140625,
             "width": 208.0,
-            "height": 432.0
+            "height": 431.9998779296875
         }
     },
     "m_Slots": [
@@ -5450,21 +5433,6 @@
     "m_Hidden": false,
     "m_ShaderOutputName": "G",
     "m_StageCapability": 2,
-    "m_Value": 0.0,
-    "m_DefaultValue": 0.0,
-    "m_Labels": []
-}
-
-{
-    "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
-    "m_ObjectId": "dfa4bffb15454ba4b858aa161b34b52f",
-    "m_Id": -1547176611,
-    "m_DisplayName": "ShadowAtten",
-    "m_SlotType": 0,
-    "m_Hidden": false,
-    "m_ShaderOutputName": "_ShadowAtten",
-    "m_StageCapability": 3,
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
