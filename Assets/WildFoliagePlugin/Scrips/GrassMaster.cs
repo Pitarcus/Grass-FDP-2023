@@ -441,7 +441,7 @@ public class GrassMaster : MonoBehaviour
     {
         if(_currentCamera == null)
         {
-            _currentCamera = Camera.current;
+            _currentCamera = Camera.main;
             return;
         }
 

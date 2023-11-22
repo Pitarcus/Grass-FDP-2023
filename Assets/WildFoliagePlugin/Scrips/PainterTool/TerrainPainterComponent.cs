@@ -1,9 +1,12 @@
 #if UNITY_EDITOR
 using System.IO;
+using Unity.VisualScripting;
 using UnityEditor;
+using UnityEditor.Build;
 #endif
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering;
 
 public enum BrushMode
 {
@@ -26,6 +29,7 @@ public class TerrainPainterComponent : MonoBehaviour
 
     // other properties
     public Texture2D maskTexture;
+    public Texture2D realMaskTexture;
     public Texture2D heightMap;
     public Terrain terrain { get; private set; } // The terrain is needed to set up the size of the texture correctly.
     public TerrainData terrainData { get; private set; }
@@ -42,6 +46,12 @@ public class TerrainPainterComponent : MonoBehaviour
     public UnityEvent onInitFinished;   // Used to set up displayer
     public UnityEvent onPaintingMask;
 
+
+    private void Awake()
+    {
+        // Load texture in the game
+        realMaskTexture = Resources.Load<Texture2D>("GrassPositions/"+ transform.parent.name+"_grassPlacementInfo");
+    }
 
     private void OnValidate()
     {
@@ -62,20 +72,23 @@ public class TerrainPainterComponent : MonoBehaviour
             int alphamapWidth = terrainData.alphamapWidth;
             int alphamapHeight = terrainData.alphamapHeight;
 
-            if (maskTexture == null)
+        #if UNITY_EDITOR
+            if (maskTexture == null)   // Create a temp texture in the editor only when there is no saved texture
             {
                 maskTexture = new Texture2D(alphamapWidth, alphamapHeight, TextureFormat.RGBA32, false);
                 maskTexture.wrapMode = TextureWrapMode.Clamp;
                 maskTexture.filterMode = FilterMode.Bilinear;
                 ClearMask();
+                ResetMaskTextureToAsset();
             }
+        #endif
 
             transform.localPosition = new Vector3(terrainData.size.x / 2, 0, terrainData.size.z / 2);
 
             onInitFinished.Invoke();
         }
     }
-
+    
 #if UNITY_EDITOR
     void OnEnable()
     {
@@ -85,21 +98,22 @@ public class TerrainPainterComponent : MonoBehaviour
         {
             return;
         }
-
         // Add (or re-add) the delegate.
         SceneView.beforeSceneGui += this.OnScene;
-
+        //Selection.selectionChanged += CopyMaskTexture;
     }
 
     private void OnDestroy()
     {
         isPainting = false;
         SceneView.beforeSceneGui -= this.OnScene;
+        //Selection.selectionChanged -= CopyMaskTexture;
     }
     private void OnDisable()
     {
         isPainting = false;
         SceneView.beforeSceneGui -= this.OnScene;
+        //Selection.selectionChanged -= CopyMaskTexture;
     }
 
     public void PaintMask(SceneView scene, Vector3 mousePos)
@@ -179,7 +193,6 @@ public class TerrainPainterComponent : MonoBehaviour
     }
 
 
-
     private void OnScene(SceneView scene)
     {
         if (!(Selection.Contains(gameObject)))
@@ -236,37 +249,55 @@ public class TerrainPainterComponent : MonoBehaviour
         }
     }
 
-    /*public void SaveTexture()
+    private bool AssignRealMaskAsset()
+    {
+        realMaskTexture = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + "/WildFoliagePlugin/Textures/Resources/GrassPositions/" + transform.parent.name + "_grassPlacementInfo.png", typeof(Texture2D));
+        return realMaskTexture != null;
+    }
+
+    public void ResetMaskTextureToAsset()
+    {
+        if (AssignRealMaskAsset())
+        {
+            Graphics.CopyTexture(realMaskTexture, maskTexture);
+        }
+    }
+
+    public void SaveTexture()
     {
         Texture2D auxtex = maskTexture;
-        byte[] _bytes = auxtex.EncodeToPNG();
 
-        var dirPath = Application.dataPath + "/Textures/GrassPositions/";
+        var dirPath = Application.dataPath + "Assets/WildFoliagePlugin/Textures/Resources/GrassPositions/";
         if (!Directory.Exists(dirPath))
         {
             Directory.CreateDirectory(dirPath);
         }
 
-        grassMaskPath = dirPath + transform.parent.name + "_grassPlacementInfo.png";
+        string grassMaskPath = dirPath + transform.parent.name + "_grassPlacementInfo.png";
 
-        File.WriteAllBytes(grassMaskPath, _bytes);
+        File.WriteAllBytes(grassMaskPath, auxtex.EncodeToPNG());
 
-        grassMaskTextureReal = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets/Textures/GrassPositions/" + transform.parent.name + "_grassPlacementInfo.png", typeof(Texture2D));
+        AssignRealMaskAsset();
 
-        string assetPath = AssetDatabase.GetAssetPath(grassMaskTextureReal);
+        string assetPath = AssetDatabase.GetAssetPath(realMaskTexture);
         var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
-
         if (importer != null)
         {
+            TextureImporterPlatformSettings settings = importer.GetDefaultPlatformTextureSettings();
+            settings.format = TextureImporterFormat.RGBA32;
+
+            importer.SetPlatformTextureSettings(settings);
             importer.isReadable = true; // Set the "isReadable" property to true
+            importer.mipmapEnabled = false;
+            importer.alphaIsTransparency = true;
+
 
             // Apply the modified import settings
             AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
             AssetDatabase.Refresh();
         }
-    }*/
+    }
 #endif
-
     public void ClearMask()
     {
         for (int y = -terrainData.alphamapHeight; y < terrainData.alphamapHeight; y++)
@@ -279,7 +310,13 @@ public class TerrainPainterComponent : MonoBehaviour
         maskTexture.Apply();
     }
 
+
     public Texture2D GetMaskTexture()
+    {
+        return realMaskTexture;
+    }
+
+    public Texture2D GetMaskDisplayTexture()
     {
         return maskTexture;
     }

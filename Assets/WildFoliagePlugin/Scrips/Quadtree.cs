@@ -344,6 +344,9 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
         {
             this.Subdivide();
 
+            // Clean unused textures
+            //Texture2D.DestroyImmediate(grassMask);
+
             northEast.Build();
             northWest.Build();
             southEast.Build();

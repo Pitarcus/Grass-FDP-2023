@@ -22,11 +22,14 @@ public class GrassMaskDisplayer : MonoBehaviour
         decalProjector = child.GetComponent<DecalProjector>();
         decalMaterial = decalProjector.material;
 
-        // Object with the texture
-        textureObject = GetComponent<TerrainPainterComponent>();
+        if (textureObject == null)
+        {
+            // Object with the texture
+            textureObject = GetComponent<TerrainPainterComponent>();
 
-        // Set up displayer
-        textureObject.onInitFinished.AddListener(InitDisplayer);
+            // Set up displayer
+            textureObject.onInitFinished.AddListener(InitDisplayer);
+        }
 
         InitDisplayer();
     }
@@ -35,9 +38,9 @@ public class GrassMaskDisplayer : MonoBehaviour
     {
         terrain = textureObject.terrain;
 
-        if (terrain != null && textureObject.GetMaskTexture() != null)
+        if (terrain != null && textureObject.GetMaskDisplayTexture() != null)
         {
-            texture = textureObject.GetMaskTexture();
+            texture = textureObject.GetMaskDisplayTexture();
 
             decalProjector.transform.localPosition = new Vector3(0, terrain.terrainData.heightmapScale.y / 2, 0);
             decalProjector.size = new Vector3( terrain.terrainData.size.x, terrain.terrainData.size.z, terrain.terrainData.size.y + 1);
@@ -75,6 +78,7 @@ public class GrassMaskDisplayer : MonoBehaviour
         }
         else
         {
+            InitDisplayer();
             decalProjector.enabled = true;
         }
     }
