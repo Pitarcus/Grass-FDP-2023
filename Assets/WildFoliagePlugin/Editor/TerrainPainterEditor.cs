@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System.Collections;
 using UnityEditorInternal;
 
 [CustomEditor(typeof(TerrainPainterComponent))]

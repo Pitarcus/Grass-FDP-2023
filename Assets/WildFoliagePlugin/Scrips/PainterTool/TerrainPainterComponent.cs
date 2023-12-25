@@ -1,12 +1,10 @@
 #if UNITY_EDITOR
+using System.Collections;
 using System.IO;
-using Unity.VisualScripting;
 using UnityEditor;
-using UnityEditor.Build;
 #endif
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Rendering;
 
 public enum BrushMode
 {
@@ -29,7 +27,7 @@ public class TerrainPainterComponent : MonoBehaviour
 
     // other properties
     public Texture2D maskTexture;
-    public Texture2D realMaskTexture;
+    [SerializeField] public Texture2D realMaskTexture;
     public Texture2D heightMap;
     public Terrain terrain { get; private set; } // The terrain is needed to set up the size of the texture correctly.
     public TerrainData terrainData { get; private set; }
@@ -263,11 +261,15 @@ public class TerrainPainterComponent : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Serialize the current mask texture to be inside the project folder.
+    /// This way the texture is always stored and can be modified/saved in different versions.
+    /// </summary>
     public void SaveTexture()
     {
         Texture2D auxtex = maskTexture;
 
-        var dirPath = Application.dataPath + "Assets/WildFoliagePlugin/Textures/Resources/GrassPositions/";
+        var dirPath = Application.dataPath + "/WildFoliagePlugin/Textures/Resources/GrassPositions/";
         if (!Directory.Exists(dirPath))
         {
             Directory.CreateDirectory(dirPath);
@@ -276,6 +278,7 @@ public class TerrainPainterComponent : MonoBehaviour
         string grassMaskPath = dirPath + transform.parent.name + "_grassPlacementInfo.png";
 
         File.WriteAllBytes(grassMaskPath, auxtex.EncodeToPNG());
+        AssetDatabase.Refresh();
 
         AssignRealMaskAsset();
 
@@ -283,6 +286,7 @@ public class TerrainPainterComponent : MonoBehaviour
         var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
         if (importer != null)
         {
+            Debug.Log("Changing importer options");
             TextureImporterPlatformSettings settings = importer.GetDefaultPlatformTextureSettings();
             settings.format = TextureImporterFormat.RGBA32;
 
@@ -297,6 +301,12 @@ public class TerrainPainterComponent : MonoBehaviour
             AssetDatabase.Refresh();
         }
     }
+
+    public void SetTexture()
+    {
+        
+    }
+
 #endif
     public void ClearMask()
     {

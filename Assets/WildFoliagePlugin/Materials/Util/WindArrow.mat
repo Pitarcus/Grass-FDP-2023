@@ -128,7 +128,7 @@ Material:
     - _Color: {r: 3.4415905, g: 0, b: 0.06405785, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _WindArrowColor: {r: 0.38533008, g: 2.4121807, b: 2.6973152, a: 1}
+    - _WindArrowColor: {r: 0.5142177, g: 4.1929536, b: 2.2561822, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &5809844728864624697
 MonoBehaviour:

@@ -131,8 +131,8 @@ MonoBehaviour:
     >\n  <presetinput identifier=\"$outputsize\" uid=\"876389391\" type=\"8\" value=\"10,10\"
     />\n  <presetinput identifier=\"$randomseed\" uid=\"1666101853\" type=\"4\" value=\"2611\"
     />\n  <presetinput identifier=\"roughness_amount\" uid=\"1448395075\" type=\"0\"
-    value=\"0.425\" />\n  <presetinput identifier=\"water_level\" uid=\"1444608472\"
-    type=\"0\" value=\"0.247\" />\n  <presetinput identifier=\"edges_wetness_distance\"
+    value=\"0.536\" />\n  <presetinput identifier=\"water_level\" uid=\"1444608472\"
+    type=\"0\" value=\"0.489\" />\n  <presetinput identifier=\"edges_wetness_distance\"
     uid=\"1444493710\" type=\"0\" value=\"0.079\" />\n </sbspreset>\n"
   IsRuntimeOnly: 0
   GenerateAllOutputs: 0
@@ -200,7 +200,7 @@ MonoBehaviour:
           GuiDescription: 
           Type: 0
           WidgetType: 1
-        Data: 0.425
+        Data: 0.536
         NumericalDescription:
           DefaultValue: 0.5
           MinValue: 0
@@ -220,7 +220,7 @@ MonoBehaviour:
           GuiDescription: 
           Type: 0
           WidgetType: 1
-        Data: 0.247
+        Data: 0.489
         NumericalDescription:
           DefaultValue: 0
           MinValue: 0

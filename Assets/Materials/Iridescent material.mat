@@ -61,11 +61,11 @@ Material:
     - _BlendModePreserveSpecular: 0
     - _CastShadows: 1
     - _Cull: 2
-    - _Distort: 1.2
-    - _DistortedNoiseScale: 0.38
+    - _Distort: 0.07
+    - _DistortedNoiseScale: -1.18
     - _DstBlend: 0
-    - _Fresnel: 0.75
-    - _Metallic: 1.26
+    - _Fresnel: 2
+    - _Metallic: 0.72
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
