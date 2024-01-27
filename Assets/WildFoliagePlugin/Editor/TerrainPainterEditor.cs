@@ -73,7 +73,7 @@ public class TerrainPainterEditor : Editor
             terrainPainter.ClearMask();
         }
 
-        if (GUILayout.Button("Reset texture"))
+        if (GUILayout.Button("Reset to saved texture"))
         {
             terrainPainter.ResetMaskTextureToAsset();
         }

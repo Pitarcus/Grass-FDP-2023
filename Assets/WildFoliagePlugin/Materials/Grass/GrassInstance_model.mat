@@ -112,6 +112,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 61bb3bb6fabaee54481a0d6dacebd1db, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_4590a079fc8e41168960eb8a132db1dd_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2DLOD_49f74c04734749419fce0d940fe08ace_Texture_1:
         m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -152,6 +156,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: c906568e73ed587468960f0d77d92a04, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_dcd46271c0ea4d88851f3fafcf78fed2_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: c906568e73ed587468960f0d77d92a04, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2DLOD_df18ac9a106f4e459031f3dad264d887_Texture_1:
         m_Texture: {fileID: 2800000, guid: 4fef4bff7682c0944b395554bf362b60, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -189,6 +197,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _WindTextureZ:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WorldRenderTextureDepth:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}

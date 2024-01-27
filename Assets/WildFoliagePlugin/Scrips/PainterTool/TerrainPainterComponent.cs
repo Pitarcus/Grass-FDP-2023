@@ -8,8 +8,9 @@ using UnityEngine.Events;
 
 public enum BrushMode
 {
-    Paint,
-    Erase
+    PaintGrass,
+    EraseGrass,
+    PaintSmallVegetation
 }
 
 [RequireComponent(typeof(HeightmapHolder))]
@@ -98,20 +99,17 @@ public class TerrainPainterComponent : MonoBehaviour
         }
         // Add (or re-add) the delegate.
         SceneView.beforeSceneGui += this.OnScene;
-        //Selection.selectionChanged += CopyMaskTexture;
     }
 
     private void OnDestroy()
     {
         isPainting = false;
         SceneView.beforeSceneGui -= this.OnScene;
-        //Selection.selectionChanged -= CopyMaskTexture;
     }
     private void OnDisable()
     {
         isPainting = false;
         SceneView.beforeSceneGui -= this.OnScene;
-        //Selection.selectionChanged -= CopyMaskTexture;
     }
 
     public void PaintMask(SceneView scene, Vector3 mousePos)
@@ -170,11 +168,11 @@ public class TerrainPainterComponent : MonoBehaviour
 
                             // ---- ACTUAL PAINTING ------
 
-                            if (brushMode == BrushMode.Paint)
+                            if (brushMode == BrushMode.PaintGrass)
                             {
                                 maskValue = Mathf.Lerp(maskValue, Mathf.Max(brushValue, maskValue), brushStrength);
                             }
-                            else
+                            else if (brushMode == BrushMode.EraseGrass)
                             {
                                 maskValue = Mathf.Lerp(maskValue, maskValue - brushValue, brushStrength);
                             }
@@ -255,7 +253,11 @@ public class TerrainPainterComponent : MonoBehaviour
 
     public void ResetMaskTextureToAsset()
     {
-        if (AssignRealMaskAsset())
+        if(realMaskTexture != null)
+        {
+            Graphics.CopyTexture(realMaskTexture, maskTexture);
+        }
+        else if (AssignRealMaskAsset())
         {
             Graphics.CopyTexture(realMaskTexture, maskTexture);
         }
@@ -302,10 +304,6 @@ public class TerrainPainterComponent : MonoBehaviour
         }
     }
 
-    public void SetTexture()
-    {
-        
-    }
 
 #endif
     public void ClearMask()

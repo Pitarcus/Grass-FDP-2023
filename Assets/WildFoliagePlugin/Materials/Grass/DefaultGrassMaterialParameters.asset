@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd756a49f01bf1d448d0396dfa9bfb5c, type: 3}
+  m_Name: DefaultGrassMaterialParameters
+  m_EditorClassIdentifier: 
+  bottomColor: {r: 0.16210184, g: 0.4811321, b: 0.06082235, a: 0}
+  topColor: {r: 0.20000002, g: 0.7372549, b: 0.121568635, a: 0}
+  tipColor: {r: 0.3529412, g: 0.5764706, b: 0.13333334, a: 0}
+  SSSColor: {r: 0.654902, g: 0.76470596, b: 0.15294118, a: 0}
+  smoothness: 0.7
+  ao: 0.7
+  worldUVTiling: 0.65
+  scaleY: 1.65
+  randomYScaleNoise: 0.06
+  minRandomY: 0.55
+  maxRandomY: 2.96
+  maxYRotation: 360
+  randomYRotationNoise: 25
+  maxBend: 70
+  randomBend: 1
+  maxAdditionalBend: 90
+  bendRandomnessScale: 20
+  baseWindDisplacement: 0.03
+  baseWindYDisplacement: 0
+  staticWindYMultiplier: -0.7
+  staticWindDisplacementMultiplier: 1
+  dynamicWindStrength: 1.2
+  dynamicWindNoiseStrength: 1
+  playerPositionModifierX: 0.5
+  playerPositionModifierY: 0.5
+  playerPositionModifierZ: 0.5

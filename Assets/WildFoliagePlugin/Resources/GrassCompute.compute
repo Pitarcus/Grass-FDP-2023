@@ -1,7 +1,6 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel GrassGenerator
 
-
 // --------------------------- PARAMETERS ----------------------
 
 // Data structure for the outputbuffer
@@ -78,7 +77,7 @@ void GrassGenerator (uint3 id : SV_DispatchThreadID)
         if(alphaValue > 0.1f) {    // Only display grass where there is alpha map
 
             // Calculate the actual world position
-            float Xoffset = rand(id.xy) *_OffsetXAmount; // Hola buenas tardes soy un dinosaurio
+            float Xoffset = rand(id.xy) *_OffsetXAmount; 
             float Yoffset = rand(id.xy) *_OffsetYAmount;
            
             float3 pos =  0.0f;
@@ -97,3 +96,4 @@ void GrassGenerator (uint3 id : SV_DispatchThreadID)
             _GrassData.Append(gd);
         }
 }
+
