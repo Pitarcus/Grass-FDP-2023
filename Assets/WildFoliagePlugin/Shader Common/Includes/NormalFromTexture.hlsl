@@ -18,3 +18,5 @@ void NormalFromTexture_float (UnityTexture2D myTexture, SamplerState SS, float2 
 	float3 normalized = normalize(float3(_sampleX, _sampleY, 1));
 	normal = normalized;
 }
+
+

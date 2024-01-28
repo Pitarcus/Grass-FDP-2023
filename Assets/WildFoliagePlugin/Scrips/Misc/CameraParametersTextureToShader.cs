@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [ExecuteAlways]
+[RequireComponent(typeof(Camera))]
 public class CameraParametersTextureToShader : MonoBehaviour
 {
     Camera _worldRenderTextureCamera;

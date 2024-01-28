@@ -29,7 +29,8 @@ public class GrassMaterialParameters_SO : ScriptableObject
     [SerializeField] public float baseWindDisplacement = 0f;
     [SerializeField] public float baseWindYDisplacement = 0f;
     [SerializeField] public float staticWindYMultiplier = -0.2f;
-    [SerializeField] public float staticWindDisplacementMultiplier = 1f;
+    [SerializeField] public float staticWindXZMultiplier = 1f;
+    [SerializeField] public float staticWindBladeHashIntensity = 1.5f;
 
     [Header("Dynamic Wind")]
     [SerializeField] public float dynamicWindStrength = 1.2f;//

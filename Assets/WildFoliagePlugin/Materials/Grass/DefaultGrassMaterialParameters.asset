@@ -19,10 +19,10 @@ MonoBehaviour:
   smoothness: 0.7
   ao: 0.7
   worldUVTiling: 0.65
-  scaleY: 1.65
+  scaleY: 1.6
   randomYScaleNoise: 0.06
   minRandomY: 0.55
-  maxRandomY: 2.96
+  maxRandomY: 2.9
   maxYRotation: 360
   randomYRotationNoise: 25
   maxBend: 70
@@ -32,9 +32,10 @@ MonoBehaviour:
   baseWindDisplacement: 0.03
   baseWindYDisplacement: 0
   staticWindYMultiplier: -0.7
-  staticWindDisplacementMultiplier: 1
+  staticWindXZMultiplier: 1
+  staticWindBladeHashIntensity: 0.4
   dynamicWindStrength: 1.2
   dynamicWindNoiseStrength: 1
-  playerPositionModifierX: 0.5
-  playerPositionModifierY: 0.5
-  playerPositionModifierZ: 0.5
+  playerPositionModifierX: 0.8
+  playerPositionModifierY: 0.6
+  playerPositionModifierZ: 0.8

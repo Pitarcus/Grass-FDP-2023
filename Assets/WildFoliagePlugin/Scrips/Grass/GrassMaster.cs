@@ -119,8 +119,9 @@ public class GrassMaster : MonoBehaviour
         bendRandomnessScaleId = Shader.PropertyToID("_BendRandomnessScale"),
         baseWindDisplacementId = Shader.PropertyToID("_BaseWindDisplacement"),
         baseWindYDisplacementId = Shader.PropertyToID("_BaseWindYDisplacement"),
-        staticWindDisplacementMultiplierId = Shader.PropertyToID("_StaticWindDisplacementMultiplier"),
+        staticWindXZMultiplierId = Shader.PropertyToID("_StaticWindXZMultiplier"),
         staticWindYMultiplierId = Shader.PropertyToID("_StaticWindY"),
+        staticWindBladeHashIntensityId = Shader.PropertyToID("_SaticWindBladeHashIntensity"),
         dynamicWindStrengthId = Shader.PropertyToID("_DynamicWindStrength"),
         dynamicWindNoiseStrengthId = Shader.PropertyToID("_DynamicWindNoiseStrenght"),
         playerPositionModifierXId = Shader.PropertyToID("_PositionModifierX"),
@@ -327,7 +328,8 @@ public class GrassMaster : MonoBehaviour
         grassMaterial.SetFloat(baseWindDisplacementId, grassParameters.baseWindDisplacement);
         grassMaterial.SetFloat(baseWindYDisplacementId, grassParameters.baseWindYDisplacement);
         grassMaterial.SetFloat(staticWindYMultiplierId, grassParameters.staticWindYMultiplier);
-        grassMaterial.SetFloat(staticWindDisplacementMultiplierId, grassParameters.staticWindDisplacementMultiplier);
+        grassMaterial.SetFloat(staticWindXZMultiplierId, grassParameters.staticWindXZMultiplier);
+        grassMaterial.SetFloat(staticWindBladeHashIntensityId, grassParameters.staticWindBladeHashIntensity);
 
         grassMaterial.SetFloat(dynamicWindStrengthId, grassParameters.dynamicWindStrength);
         grassMaterial.SetFloat(dynamicWindNoiseStrengthId, grassParameters.dynamicWindNoiseStrength);
