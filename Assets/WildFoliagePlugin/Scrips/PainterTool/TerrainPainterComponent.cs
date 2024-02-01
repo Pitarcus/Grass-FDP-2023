@@ -51,6 +51,7 @@ public class TerrainPainterComponent : MonoBehaviour
     public UnityEvent onInitFinished;   // Used to set up displayer
     public UnityEvent onPaintingMask;
 
+    private Vector2 lastAlphamapSize;
 
     private void Awake()
     {
@@ -70,13 +71,16 @@ public class TerrainPainterComponent : MonoBehaviour
         heightMap = GetComponent<HeightmapHolder>().heightMap;
 
 #if UNITY_EDITOR
-        if (maskTexture == null)   // Create a temp texture in the editor only when there is no saved texture
+        if (lastAlphamapSize.x != alphamapWidth || lastAlphamapSize.y != alphamapHeight)
         {
             maskTexture = new Texture2D(alphamapWidth, alphamapHeight, TextureFormat.RGBA32, false);
             maskTexture.wrapMode = TextureWrapMode.Clamp;
             maskTexture.filterMode = FilterMode.Bilinear;
             ClearMask();
-            ResetMaskTextureToAsset();
+            //ResetMaskTextureToAsset();
+
+            lastAlphamapSize.x = alphamapWidth;
+            lastAlphamapSize.y = alphamapHeight;
         }
 #endif
 
@@ -132,10 +136,20 @@ public class TerrainPainterComponent : MonoBehaviour
             // Convert the position to the terrain's local coordinates
             Vector3 localPosition = transform.InverseTransformPoint(ray.origin + ray.direction * (height - ray.origin.y) / ray.direction.y);
 
-            // Convert the position to the alphamap coordinates
-            Vector2 inTerrainPosition = new Vector2(localPosition.x / terrainDimensions.x * alphamapWidth / 2, localPosition.z / terrainDimensions.z * alphamapHeight / 2);
-            inTerrainPosition -= new Vector2(alphamapWidth / 4, alphamapHeight / 4);
-            Debug.Log(inTerrainPosition);
+            Vector2 inTerrainPosition;
+            if (isUnityTerrain)
+            {
+                // Convert the position to the alphamap coordinates
+                inTerrainPosition = new Vector2(localPosition.x / terrainDimensions.x * alphamapWidth, localPosition.z / terrainDimensions.z * alphamapHeight);
+                //inTerrainPosition -= new Vector2(alphamapWidth / 4, alphamapHeight / 4);
+            }
+            else
+            {
+                // Convert the position to the alphamap coordinates
+                inTerrainPosition = new Vector2(localPosition.x / terrainDimensions.x * alphamapWidth, localPosition.z / terrainDimensions.z * alphamapHeight);
+                //inTerrainPosition -= new Vector2(alphamapWidth / 4, alphamapHeight / 4);
+            }
+           
             if (inTerrainPosition.x >= -alphamapWidth && inTerrainPosition.x < alphamapWidth
                 && inTerrainPosition.y >= -alphamapHeight && inTerrainPosition.y < alphamapHeight)  // The position is inside the bounds of the terrain
             {
@@ -253,14 +267,28 @@ public class TerrainPainterComponent : MonoBehaviour
         return realMaskTexture != null;
     }
 
+    // Copy the asset saved texture into the mask texture used in the component
     public void ResetMaskTextureToAsset()
     {
         if (realMaskTexture != null)
         {
+            if(realMaskTexture.width != maskTexture.width)
+            {
+                alphamapHeight = realMaskTexture.height;
+                alphamapWidth = realMaskTexture.width;
+                maskTexture = new Texture2D(alphamapWidth, alphamapHeight, TextureFormat.RGBA32, false);
+                maskTexture.wrapMode = TextureWrapMode.Clamp;
+                maskTexture.filterMode = FilterMode.Bilinear;
+            }
             Graphics.CopyTexture(realMaskTexture, maskTexture);
         }
         else if (AssignRealMaskAsset())
         {
+            alphamapHeight = realMaskTexture.height;
+            alphamapWidth = realMaskTexture.width;
+            maskTexture = new Texture2D(alphamapWidth, alphamapHeight, TextureFormat.RGBA32, false);
+            maskTexture.wrapMode = TextureWrapMode.Clamp;
+            maskTexture.filterMode = FilterMode.Bilinear;
             Graphics.CopyTexture(realMaskTexture, maskTexture);
         }
     }
