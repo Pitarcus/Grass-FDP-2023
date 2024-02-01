@@ -12,6 +12,9 @@ public class TerrainPainterEditor : Editor
     SerializedProperty brushMode;
     SerializedProperty brushSize;
     SerializedProperty brushStrength;
+    SerializedProperty alphamapWidth;
+    SerializedProperty alphamapHeight;
+    SerializedProperty terrainDimensions;
     SerializedProperty maskTexture;
     #endregion
 
@@ -28,6 +31,11 @@ public class TerrainPainterEditor : Editor
         brushMode = serializedObject.FindProperty("brushMode");
         brushSize = serializedObject.FindProperty("brushSize");
         brushStrength = serializedObject.FindProperty("brushStrength");
+
+        alphamapWidth = serializedObject.FindProperty("alphamapWidth");
+        alphamapHeight = serializedObject.FindProperty("alphamapHeight"); 
+        terrainDimensions = serializedObject.FindProperty("terrainDimensions");
+
         maskTexture = serializedObject.FindProperty("realMaskTexture");
 
     }
@@ -42,6 +50,14 @@ public class TerrainPainterEditor : Editor
         serializedObject.Update();
 
         EditorGUILayout.PropertyField(maskTexture);
+
+        EditorGUILayout.Space(15);
+
+        // Terrain parameters
+        EditorGUILayout.PropertyField(alphamapWidth);
+        EditorGUILayout.PropertyField(alphamapHeight);
+        EditorGUILayout.PropertyField(terrainDimensions);
+        
 
         EditorGUILayout.Space(15);
 
@@ -93,7 +109,7 @@ public class TerrainPainterEditor : Editor
 
         if(terrainPainter != null)
         Handles.DrawSolidDisc
-            (terrainPainter.hitPosGizmo, terrainPainter.hitNormal, (float)terrainPainter.brushSize / (float)terrainPainter.terrainData.alphamapWidth * terrainPainter.terrainData.size.x / 2);
+            (terrainPainter.hitPosGizmo, terrainPainter.hitNormal, (float)terrainPainter.brushSize / (float)terrainPainter.alphamapWidth * terrainPainter.terrainDimensions.x / 2);
 
     }
 }

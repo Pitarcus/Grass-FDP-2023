@@ -17,6 +17,11 @@ public enum BrushMode
 [ExecuteInEditMode]
 public class TerrainPainterComponent : MonoBehaviour
 {
+    // Initial settings for the size
+    [SerializeField] public int alphamapWidth;
+    [SerializeField] public int alphamapHeight;
+    [SerializeField] public Vector3 terrainDimensions;
+
     // brush settings - for editor
     [SerializeField] private LayerMask hitMask = 1;
 
@@ -30,8 +35,8 @@ public class TerrainPainterComponent : MonoBehaviour
     public Texture2D maskTexture;
     [SerializeField] public Texture2D realMaskTexture;
     public Texture2D heightMap;
-    public Terrain terrain { get; private set; } // The terrain is needed to set up the size of the texture correctly.
-    public TerrainData terrainData { get; private set; }
+    //public Terrain terrain { get; private set; }
+    //public TerrainData terrainData { get; private set; }
 
     private bool isPainting = false;
     private Vector2 brushPosition;
@@ -54,38 +59,30 @@ public class TerrainPainterComponent : MonoBehaviour
 
     private void OnValidate()
     {
-        if(terrain == null)
-            terrain = (Terrain)transform.GetComponentInParent(typeof(Terrain));
         Init();
     }
 
     // Create the texture and get terrain data
     public void Init()
     {
-        if (terrain != null)
-        {
-            terrainData = terrain.terrainData;
-
-            heightMap = GetComponent<HeightmapHolder>().heightMap;
-
-            int alphamapWidth = terrainData.alphamapWidth;
-            int alphamapHeight = terrainData.alphamapHeight;
+       
+        heightMap = GetComponent<HeightmapHolder>().heightMap;
 
         #if UNITY_EDITOR
-            if (maskTexture == null)   // Create a temp texture in the editor only when there is no saved texture
-            {
-                maskTexture = new Texture2D(alphamapWidth, alphamapHeight, TextureFormat.RGBA32, false);
-                maskTexture.wrapMode = TextureWrapMode.Clamp;
-                maskTexture.filterMode = FilterMode.Bilinear;
-                ClearMask();
-                ResetMaskTextureToAsset();
-            }
+        if (maskTexture == null)   // Create a temp texture in the editor only when there is no saved texture
+        {
+            maskTexture = new Texture2D(alphamapWidth, alphamapHeight, TextureFormat.RGBA32, false);
+            maskTexture.wrapMode = TextureWrapMode.Clamp;
+            maskTexture.filterMode = FilterMode.Bilinear;
+            ClearMask();
+            ResetMaskTextureToAsset();
+        }
         #endif
 
-            transform.localPosition = new Vector3(terrainData.size.x / 2, 0, terrainData.size.z / 2);
+        transform.localPosition = new Vector3(terrainDimensions.x / 2, 0, terrainDimensions.z / 2);
 
-            onInitFinished.Invoke();
-        }
+        onInitFinished.Invoke();
+       
     }
     
 #if UNITY_EDITOR
@@ -130,12 +127,13 @@ public class TerrainPainterComponent : MonoBehaviour
             
             // Convert the position to the terrain's local coordinates
             Vector3 localPosition = transform.InverseTransformPoint(ray.origin + ray.direction * (height - ray.origin.y) / ray.direction.y);
-
+            
             // Convert the position to the alphamap coordinates
-            Vector2 inTerrainPosition = new Vector2(localPosition.x / terrainData.size.x * terrainData.alphamapWidth, localPosition.z / terrainData.size.z * terrainData.alphamapHeight);
-
-            if (inTerrainPosition.x >= -terrainData.alphamapWidth && inTerrainPosition.x < terrainData.alphamapWidth 
-                && inTerrainPosition.y >= -terrainData.alphamapHeight && inTerrainPosition.y < terrainData.alphamapHeight)  // The position is inside the bounds of the terrain
+            Vector2 inTerrainPosition = new Vector2(localPosition.x / terrainDimensions.x * alphamapWidth / 2, localPosition.z / terrainDimensions.z * alphamapHeight / 2);
+            inTerrainPosition -= new Vector2(alphamapWidth / 4, alphamapHeight / 4);
+            Debug.Log(inTerrainPosition);
+            if (inTerrainPosition.x >= -alphamapWidth && inTerrainPosition.x < alphamapWidth 
+                && inTerrainPosition.y >= -alphamapHeight && inTerrainPosition.y < alphamapHeight)  // The position is inside the bounds of the terrain
             {
                 // Update the brush position
                 brushPosition = inTerrainPosition;
@@ -150,15 +148,15 @@ public class TerrainPainterComponent : MonoBehaviour
                 {
                     for (int x = startX; x < startX + brushSizeX; x++)
                     {
-                        if (x >= -terrainData.alphamapWidth && x < terrainData.alphamapWidth 
-                            && y >= -terrainData.alphamapHeight && y < terrainData.alphamapHeight)
+                        if (x >= -alphamapWidth && x < alphamapWidth 
+                            && y >= -alphamapHeight && y < alphamapHeight)
                         {
                             // Mask texture space
-                            int u = x + terrainData.alphamapWidth / 2;
-                            int v = y + terrainData.alphamapHeight / 2;
+                            int u = x + alphamapWidth / 2;
+                            int v = y + alphamapHeight / 2;
 
                             //float distance = Vector2.Distance(new Vector2(x, y), brushPosition);
-                           
+
                             float maskValue = maskTexture.GetPixel(u, v).a;
                             float brushValue = brushTexture.GetPixelBilinear((x - startX) / (float)brushSizeX, (y - startY) / (float)brushSizeY).a;
 
@@ -308,9 +306,9 @@ public class TerrainPainterComponent : MonoBehaviour
 #endif
     public void ClearMask()
     {
-        for (int y = -terrainData.alphamapHeight; y < terrainData.alphamapHeight; y++)
+        for (int y = -alphamapHeight; y < alphamapHeight; y++)
         {
-            for (int x = -terrainData.alphamapWidth; x < terrainData.alphamapWidth; x++)
+            for (int x = -alphamapWidth; x < alphamapWidth; x++)
             {
                 maskTexture.SetPixel(x, y, new Color(0, 0, 0, 0));
             }

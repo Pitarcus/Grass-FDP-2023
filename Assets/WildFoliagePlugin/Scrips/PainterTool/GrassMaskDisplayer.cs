@@ -9,8 +9,6 @@ public class GrassMaskDisplayer : MonoBehaviour
     private TerrainPainterComponent textureObject;   // Object from which we will take the texture we want to display
     private Texture2D texture;  // Actual mask texture
 
-    private Terrain terrain;
-
     private DecalProjector decalProjector;   // Decal object that should be updated
     private Material decalMaterial;
 
@@ -36,14 +34,12 @@ public class GrassMaskDisplayer : MonoBehaviour
 
     public void InitDisplayer()
     {
-        terrain = textureObject.terrain;
-
-        if (terrain != null && textureObject.GetMaskDisplayTexture() != null)
+        if (textureObject.GetMaskDisplayTexture() != null)
         {
             texture = textureObject.GetMaskDisplayTexture();
 
-            decalProjector.transform.localPosition = new Vector3(0, terrain.terrainData.heightmapScale.y / 2, 0);
-            decalProjector.size = new Vector3( terrain.terrainData.size.x, terrain.terrainData.size.z, terrain.terrainData.size.y + 1);
+            decalProjector.transform.localPosition = new Vector3(0, textureObject.terrainDimensions.y / 2, 0);
+            decalProjector.size = new Vector3(textureObject.terrainDimensions.x, textureObject.terrainDimensions.z, textureObject.terrainDimensions.y + 1);
             decalMaterial.SetTexture("Base_Map", texture);
         }
     }

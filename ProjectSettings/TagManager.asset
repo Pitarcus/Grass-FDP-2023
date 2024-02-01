@@ -43,3 +43,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: PositionParticles
+    uniqueID: 746108655
+    locked: 0
+  - name: PositionTrails
+    uniqueID: 1142515977
+    locked: 0
