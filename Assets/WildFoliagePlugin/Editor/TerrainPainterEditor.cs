@@ -15,6 +15,7 @@ public class TerrainPainterEditor : Editor
     SerializedProperty alphamapWidth;
     SerializedProperty alphamapHeight;
     SerializedProperty terrainDimensions;
+    SerializedProperty isUnityTerrain;
     SerializedProperty maskTexture;
     #endregion
 
@@ -25,7 +26,7 @@ public class TerrainPainterEditor : Editor
     private void OnEnable()
     {
         terrainPainter = (TerrainPainterComponent)target;
-       
+
         hitMask = serializedObject.FindProperty("hitMask");
         brushTexture = serializedObject.FindProperty("brushTexture");
         brushMode = serializedObject.FindProperty("brushMode");
@@ -33,8 +34,9 @@ public class TerrainPainterEditor : Editor
         brushStrength = serializedObject.FindProperty("brushStrength");
 
         alphamapWidth = serializedObject.FindProperty("alphamapWidth");
-        alphamapHeight = serializedObject.FindProperty("alphamapHeight"); 
+        alphamapHeight = serializedObject.FindProperty("alphamapHeight");
         terrainDimensions = serializedObject.FindProperty("terrainDimensions");
+        isUnityTerrain = serializedObject.FindProperty("isUnityTerrain");
 
         maskTexture = serializedObject.FindProperty("realMaskTexture");
 
@@ -57,7 +59,8 @@ public class TerrainPainterEditor : Editor
         EditorGUILayout.PropertyField(alphamapWidth);
         EditorGUILayout.PropertyField(alphamapHeight);
         EditorGUILayout.PropertyField(terrainDimensions);
-        
+        EditorGUILayout.PropertyField(isUnityTerrain);
+
 
         EditorGUILayout.Space(15);
 
@@ -102,14 +105,14 @@ public class TerrainPainterEditor : Editor
 
     private void OnSceneGUI()
     {
- 
+
         // Draw the brush in the Scene view
         Color discColor = new Color(Color.green.r, Color.green.g, Color.green.b, 0.5f);
         Handles.color = discColor;
 
-        if(terrainPainter != null)
-        Handles.DrawSolidDisc
-            (terrainPainter.hitPosGizmo, terrainPainter.hitNormal, (float)terrainPainter.brushSize / (float)terrainPainter.alphamapWidth * terrainPainter.terrainDimensions.x / 2);
+        if (terrainPainter != null)
+            Handles.DrawSolidDisc
+                (terrainPainter.hitPosGizmo, terrainPainter.hitNormal, (float)terrainPainter.brushSize / (float)terrainPainter.alphamapWidth * terrainPainter.terrainDimensions.x / 2);
 
     }
 }

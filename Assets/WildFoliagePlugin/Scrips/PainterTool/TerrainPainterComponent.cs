@@ -21,6 +21,7 @@ public class TerrainPainterComponent : MonoBehaviour
     [SerializeField] public int alphamapWidth;
     [SerializeField] public int alphamapHeight;
     [SerializeField] public Vector3 terrainDimensions;
+    [SerializeField] private bool isUnityTerrain = false;
 
     // brush settings - for editor
     [SerializeField] private LayerMask hitMask = 1;
@@ -28,7 +29,7 @@ public class TerrainPainterComponent : MonoBehaviour
     [SerializeField] private Texture2D brushTexture;
     [SerializeField] private BrushMode brushMode;
     [SerializeField] public float brushSize = 50f;
-    [SerializeField] [Range(0, 1)] private float brushStrength = 1.0f;
+    [SerializeField][Range(0, 1)] private float brushStrength = 1.0f;
 
 
     // other properties
@@ -54,7 +55,7 @@ public class TerrainPainterComponent : MonoBehaviour
     private void Awake()
     {
         // Load texture in the game
-        realMaskTexture = Resources.Load<Texture2D>("GrassPositions/"+ transform.parent.name+"_grassPlacementInfo");
+        realMaskTexture = Resources.Load<Texture2D>("GrassPositions/" + transform.parent.name + "_grassPlacementInfo");
     }
 
     private void OnValidate()
@@ -65,10 +66,10 @@ public class TerrainPainterComponent : MonoBehaviour
     // Create the texture and get terrain data
     public void Init()
     {
-       
+
         heightMap = GetComponent<HeightmapHolder>().heightMap;
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (maskTexture == null)   // Create a temp texture in the editor only when there is no saved texture
         {
             maskTexture = new Texture2D(alphamapWidth, alphamapHeight, TextureFormat.RGBA32, false);
@@ -77,14 +78,17 @@ public class TerrainPainterComponent : MonoBehaviour
             ClearMask();
             ResetMaskTextureToAsset();
         }
-        #endif
+#endif
 
-        transform.localPosition = new Vector3(terrainDimensions.x / 2, 0, terrainDimensions.z / 2);
+        if (isUnityTerrain)
+            transform.localPosition = new Vector3(terrainDimensions.x / 2, 0, terrainDimensions.z / 2);
+        else
+            transform.localPosition = new Vector3(0, 0, 0);
 
         onInitFinished.Invoke();
-       
+
     }
-    
+
 #if UNITY_EDITOR
     void OnEnable()
     {
@@ -124,15 +128,15 @@ public class TerrainPainterComponent : MonoBehaviour
                 height = hit.point.y;
                 hitNormal = hit.normal;
             }
-            
+
             // Convert the position to the terrain's local coordinates
             Vector3 localPosition = transform.InverseTransformPoint(ray.origin + ray.direction * (height - ray.origin.y) / ray.direction.y);
-            
+
             // Convert the position to the alphamap coordinates
             Vector2 inTerrainPosition = new Vector2(localPosition.x / terrainDimensions.x * alphamapWidth / 2, localPosition.z / terrainDimensions.z * alphamapHeight / 2);
             inTerrainPosition -= new Vector2(alphamapWidth / 4, alphamapHeight / 4);
             Debug.Log(inTerrainPosition);
-            if (inTerrainPosition.x >= -alphamapWidth && inTerrainPosition.x < alphamapWidth 
+            if (inTerrainPosition.x >= -alphamapWidth && inTerrainPosition.x < alphamapWidth
                 && inTerrainPosition.y >= -alphamapHeight && inTerrainPosition.y < alphamapHeight)  // The position is inside the bounds of the terrain
             {
                 // Update the brush position
@@ -148,7 +152,7 @@ public class TerrainPainterComponent : MonoBehaviour
                 {
                     for (int x = startX; x < startX + brushSizeX; x++)
                     {
-                        if (x >= -alphamapWidth && x < alphamapWidth 
+                        if (x >= -alphamapWidth && x < alphamapWidth
                             && y >= -alphamapHeight && y < alphamapHeight)
                         {
                             // Mask texture space
@@ -176,7 +180,7 @@ public class TerrainPainterComponent : MonoBehaviour
                             }
 
                             maskTexture.SetPixel(u, v, new Color(0, 0, 0, maskValue));
-                            
+
                         }
                     }
                 }
@@ -251,7 +255,7 @@ public class TerrainPainterComponent : MonoBehaviour
 
     public void ResetMaskTextureToAsset()
     {
-        if(realMaskTexture != null)
+        if (realMaskTexture != null)
         {
             Graphics.CopyTexture(realMaskTexture, maskTexture);
         }
