@@ -83,6 +83,11 @@ public class TerrainPainterComponent : MonoBehaviour
             lastAlphamapSize.y = alphamapHeight;
         }
 #endif
+        // set the texture used in the decal to the saved texture
+        if(realMaskTexture != null)
+        {
+            maskTexture = realMaskTexture;
+        }
 
         if (isUnityTerrain)
             transform.localPosition = new Vector3(terrainDimensions.x / 2, 0, terrainDimensions.z / 2);

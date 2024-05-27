@@ -21,8 +21,8 @@ public class GrassMaster : MonoBehaviour
     [Range(0, 500)]
     [SerializeField] float LODDistance = 25f;
 
-    Texture2D[] positionMaps;   // Should be an array with all of the textures? maybe the quadtree stores it
-    Texture2D[] heightMaps;   // Should be an array with all of the textures? maybe the quadtree stores it
+    Texture2D[] positionMaps;   
+    Texture2D[] heightMaps; 
     [SerializeField] float heightDisplacementStrenght = 600f;
 
     [Space]
@@ -55,9 +55,8 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] Mesh grassMeshLOD;
     [SerializeField] Material grassMaterial;
 
-    [Space]
 
-    [SerializeField] GrassMaterialParameters_SO grassParameters;
+    [SerializeField] public GrassMaterialParameters_SO grassParameters;
 
 
     // PRIVATE VARIABLES
@@ -142,7 +141,6 @@ public class GrassMaster : MonoBehaviour
     List<GrassQuadtree> debugList;
 
     // ------------- FUNCTIONS --------------
-
     private void Start()
     {
         InitializeGrass();
@@ -499,9 +497,9 @@ public class GrassMaster : MonoBehaviour
 
                 var bounds = new Bounds(new Vector3(currentQT.boundary.p.x, 0, currentQT.boundary.p.y), new Vector3(currentQT.boundary.halfDimension * 2, 600, currentQT.boundary.halfDimension * 2));
 
+               
                 Graphics.DrawMeshInstancedIndirect(grassMesh, 0, currentQT.material, bounds, currentQT.argsBuffer, 0, new MaterialPropertyBlock());
                 Graphics.DrawMeshInstancedIndirect(grassMeshLOD, 0, currentQT.materialLOD, bounds, currentQT.argsLODBuffer);
-
             }
         }
         

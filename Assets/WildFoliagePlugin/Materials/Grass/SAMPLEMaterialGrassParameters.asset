@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd756a49f01bf1d448d0396dfa9bfb5c, type: 3}
+  m_Name: SAMPLEMaterialGrassParameters
+  m_EditorClassIdentifier: 
+  bottomColor: {r: 0.25409228, g: 0.64705884, b: 0.15294115, a: 0}
+  topColor: {r: 0.7447866, g: 0.8490566, b: 0.19704515, a: 0}
+  tipColor: {r: 0.735849, g: 0.72427726, b: 0, a: 0}
+  SSSColor: {r: 0.64705884, g: 0.57151127, b: 0.12156863, a: 0}
+  smoothness: 0.7
+  ao: 0.7
+  worldUVTiling: 0.65
+  scaleY: 1.6
+  randomYScaleNoise: 0.06
+  minRandomY: 0.55
+  maxRandomY: 2.9
+  maxYRotation: 360
+  randomYRotationNoise: 25
+  maxBend: 70
+  randomBend: 1
+  maxAdditionalBend: 90
+  bendRandomnessScale: 20
+  baseWindDisplacement: 0.03
+  baseWindYDisplacement: 0
+  staticWindYMultiplier: -0.7
+  staticWindXZMultiplier: 1
+  staticWindBladeHashIntensity: 1
+  dynamicWindStrength: 1.2
+  dynamicWindNoiseStrength: 1
+  playerPositionModifierX: 0.8
+  playerPositionModifierY: 0.6
+  playerPositionModifierZ: 0.8
