@@ -3,38 +3,44 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
-using static UIAnimator;
+
+public enum UIAnimationType
+{
+    scale,
+    move,
+    shake,
+    fadeIn
+}
 
 [Serializable]
 public class UIAnimatorSettings
 {
+    // References
     public CanvasGroup canvasGroup;
     public RectTransform transformToMove;
 
-    //[Header("Parameters")]
+    // Animation parameters
     public UIAnimationType animationType;
     public float transitionTime;
+    public UIAnimatorSequenceInsertType insertType;
     public DG.Tweening.Ease easingType;
     public float delay;
     public bool animateOnEnable;
     public bool playInverted = false;
-    public bool playToggle = false;
+    [Tooltip("Invert the tween each time the animator is called")]public bool playToggle = false;
 
+    // Event
     public UnityEvent onUIAnimationFinished;
 
-
-    
+    // Type sensitive parameters
     [SerializeField] public Vector3 toScale;
-
-   
     [SerializeField] public Vector2 toPosition;
-
     public float shakeStrength;
 
-
-    public Vector3 _originalScale;
-    public Vector2 _originalPosition;
-    public bool _playedOnce = false;
+    //Memebers
+    private Vector3 _originalScale; // Only set when played the for the first time in not reverse
+    private Vector2 _originalPosition; // Only set when played the for the first time in not reverse
+    private bool _playedOnce = false;
 
     public void AnimateUIInverted()
     {
@@ -79,6 +85,10 @@ public class UIAnimatorSettings
     {
         if (!playInverted)
         {
+            if (!_playedOnce)
+            {
+                _originalScale = transformToMove.localScale;
+            }
             transformToMove.DOScale(toScale, transitionTime).SetEase(easingType).SetDelay(delay);
         }
         else
@@ -92,10 +102,18 @@ public class UIAnimatorSettings
     #region MoveAnimation
     private void MoveTransform()
     {
-        if (!playInverted)
+        if (!playInverted) 
+        {
+            if (!_playedOnce)
+            {
+                _originalPosition = transformToMove.anchoredPosition;
+            }
             transformToMove.DOAnchorPos(toPosition, transitionTime).SetEase(easingType).SetDelay(delay).OnComplete(UIAnimationFinishedInvoke);
+        }
         else
+        {
             transformToMove.DOAnchorPos(_originalPosition, transitionTime).SetEase(easingType).SetDelay(delay).OnComplete(UIAnimationFinishedInvoke);
+        }
     }
 
     #endregion
@@ -133,45 +151,9 @@ public class UIAnimatorSettings
 
 }
 
-[Serializable]
+
 public class UIAnimator : MonoBehaviour
 {
-    public enum UIAnimationType
-    {
-        scale,
-        move,
-        shake,
-        fadeIn
-
-    }
-
-    //[Header("References")]
-    //[SerializeField] public CanvasGroup canvasGroup;
-    //[SerializeField] public RectTransform transformToMove;
-
-    //[Header("Parameters")]
-    //[SerializeField] public UIAnimationType animationType;
-    //[SerializeField] public float transitionTime;
-    //[SerializeField] public DG.Tweening.Ease easingType;
-    //[SerializeField] public float delay;
-    //[SerializeField] public bool animateOnEnable;
-    //[SerializeField] public bool playInverted = false;
-    //[SerializeField] public bool playToggle = false;
-
-    //[SerializeField] public UnityEvent onUIAnimationFinished;
-
-
-    //[Header("Parameters for Scale")]
-    //[SerializeField] public Vector3 toScale;
-
-    //[Header("Parameters for Alpha")]
-
-    //[Header("Parameters for Move")]
-    //[SerializeField] public Vector2 toPosition;
-    
-
-    //[Header("Parameters for Shake")]
-    //public float shakeStrength;
 
     public UIAnimatorSettings anim;
     public bool animateOnEnable = false;
@@ -183,20 +165,29 @@ public class UIAnimator : MonoBehaviour
         {
             anim.transformToMove = GetComponent<RectTransform>();
         }
-        if (anim.animationType == UIAnimationType.move)
-        {
-            anim._originalPosition = anim.transformToMove.anchoredPosition;
-        }
-        if (anim.animationType == UIAnimationType.scale)
-        {
-            anim._originalScale = anim.transformToMove.localScale;
-        }
+        //if (anim.animationType == UIAnimationType.move)
+        //{
+        //    anim._originalPosition = anim.transformToMove.anchoredPosition;
+        //}
+        //if (anim.animationType == UIAnimationType.scale)
+        //{
+        //    anim._originalScale = anim.transformToMove.localScale;
+        //}
         if (anim.animateOnEnable)
         {
             anim.AnimateUI();
         }
     }
 
+    public void AnimateUI()
+    {
+        anim.AnimateUI();
+    }
+
+    public void AnimateUIInverted()
+    {
+        anim.AnimateUIInverted();
+    }
 
 }
 

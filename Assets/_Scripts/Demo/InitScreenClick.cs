@@ -11,6 +11,7 @@ public class InitScreenClick : MonoBehaviour
 
     public void FlashCanvas()
     {
+        clickCanvas.alpha = 1;
         clickCanvas.DOFade(0, 1.5f).SetEase(flashAnimCurve)
             .OnComplete
             (() =>

@@ -8,7 +8,7 @@ public class CinemachineMenuManager : MonoBehaviour
     // references
     [SerializeField] private CinemachineVirtualCamera[] cameras;
 
-    private int _currentCameraIndex;
+    public int _currentCameraIndex;
 
     private static CinemachineMenuManager _instance;
     public static CinemachineMenuManager Instance {  get { return _instance; } }
@@ -23,12 +23,15 @@ public class CinemachineMenuManager : MonoBehaviour
         {
             _instance = this;
         }
+
+        SwitchToCamera(_currentCameraIndex);
     }
 
     public void SwitchToCamera(int cameraIndex)
     {
         cameras[_currentCameraIndex].Priority = 0;
         cameras[cameraIndex].Priority = 10;
+        _currentCameraIndex = cameraIndex;
     }
 
 }
