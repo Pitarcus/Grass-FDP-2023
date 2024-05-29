@@ -12,6 +12,7 @@ public class GrassMaster : MonoBehaviour
     [SerializeField] int grassSquareSize = 128;
     [Range(1, 10)]
     [SerializeField] int grassDensity = 1;
+    public  int Density { get { return grassDensity; } set { grassDensity = value; } }
     [Range(0, 2)]
     [SerializeField] float offsetXAmount = 0.5f;
     [Range(0, 2)]

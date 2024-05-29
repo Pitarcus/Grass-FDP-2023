@@ -22,25 +22,25 @@ public class UIAnimatorPropertyDrawer : PropertyDrawer
 
 
         float addY = EditorGUIUtility.singleLineHeight;
+        int i = 3;
 
         Rect classLabelRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
 
         Rect canvasGroupRect = new Rect(position.x, position.y + addY , position.width, EditorGUIUtility.singleLineHeight);
         Rect transformToMoveRect = new Rect(position.x, position.y + addY, position.width, EditorGUIUtility.singleLineHeight);
-        Rect animationTypeRect = new Rect(position.x, position.y + addY * 3, position.width, EditorGUIUtility.singleLineHeight);
-        Rect transitionTimeRect = new Rect(position.x, position.y + addY * 4, position.width, EditorGUIUtility.singleLineHeight);
-        Rect insertTypeRect = new Rect(position.x, position.y + addY * 5, position.width, EditorGUIUtility.singleLineHeight);
-        Rect easingTypeRect = new Rect(position.x, position.y + addY * 6, position.width, EditorGUIUtility.singleLineHeight);
-        Rect delayRect = new Rect(position.x, position.y + addY * 7, position.width, EditorGUIUtility.singleLineHeight);
-        Rect animateOnEnableRect = new Rect(position.x, position.y + addY * 8, position.width, EditorGUIUtility.singleLineHeight);
-        Rect playInvertedRect = new Rect(position.x, position.y + addY * 9, position.width, EditorGUIUtility.singleLineHeight);
-        Rect playToggleRect = new Rect(position.x, position.y + addY * 10, position.width, EditorGUIUtility.singleLineHeight);
-        
-        Rect toScaleRect = new Rect(position.x, position.y + addY * 12, position.width, EditorGUIUtility.singleLineHeight);
-        Rect toPositionRect = new Rect(position.x, position.y + addY * 12, position.width, EditorGUIUtility.singleLineHeight);
-        Rect shakeStrengthRect = new Rect(position.x, position.y + addY * 12, position.width, EditorGUIUtility.singleLineHeight);
+        Rect animationTypeRect = new Rect(position.x, position.y + addY * i++, position.width, EditorGUIUtility.singleLineHeight);
+        Rect transitionTimeRect = new Rect(position.x, position.y + addY * i++, position.width, EditorGUIUtility.singleLineHeight);
+        Rect insertTypeRect = new Rect(position.x, position.y + addY * i++, position.width, EditorGUIUtility.singleLineHeight);
+        Rect easingTypeRect = new Rect(position.x, position.y + addY * i++, position.width, EditorGUIUtility.singleLineHeight);
+        Rect delayRect = new Rect(position.x, position.y + addY * i++, position.width, EditorGUIUtility.singleLineHeight);
+        Rect playInvertedRect = new Rect(position.x, position.y + addY * i++, position.width, EditorGUIUtility.singleLineHeight);
+        Rect playToggleRect = new Rect(position.x, position.y + addY * i++, position.width, EditorGUIUtility.singleLineHeight);
+        i += 2;
+        Rect toScaleRect = new Rect(position.x, position.y + addY * i, position.width, EditorGUIUtility.singleLineHeight);
+        Rect toPositionRect = new Rect(position.x, position.y + addY * i, position.width, EditorGUIUtility.singleLineHeight);
+        Rect shakeStrengthRect = new Rect(position.x, position.y + addY * i, position.width, EditorGUIUtility.singleLineHeight);
 
-        int eventPosition = animationType == UIAnimationType.fadeIn ? 13 : 14;
+        int eventPosition = animationType == UIAnimationType.fadeIn ? i++ : i+=2;
 
         Rect onUIAnimationFinishedRect = new Rect(position.x, position.y + addY * eventPosition, position.width, position.height);
 
@@ -85,9 +85,6 @@ public class UIAnimatorPropertyDrawer : PropertyDrawer
         SerializedProperty delay = property.FindPropertyRelative("delay");
         EditorGUI.PropertyField(delayRect, delay);
 
-        SerializedProperty animateOnEnable = property.FindPropertyRelative("animateOnEnable");
-        EditorGUI.PropertyField(animateOnEnableRect, animateOnEnable);
-
         SerializedProperty playInverted = property.FindPropertyRelative("playInverted");
         EditorGUI.PropertyField(playInvertedRect, playInverted);
 
@@ -124,7 +121,7 @@ public class UIAnimatorPropertyDrawer : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        return EditorGUIUtility.singleLineHeight * 18;  
+        return EditorGUIUtility.singleLineHeight * 19;  
     }
 
 }

@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0777d029ed3dffa4692f417d4aba19ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 31d0dcc6f2dd4e4408d18036a2c93862, type: 2}
+  m_Material: {fileID: 2100000, guid: 2eee809ee5fb67945bfcefb8f52d528f, type: 2}
   m_DrawDistance: 1000
   m_FadeScale: 0.994
   m_StartAngleFade: 180
@@ -106,6 +106,7 @@ MonoBehaviour:
   alphamapWidth: 0
   alphamapHeight: 0
   terrainDimensions: {x: 0, y: 0, z: 0}
+  isUnityTerrain: 0
   hitMask:
     serializedVersion: 2
     m_Bits: 64

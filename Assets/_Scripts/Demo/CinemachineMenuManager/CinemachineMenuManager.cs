@@ -3,12 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteAlways]
 public class CinemachineMenuManager : MonoBehaviour
 {
     // references
     [SerializeField] private CinemachineVirtualCamera[] cameras;
 
-    public int _currentCameraIndex;
+    private int _currentCameraIndex;
+
+    [SerializeField] int _cameraIndex;
 
     private static CinemachineMenuManager _instance;
     public static CinemachineMenuManager Instance {  get { return _instance; } }
@@ -23,7 +26,10 @@ public class CinemachineMenuManager : MonoBehaviour
         {
             _instance = this;
         }
+    }
 
+    private void Start()
+    {
         SwitchToCamera(_currentCameraIndex);
     }
 
@@ -32,6 +38,17 @@ public class CinemachineMenuManager : MonoBehaviour
         cameras[_currentCameraIndex].Priority = 0;
         cameras[cameraIndex].Priority = 10;
         _currentCameraIndex = cameraIndex;
+    }
+
+    private void OnValidate()
+    {
+        if(cameras!= null)
+        {
+            if(_cameraIndex < cameras.Length && _cameraIndex >= 0)
+            {
+                SwitchToCamera(_cameraIndex);
+            }
+        }
     }
 
 }

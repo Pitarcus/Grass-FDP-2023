@@ -25,7 +25,6 @@ public class UIAnimatorSettings
     public UIAnimatorSequenceInsertType insertType;
     public DG.Tweening.Ease easingType;
     public float delay;
-    public bool animateOnEnable;
     public bool playInverted = false;
     [Tooltip("Invert the tween each time the animator is called")]public bool playToggle = false;
 
@@ -38,8 +37,8 @@ public class UIAnimatorSettings
     public float shakeStrength;
 
     //Memebers
-    private Vector3 _originalScale; // Only set when played the for the first time in not reverse
-    private Vector2 _originalPosition; // Only set when played the for the first time in not reverse
+    public Vector3 _originalScale; // Only set when played the for the first time in not reverse
+    public Vector2 _originalPosition; // Only set when played the for the first time in not reverse
     private bool _playedOnce = false;
 
     public void AnimateUIInverted()
@@ -80,7 +79,6 @@ public class UIAnimatorSettings
     }
 
     #region ScaleAnimation
-
     private void Scale()
     {
         if (!playInverted)
@@ -89,11 +87,11 @@ public class UIAnimatorSettings
             {
                 _originalScale = transformToMove.localScale;
             }
-            transformToMove.DOScale(toScale, transitionTime).SetEase(easingType).SetDelay(delay);
+            transformToMove.DOScale(toScale, transitionTime).SetEase(easingType).SetDelay(delay).OnComplete(UIAnimationFinishedInvoke);
         }
         else
         {
-            transformToMove.DOScale(_originalScale, transitionTime).SetEase(easingType).SetDelay(delay);
+            transformToMove.DOScale(_originalScale, transitionTime).SetEase(easingType).SetDelay(delay).OnComplete(UIAnimationFinishedInvoke);
         }
     }
 
@@ -118,10 +116,10 @@ public class UIAnimatorSettings
 
     #endregion
 
-    #region ScaleAnimation
+    #region ShakeAnimation
     private void Shake()
     {
-        transformToMove.DOShakeAnchorPos(transitionTime, shakeStrength).SetEase(easingType).SetDelay(delay);
+        transformToMove.DOShakeAnchorPos(transitionTime, shakeStrength).SetEase(easingType).SetDelay(delay).OnComplete(UIAnimationFinishedInvoke);
     }
     #endregion
 
@@ -165,15 +163,15 @@ public class UIAnimator : MonoBehaviour
         {
             anim.transformToMove = GetComponent<RectTransform>();
         }
-        //if (anim.animationType == UIAnimationType.move)
-        //{
-        //    anim._originalPosition = anim.transformToMove.anchoredPosition;
-        //}
-        //if (anim.animationType == UIAnimationType.scale)
-        //{
-        //    anim._originalScale = anim.transformToMove.localScale;
-        //}
-        if (anim.animateOnEnable)
+        if (anim.animationType == UIAnimationType.move)
+        {
+            anim._originalPosition = anim.transformToMove.anchoredPosition;
+        }
+        if (anim.animationType == UIAnimationType.scale)
+        {
+            anim._originalScale = anim.transformToMove.localScale;
+        }
+        if (animateOnEnable)
         {
             anim.AnimateUI();
         }
