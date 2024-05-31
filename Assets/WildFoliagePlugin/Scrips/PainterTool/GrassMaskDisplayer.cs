@@ -13,7 +13,21 @@ public class GrassMaskDisplayer : MonoBehaviour
     private Material decalMaterial;
 
 
-    private void OnValidate()   // Script load
+    public void InitDisplayer()
+    {
+        if(Application.isPlaying) { return; }
+
+        if (textureObject.GetMaskDisplayTexture() != null)
+        {
+            texture = textureObject.GetMaskDisplayTexture();
+
+            decalProjector.transform.localPosition = new Vector3(0, textureObject.terrainDimensions.y / 2, 0);
+            decalProjector.size = new Vector3(textureObject.terrainDimensions.x, textureObject.terrainDimensions.z, textureObject.terrainDimensions.y + 1);
+            decalMaterial.SetTexture("Base_Map", texture);
+        }
+    }
+
+    private void OnEnable()
     {
         // Get displayer
         GameObject child = transform.GetChild(0).gameObject;
@@ -30,22 +44,7 @@ public class GrassMaskDisplayer : MonoBehaviour
         }
 
         InitDisplayer();
-    }
 
-    public void InitDisplayer()
-    {
-        if (textureObject.GetMaskDisplayTexture() != null)
-        {
-            texture = textureObject.GetMaskDisplayTexture();
-
-            decalProjector.transform.localPosition = new Vector3(0, textureObject.terrainDimensions.y / 2, 0);
-            decalProjector.size = new Vector3(textureObject.terrainDimensions.x, textureObject.terrainDimensions.z, textureObject.terrainDimensions.y + 1);
-            decalMaterial.SetTexture("Base_Map", texture);
-        }
-    }
-
-    private void OnEnable()
-    {
         Selection.selectionChanged += ToggleDecal;
         ToggleDecal();
     }

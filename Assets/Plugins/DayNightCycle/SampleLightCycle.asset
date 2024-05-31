@@ -45,7 +45,7 @@ MonoBehaviour:
   DirectionalColor:
     serializedVersion: 2
     key0: {r: 0.6245283, g: 0.9116537, b: 1, a: 1}
-    key1: {r: 1, g: 0.897433, b: 0.57169807, a: 1}
+    key1: {r: 0.98490566, g: 0.85059565, b: 0.42183694, a: 1}
     key2: {r: 0.886, g: 0.84344333, b: 0.634376, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}

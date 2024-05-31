@@ -140,6 +140,7 @@ public class GrassSettingsManager : MonoBehaviour
     public void OnColorButtonPressed(GrassColorType type)
     {
         disableColorChange = true;
+
         switch (type.colorType)
         {
             case GrassColorTypeEnum.bottom:
@@ -166,9 +167,11 @@ public class GrassSettingsManager : MonoBehaviour
 
     public void OnColorChanged(Color color)
     {
+        Debug.Log("Color changed");
         if (disableColorChange)
         {
             disableColorChange = false;
+            Debug.Log("But not updated grass");
             return;
         }
         switch (currentColorType)
@@ -217,7 +220,7 @@ public class GrassSettingsManager : MonoBehaviour
                 grassMaster.Density = 6;
                 break;
             case 3:
-                grassMaster.Density = 8;
+                grassMaster.Density = 9;
                 break;
         }
 
@@ -253,6 +256,6 @@ public class GrassSettingsManager : MonoBehaviour
     }
     public void OnTimeSpeedChanged(float value)
     {
-        lightingManager.ChangePeriod(120-value);
+        lightingManager.ChangePeriod(240-value);
     }
 }

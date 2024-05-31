@@ -64,6 +64,7 @@ public class GrassMaster : MonoBehaviour
 
     private Camera _currentCamera;
     private float _cameraAngleToGroundNormalized;
+    private bool _grassInitialized = false;
 
     // Data structure to communicate GPU and CPU
     private struct GrassData
@@ -142,10 +143,10 @@ public class GrassMaster : MonoBehaviour
     List<GrassQuadtree> debugList;
 
     // ------------- FUNCTIONS --------------
-    private void Start()
-    {
-        InitializeGrass();
-    }
+    //private void Start()
+    //{
+    //    InitializeGrass();
+    //}
 
     void InitializeGrass()
     {
@@ -174,6 +175,8 @@ public class GrassMaster : MonoBehaviour
 
             _grassQuadtrees[i].SetRootHeightmap(heightMaps[i]);
             _grassQuadtrees[i].Build();
+
+            Debug.Log(heightMaps[i]);
         }
 
 
@@ -192,9 +195,12 @@ public class GrassMaster : MonoBehaviour
         _lowerLODArgs[2] = (uint)grassMeshLOD.GetIndexStart(0);
         _lowerLODArgs[3] = (uint)grassMeshLOD.GetBaseVertex(0);
 
+        Debug.Log("Initialized grass");
+        _grassInitialized = true;
+
         // Commands for rendering stuff
-        commandBuf = new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments, commandCount, GraphicsBuffer.IndirectDrawIndexedArgs.size);
-        commandData = new GraphicsBuffer.IndirectDrawIndexedArgs[commandCount];
+        //commandBuf = new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments, commandCount, GraphicsBuffer.IndirectDrawIndexedArgs.size);
+        //commandData = new GraphicsBuffer.IndirectDrawIndexedArgs[commandCount];
     }
 
     void UpdateGrassAttributes()
@@ -210,9 +216,9 @@ public class GrassMaster : MonoBehaviour
     {
         grassCompute.GetKernelThreadGroupSizes(0, out _numThreadsX, out _numThreadsY, out _);
         
-        #if UNITY_EDITOR
+        
         InitializeGrass();
-        #endif
+        
     }
 
 
@@ -433,6 +439,8 @@ public class GrassMaster : MonoBehaviour
             _currentCamera = Camera.main;
             return;
         }
+
+        if (!_grassInitialized) { return; }
 
         UpdateGrassAttributes();
 

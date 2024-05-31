@@ -36,8 +36,7 @@ public class TerrainPainterComponent : MonoBehaviour
     public Texture2D maskTexture;
     [SerializeField] public Texture2D realMaskTexture;
     public Texture2D heightMap;
-    //public Terrain terrain { get; private set; }
-    //public TerrainData terrainData { get; private set; }
+    
 
     private bool isPainting = false;
     private Vector2 brushPosition;
@@ -56,7 +55,7 @@ public class TerrainPainterComponent : MonoBehaviour
     private void Awake()
     {
         // Load texture in the game
-        realMaskTexture = Resources.Load<Texture2D>("GrassPositions/" + transform.parent.name + "_grassPlacementInfo");
+        realMaskTexture = Resources.Load<Texture2D>("GrassPositions/" + transform.parent.parent.name + "_grassPlacementInfo");
     }
 
     private void OnValidate()
@@ -90,9 +89,9 @@ public class TerrainPainterComponent : MonoBehaviour
         }
 
         if (isUnityTerrain)
-            transform.localPosition = new Vector3(terrainDimensions.x / 2, 0, terrainDimensions.z / 2);
+            transform.parent.localPosition = new Vector3(terrainDimensions.x / 2, 0, terrainDimensions.z / 2);
         else
-            transform.localPosition = new Vector3(0, 0, 0);
+            transform.parent.localPosition = new Vector3(0, 0, 0);
 
         onInitFinished.Invoke();
 
@@ -268,7 +267,7 @@ public class TerrainPainterComponent : MonoBehaviour
 
     private bool AssignRealMaskAsset()
     {
-        realMaskTexture = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + "/WildFoliagePlugin/Textures/Resources/GrassPositions/" + transform.parent.name + "_grassPlacementInfo.png", typeof(Texture2D));
+        realMaskTexture = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + "/WildFoliagePlugin/Textures/Resources/GrassPositions/" + transform.parent.parent.name + "_grassPlacementInfo.png", typeof(Texture2D));
         return realMaskTexture != null;
     }
 
@@ -312,7 +311,7 @@ public class TerrainPainterComponent : MonoBehaviour
             Directory.CreateDirectory(dirPath);
         }
 
-        string grassMaskPath = dirPath + transform.parent.name + "_grassPlacementInfo.png";
+        string grassMaskPath = dirPath + transform.parent.parent.name + "_grassPlacementInfo.png";
 
         File.WriteAllBytes(grassMaskPath, auxtex.EncodeToPNG());
         AssetDatabase.Refresh();

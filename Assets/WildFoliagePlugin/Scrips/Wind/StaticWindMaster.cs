@@ -41,6 +41,9 @@ public class StaticWindMaster : MonoBehaviour
     private void OnEnable()
     {
         _arrowMeshMaterial = GetComponent<MeshRenderer>().sharedMaterial;
+
+        UpdateWindArrow();
+        UpdateGlobalVariables();
     }
 
     private void OnValidate()

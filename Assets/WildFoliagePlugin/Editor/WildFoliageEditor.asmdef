@@ -1,0 +1,18 @@
+{
+    "name": "WildFoliageEditor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:2fbe1f6707d0b794fa60b7fdad59581f"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

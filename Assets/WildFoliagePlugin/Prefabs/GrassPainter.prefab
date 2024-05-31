@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8731211943143099570
+--- !u!1 &1845325428588527856
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,8 +8,144 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8731211943143099569}
-  - component: {fileID: 8731211943143099568}
+  - component: {fileID: 5494200832522816717}
+  m_Layer: 0
+  m_Name: GrassPainter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5494200832522816717
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1845325428588527856}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8755213413653273671}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7557822570554711431
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8755213413653273671}
+  - component: {fileID: 1416769164925021211}
+  - component: {fileID: 7767561311524976897}
+  - component: {fileID: 1221259576129243884}
+  m_Layer: 0
+  m_Name: GrassPainter - Components
+  m_TagString: GrassPainter
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8755213413653273671
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7557822570554711431}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5494200832522816717}
+  - {fileID: 1689125761587631913}
+  m_Father: {fileID: 8731211943791936417}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1416769164925021211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7557822570554711431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b85bcb790ff1adc4dae4b2685d8e861d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alphamapWidth: 0
+  alphamapHeight: 0
+  terrainDimensions: {x: 0, y: 0, z: 0}
+  isUnityTerrain: 0
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 64
+  brushTexture: {fileID: 2800000, guid: bd2e48787aa2be845be6fdcdf070f4ce, type: 3}
+  brushMode: 0
+  brushSize: 50
+  brushStrength: 1
+  maskTexture: {fileID: 0}
+  realMaskTexture: {fileID: 0}
+  heightMap: {fileID: 0}
+  onInitFinished:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7767561311524976897}
+        m_TargetAssemblyTypeName: GrassMaskDisplayer, Assembly-CSharp
+        m_MethodName: InitDisplayer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onPaintingMask:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &7767561311524976897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7557822570554711431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8928926e7293ba4d980f65fa6dd9f91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1221259576129243884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7557822570554711431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99fcb201c67871442a98c9f1ed66d2ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  heightMap: {fileID: 0}
+--- !u!1 &8483987206894872429
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1689125761587631913}
+  - component: {fileID: 6066055345874286293}
   m_Layer: 0
   m_Name: Decal
   m_TagString: Untagged
@@ -17,28 +153,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8731211943143099569
+--- !u!4 &1689125761587631913
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8731211943143099570}
+  m_GameObject: {fileID: 8483987206894872429}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8731211943791936417}
+  m_Father: {fileID: 8755213413653273671}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
---- !u!114 &8731211943143099568
+--- !u!114 &6066055345874286293
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8731211943143099570}
+  m_GameObject: {fileID: 8483987206894872429}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0777d029ed3dffa4692f417d4aba19ca, type: 3}
@@ -65,12 +201,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8731211943791936417}
-  - component: {fileID: 8731211943791936416}
-  - component: {fileID: 8731211943791936431}
-  - component: {fileID: 2900954173595589832}
   m_Layer: 0
   m_Name: GrassPainter
-  m_TagString: GrassPainter
+  m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -88,75 +221,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8731211943143099569}
+  - {fileID: 8755213413653273671}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8731211943791936416
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8731211943791936418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b85bcb790ff1adc4dae4b2685d8e861d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  alphamapWidth: 0
-  alphamapHeight: 0
-  terrainDimensions: {x: 0, y: 0, z: 0}
-  isUnityTerrain: 0
-  hitMask:
-    serializedVersion: 2
-    m_Bits: 64
-  brushTexture: {fileID: 2800000, guid: bd2e48787aa2be845be6fdcdf070f4ce, type: 3}
-  brushMode: 0
-  brushSize: 50
-  brushStrength: 1
-  maskTexture: {fileID: 0}
-  realMaskTexture: {fileID: 0}
-  heightMap: {fileID: 0}
-  onInitFinished:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8731211943791936431}
-        m_TargetAssemblyTypeName: GrassMaskDisplayer, Assembly-CSharp
-        m_MethodName: InitDisplayer
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  onPaintingMask:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &8731211943791936431
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8731211943791936418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8928926e7293ba4d980f65fa6dd9f91, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &2900954173595589832
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8731211943791936418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99fcb201c67871442a98c9f1ed66d2ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  heightMap: {fileID: 0}
