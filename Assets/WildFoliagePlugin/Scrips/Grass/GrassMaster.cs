@@ -225,7 +225,56 @@ public class GrassMaster : MonoBehaviour
     // Making sure the garbage collector does its job and hot reload stuff
     void OnDisable()
     {
-        FreeQuadtreeNodes();
+        FreeQuadtreeBuffers();
+        FreeQuadtreeMemory();
+    }
+
+    private void FreeQuadtreeBuffers()
+    {
+        if (_grassQuadtrees != null)
+        {
+            for (int i = 0; i < _grassQuadtrees.Length; i++)
+            {
+                FreeAllChildrenBuffers(ref _grassQuadtrees[i]);
+            }
+        }
+    }
+
+    private void FreeAllChildrenBuffers(ref GrassQuadtree qt)
+    {
+        if (qt.subdivided)
+        {
+            FreeAllChildrenBuffers(ref qt.northEast);
+            FreeAllChildrenBuffers(ref qt.northWest);
+            FreeAllChildrenBuffers(ref qt.southEast);
+            FreeAllChildrenBuffers(ref qt.southWest);
+        }
+
+        qt.FreeNodeBuffers();
+    }
+
+    private void FreeQuadtreeMemory()
+    {
+        if (_grassQuadtrees != null)
+        {
+            for (int i = 0; i < _grassQuadtrees.Length; i++)
+            {
+                FreeAllChildrenMemory(ref _grassQuadtrees[i]);
+            }
+        }
+    }
+
+    private void FreeAllChildrenMemory(ref GrassQuadtree qt)
+    {
+        if (qt.subdivided)
+        {
+            FreeAllChildrenMemory(ref qt.northEast);
+            FreeAllChildrenMemory(ref qt.northWest);
+            FreeAllChildrenMemory(ref qt.southEast);
+            FreeAllChildrenMemory(ref qt.southWest);
+        }
+
+        qt.ClearMemory();
     }
     #endregion
 
@@ -352,53 +401,6 @@ public class GrassMaster : MonoBehaviour
     }
 
 
-    private void FreeQuadtreeNodes()
-    {
-        if (_grassQuadtrees != null)
-        {
-            for (int i = 0; i < _grassQuadtrees.Length; i++)
-            {
-                FreeAllChildren(ref _grassQuadtrees[i]);
-            }
-        }
-    }
-
-    private void FreeAllChildren(ref GrassQuadtree qt)
-    {
-        FreeQuadtreeNode(ref qt);
-
-        if (qt.subdivided)
-        {
-            FreeAllChildren(ref qt.northEast);
-            FreeAllChildren(ref qt.northWest);
-            FreeAllChildren(ref qt.southEast);
-            FreeAllChildren(ref qt.southWest);
-        }
-    }
-
-    private void FreeQuadtreeNode(ref GrassQuadtree qt)
-    {
-        if(qt.grassDataBuffer != null)
-            qt.grassDataBuffer.Release();
-        qt.grassDataBuffer = null;
-
-        if (qt.argsBuffer != null)
-            qt.argsBuffer.Release();
-        qt.argsBuffer = null;
-
-        if (qt.argsLODBuffer != null)
-            qt.argsLODBuffer.Release();
-        qt.argsLODBuffer = null;
-
-        if (qt.culledGrassDataBuffer != null)
-            qt.culledGrassDataBuffer.Release();
-        qt.culledGrassDataBuffer = null;
-
-        if (qt.culledGrassDataBufferLOD != null)
-            qt.culledGrassDataBufferLOD.Release();
-        qt.culledGrassDataBufferLOD = null;
-    }
-
     /// <summary>
     /// Set everything needed for the compute shader in charge of culling. The argument buffers are reset everyframe in order to 
     /// count how many instances are going to be rendered.
@@ -472,6 +474,7 @@ public class GrassMaster : MonoBehaviour
         if (_pastVisibleGrassQuadtrees.Count > 0)
         {
             List<GrassQuadtree> removedElements = _pastVisibleGrassQuadtrees.Except(_visibleGrassQuadtrees).ToList(); // Except is O(n + m)
+            
             for (int i = 1; i < removedElements.Count; i++)
             {
                 GrassQuadtree currentQT = removedElements[i];
@@ -479,11 +482,13 @@ public class GrassMaster : MonoBehaviour
                 if (currentQT.grassDataBuffer != null)
                 {
                     //Debug.Log("Freeing up quadtree at position: " + currentQT.boundary.p.x + ", " + currentQT.boundary.p.y);
-                    FreeQuadtreeNode(ref currentQT);
+                    currentQT.FreeNodeBuffers();
                 }
+                //currentQT = null;
             }
+            removedElements.Clear();
         }
-
+        _pastVisibleGrassQuadtrees.Clear();
         _pastVisibleGrassQuadtrees = new List<GrassQuadtree>(_visibleGrassQuadtrees);
         
         // RENDER GRASS IN NODES

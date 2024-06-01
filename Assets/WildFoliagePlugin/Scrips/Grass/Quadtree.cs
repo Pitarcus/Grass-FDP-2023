@@ -344,15 +344,56 @@ public class GrassQuadtree : IEquatable<GrassQuadtree>
         {
             this.Subdivide();
 
-            // Clean unused textures
-            //Texture2D.DestroyImmediate(grassMask);
-
             northEast.Build();
             northWest.Build();
             southEast.Build();
             southWest.Build();
+
+            
         }
     }
+
+    /// <summary>
+    /// Clear textures references and values to be clear of any memory leaks.
+    /// </summary>
+    public void ClearMemory()
+    {
+        if (currentDepth == 0)
+        {
+            return;
+        }
+
+        // Clean unused textures
+        Texture2D.DestroyImmediate(grassMask);
+        grassMask = null;
+
+        Texture2D.DestroyImmediate(heightMap);
+        heightMap = null;
+    }
+
+    public void FreeNodeBuffers()
+    {
+        if (grassDataBuffer != null)
+            grassDataBuffer.Release();
+        grassDataBuffer = null;
+
+        if (argsBuffer != null)
+            argsBuffer.Release();
+        argsBuffer = null;
+
+        if (argsLODBuffer != null)
+            argsLODBuffer.Release();
+        argsLODBuffer = null;
+
+        if (culledGrassDataBuffer != null)
+            culledGrassDataBuffer.Release();
+        culledGrassDataBuffer = null;
+
+        if (culledGrassDataBufferLOD != null)
+            culledGrassDataBufferLOD.Release();
+        culledGrassDataBufferLOD = null;
+    }
+
 
     // Test the frustum against a quadtree, only visible quadtrees with grass will appear
     public bool TestFrustum(Vector3 cameraPosition, float leafCutoffDistance, float quadtreeCutoffDistance, Plane[] frustum, ref List<GrassQuadtree> validQuadtrees)

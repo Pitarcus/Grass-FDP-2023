@@ -6,7 +6,7 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class GrassMaskDisplayer : MonoBehaviour
 {
-    private TerrainPainterComponent textureObject;   // Object from which we will take the texture we want to display
+    private TerrainPainterComponent painter;   // Object from which we will take the texture we want to display
     private Texture2D texture;  // Actual mask texture
 
     private DecalProjector decalProjector;   // Decal object that should be updated
@@ -17,12 +17,12 @@ public class GrassMaskDisplayer : MonoBehaviour
     {
         if(Application.isPlaying) { return; }
 
-        if (textureObject.GetMaskDisplayTexture() != null)
+        if (painter.GetMaskDisplayTexture() != null)
         {
-            texture = textureObject.GetMaskDisplayTexture();
+            texture = painter.GetMaskDisplayTexture();
 
-            decalProjector.transform.localPosition = new Vector3(0, textureObject.terrainDimensions.y / 2, 0);
-            decalProjector.size = new Vector3(textureObject.terrainDimensions.x, textureObject.terrainDimensions.z, textureObject.terrainDimensions.y + 1);
+            decalProjector.transform.localPosition = new Vector3(0, painter.terrainDimensions.y / 2, 0);
+            decalProjector.size = new Vector3(painter.terrainDimensions.x, painter.terrainDimensions.z, painter.terrainDimensions.y + 1);
             decalMaterial.SetTexture("Base_Map", texture);
         }
     }
@@ -34,13 +34,13 @@ public class GrassMaskDisplayer : MonoBehaviour
         decalProjector = child.GetComponent<DecalProjector>();
         decalMaterial = decalProjector.material;
 
-        if (textureObject == null)
+        if (painter == null)
         {
             // Object with the texture
-            textureObject = GetComponent<TerrainPainterComponent>();
+            painter = GetComponent<TerrainPainterComponent>();
 
             // Set up displayer
-            textureObject.onInitFinished.AddListener(InitDisplayer);
+            painter.onInitFinished.AddListener(InitDisplayer);
         }
 
         InitDisplayer();
@@ -52,13 +52,13 @@ public class GrassMaskDisplayer : MonoBehaviour
     private void OnDisable()
     {
         Selection.selectionChanged -= ToggleDecal;
-        textureObject.onInitFinished.RemoveListener(InitDisplayer);
+        painter.onInitFinished.RemoveListener(InitDisplayer);
     }
 
     private void OnDestroy()
     {
         Selection.selectionChanged -= ToggleDecal;
-        textureObject.onInitFinished.RemoveListener(InitDisplayer);
+        painter.onInitFinished.RemoveListener(InitDisplayer);
     }
 
     void ToggleDecal()
