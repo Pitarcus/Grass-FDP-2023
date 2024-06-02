@@ -167,11 +167,9 @@ public class GrassSettingsManager : MonoBehaviour
 
     public void OnColorChanged(Color color)
     {
-        Debug.Log("Color changed");
         if (disableColorChange)
         {
             disableColorChange = false;
-            Debug.Log("But not updated grass");
             return;
         }
         switch (currentColorType)
