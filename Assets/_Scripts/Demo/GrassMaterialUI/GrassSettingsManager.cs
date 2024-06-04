@@ -70,10 +70,14 @@ public class GrassSettingsManager : MonoBehaviour
     }
     private void OnDisable()
     {
+        SetButtonsListeners(false);
+
         densityDropdown.onValueChanged.RemoveListener(OnDensityChanged);
         scaleSlider.onValueChanged.RemoveListener(OnScaleChanged);
         scaleRandomSlider.onValueChanged.RemoveListener(OnScaleRandomChanged);
         bendSlider.onValueChanged.RemoveListener(OnBendChanged);
+
+        colorPicker.onValueChanged.RemoveListener(OnColorChanged);
 
         windToggle.onValueChanged.RemoveListener(OnWindToggle);
         strengthSlider.onValueChanged.RemoveListener(OnStrengthChanged);
@@ -245,6 +249,7 @@ public class GrassSettingsManager : MonoBehaviour
 
     public void OnTimeToggleChanged(bool value)
     {
+        Debug.Log("Changing time run to: " + value);
         lightingManager.runCycle = value;
     }
 

@@ -175,8 +175,6 @@ public class GrassMaster : MonoBehaviour
 
             _grassQuadtrees[i].SetRootHeightmap(heightMaps[i]);
             _grassQuadtrees[i].Build();
-
-            Debug.Log(heightMaps[i]);
         }
 
 

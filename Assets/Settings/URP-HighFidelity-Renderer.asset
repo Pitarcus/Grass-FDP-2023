@@ -17,13 +17,13 @@ MonoBehaviour:
     AOMethod: 1
     Downsample: 1
     AfterOpaque: 1
-    Source: 1
+    Source: 0
     NormalSamples: 1
     Intensity: 0.5
     DirectLightingStrength: 0.25
-    Radius: 1
-    Samples: 2
-    BlurQuality: 2
+    Radius: 0.2
+    Samples: 1
+    BlurQuality: 1
     Falloff: 100
     SampleCount: -1
   m_BlueNoise256Textures:

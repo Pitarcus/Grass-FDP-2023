@@ -11,6 +11,7 @@ public class CinemachineMenuManager : MonoBehaviour
 
     private int _currentCameraIndex;
 
+    [Range(0, 20)]
     [SerializeField] int _cameraIndex;
 
     private static CinemachineMenuManager _instance;

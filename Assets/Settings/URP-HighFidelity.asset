@@ -50,7 +50,7 @@ MonoBehaviour:
   m_ShadowCascadeCount: 4
   m_Cascade2Split: 0.25
   m_Cascade3Split: {x: 0.1, y: 0.3}
-  m_Cascade4Split: {x: 0.096, y: 0.26866665, z: 0.46700004}
+  m_Cascade4Split: {x: 0.06497504, y: 0.21223548, z: 0.43597502}
   m_CascadeBorder: 0.16260163
   m_ShadowDepthBias: 0
   m_ShadowNormalBias: 0
@@ -89,13 +89,13 @@ MonoBehaviour:
   m_PrefilterXRKeywords: 1
   m_PrefilteringModeForwardPlus: 0
   m_PrefilteringModeDeferredRendering: 0
-  m_PrefilteringModeScreenSpaceOcclusion: 1
+  m_PrefilteringModeScreenSpaceOcclusion: 0
   m_PrefilterDebugKeywords: 1
   m_PrefilterWriteRenderingLayers: 1
   m_PrefilterHDROutput: 1
-  m_PrefilterSSAODepthNormals: 0
+  m_PrefilterSSAODepthNormals: 1
   m_PrefilterSSAOSourceDepthLow: 1
-  m_PrefilterSSAOSourceDepthMedium: 1
+  m_PrefilterSSAOSourceDepthMedium: 0
   m_PrefilterSSAOSourceDepthHigh: 1
   m_PrefilterSSAOInterleaved: 0
   m_PrefilterSSAOBlueNoise: 1
